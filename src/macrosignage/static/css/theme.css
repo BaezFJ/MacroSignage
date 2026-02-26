@@ -1,0 +1,283 @@
+:root {
+  /* ── Source color (OKLCH) ── */
+  --md-source: #cba6f7;
+
+  /* ── Primary — chroma ×1.000, hue +0 ── */
+  --md-ref-palette-primary0: #000000;
+  --md-ref-palette-primary10: oklch(from var(--md-source) 0.2241 calc(c * 0.455) h);
+  --md-ref-palette-primary20: oklch(from var(--md-source) 0.3103 calc(c * 0.641) h);
+  --md-ref-palette-primary25: oklch(from var(--md-source) 0.3534 calc(c * 0.729) h);
+  --md-ref-palette-primary30: oklch(from var(--md-source) 0.3966 calc(c * 0.817) h);
+  --md-ref-palette-primary35: oklch(from var(--md-source) 0.4397 calc(c * 0.914) h);
+  --md-ref-palette-primary40: oklch(from var(--md-source) 0.4828 c h);
+  --md-ref-palette-primary50: oklch(from var(--md-source) 0.5690 calc(c * 1.140) h);
+  --md-ref-palette-primary60: oklch(from var(--md-source) 0.6552 calc(c * 1.121) h);
+  --md-ref-palette-primary70: oklch(from var(--md-source) 0.7414 calc(c * 1.102) h);
+  --md-ref-palette-primary80: oklch(from var(--md-source) 0.8276 calc(c * 0.861) h);
+  --md-ref-palette-primary90: oklch(from var(--md-source) 0.9138 calc(c * 0.405) h);
+  --md-ref-palette-primary95: oklch(from var(--md-source) 0.9569 calc(c * 0.197) h);
+  --md-ref-palette-primary98: oklch(from var(--md-source) 0.9828 calc(c * 0.075) h);
+  --md-ref-palette-primary99: oklch(from var(--md-source) 0.9914 calc(c * 0.036) h);
+  --md-ref-palette-primary100: #ffffff;
+
+  /* ── Secondary — chroma ×0.283, hue +7 ── */
+  --md-ref-palette-secondary0: #000000;
+  --md-ref-palette-secondary10: oklch(from var(--md-source) 0.2241 calc(c * 0.129) calc(h + 7));
+  --md-ref-palette-secondary20: oklch(from var(--md-source) 0.3103 calc(c * 0.181) calc(h + 7));
+  --md-ref-palette-secondary25: oklch(from var(--md-source) 0.3534 calc(c * 0.206) calc(h + 7));
+  --md-ref-palette-secondary30: oklch(from var(--md-source) 0.3966 calc(c * 0.231) calc(h + 7));
+  --md-ref-palette-secondary35: oklch(from var(--md-source) 0.4397 calc(c * 0.259) calc(h + 7));
+  --md-ref-palette-secondary40: oklch(from var(--md-source) 0.4828 calc(c * 0.283) calc(h + 7));
+  --md-ref-palette-secondary50: oklch(from var(--md-source) 0.5690 calc(c * 0.323) calc(h + 7));
+  --md-ref-palette-secondary60: oklch(from var(--md-source) 0.6552 calc(c * 0.317) calc(h + 7));
+  --md-ref-palette-secondary70: oklch(from var(--md-source) 0.7414 calc(c * 0.312) calc(h + 7));
+  --md-ref-palette-secondary80: oklch(from var(--md-source) 0.8276 calc(c * 0.244) calc(h + 7));
+  --md-ref-palette-secondary90: oklch(from var(--md-source) 0.9138 calc(c * 0.115) calc(h + 7));
+  --md-ref-palette-secondary95: oklch(from var(--md-source) 0.9569 calc(c * 0.056) calc(h + 7));
+  --md-ref-palette-secondary98: oklch(from var(--md-source) 0.9828 calc(c * 0.021) calc(h + 7));
+  --md-ref-palette-secondary99: oklch(from var(--md-source) 0.9914 calc(c * 0.010) calc(h + 7));
+  --md-ref-palette-secondary100: #ffffff;
+
+  /* ── Tertiary — chroma ×0.520, hue +62 ── */
+  --md-ref-palette-tertiary0: #000000;
+  --md-ref-palette-tertiary10: oklch(from var(--md-source) 0.2241 calc(c * 0.237) calc(h + 62));
+  --md-ref-palette-tertiary20: oklch(from var(--md-source) 0.3103 calc(c * 0.333) calc(h + 62));
+  --md-ref-palette-tertiary25: oklch(from var(--md-source) 0.3534 calc(c * 0.379) calc(h + 62));
+  --md-ref-palette-tertiary30: oklch(from var(--md-source) 0.3966 calc(c * 0.425) calc(h + 62));
+  --md-ref-palette-tertiary35: oklch(from var(--md-source) 0.4397 calc(c * 0.475) calc(h + 62));
+  --md-ref-palette-tertiary40: oklch(from var(--md-source) 0.4828 calc(c * 0.520) calc(h + 62));
+  --md-ref-palette-tertiary50: oklch(from var(--md-source) 0.5690 calc(c * 0.593) calc(h + 62));
+  --md-ref-palette-tertiary60: oklch(from var(--md-source) 0.6552 calc(c * 0.583) calc(h + 62));
+  --md-ref-palette-tertiary70: oklch(from var(--md-source) 0.7414 calc(c * 0.573) calc(h + 62));
+  --md-ref-palette-tertiary80: oklch(from var(--md-source) 0.8276 calc(c * 0.448) calc(h + 62));
+  --md-ref-palette-tertiary90: oklch(from var(--md-source) 0.9138 calc(c * 0.211) calc(h + 62));
+  --md-ref-palette-tertiary95: oklch(from var(--md-source) 0.9569 calc(c * 0.102) calc(h + 62));
+  --md-ref-palette-tertiary98: oklch(from var(--md-source) 0.9828 calc(c * 0.039) calc(h + 62));
+  --md-ref-palette-tertiary99: oklch(from var(--md-source) 0.9914 calc(c * 0.019) calc(h + 62));
+  --md-ref-palette-tertiary100: #ffffff;
+
+  /* ── Neutral — chroma ×0.044, hue +10 ── */
+  --md-ref-palette-neutral0: #000000;
+  --md-ref-palette-neutral10: oklch(from var(--md-source) 0.2241 calc(c * 0.020) calc(h + 10));
+  --md-ref-palette-neutral20: oklch(from var(--md-source) 0.3103 calc(c * 0.028) calc(h + 10));
+  --md-ref-palette-neutral25: oklch(from var(--md-source) 0.3534 calc(c * 0.032) calc(h + 10));
+  --md-ref-palette-neutral30: oklch(from var(--md-source) 0.3966 calc(c * 0.036) calc(h + 10));
+  --md-ref-palette-neutral35: oklch(from var(--md-source) 0.4397 calc(c * 0.040) calc(h + 10));
+  --md-ref-palette-neutral40: oklch(from var(--md-source) 0.4828 calc(c * 0.044) calc(h + 10));
+  --md-ref-palette-neutral50: oklch(from var(--md-source) 0.5690 calc(c * 0.050) calc(h + 10));
+  --md-ref-palette-neutral60: oklch(from var(--md-source) 0.6552 calc(c * 0.049) calc(h + 10));
+  --md-ref-palette-neutral70: oklch(from var(--md-source) 0.7414 calc(c * 0.048) calc(h + 10));
+  --md-ref-palette-neutral80: oklch(from var(--md-source) 0.8276 calc(c * 0.038) calc(h + 10));
+  --md-ref-palette-neutral90: oklch(from var(--md-source) 0.9138 calc(c * 0.018) calc(h + 10));
+  --md-ref-palette-neutral95: oklch(from var(--md-source) 0.9569 calc(c * 0.009) calc(h + 10));
+  --md-ref-palette-neutral98: oklch(from var(--md-source) 0.9828 calc(c * 0.003) calc(h + 10));
+  --md-ref-palette-neutral99: oklch(from var(--md-source) 0.9914 calc(c * 0.002) calc(h + 10));
+  --md-ref-palette-neutral100: #ffffff;
+
+  /* ── Neutral-variant — chroma ×0.111, hue +10 ── */
+  --md-ref-palette-neutral-variant0: #000000;
+  --md-ref-palette-neutral-variant10: oklch(from var(--md-source) 0.2241 calc(c * 0.051) calc(h + 10));
+  --md-ref-palette-neutral-variant20: oklch(from var(--md-source) 0.3103 calc(c * 0.071) calc(h + 10));
+  --md-ref-palette-neutral-variant25: oklch(from var(--md-source) 0.3534 calc(c * 0.081) calc(h + 10));
+  --md-ref-palette-neutral-variant30: oklch(from var(--md-source) 0.3966 calc(c * 0.091) calc(h + 10));
+  --md-ref-palette-neutral-variant35: oklch(from var(--md-source) 0.4397 calc(c * 0.101) calc(h + 10));
+  --md-ref-palette-neutral-variant40: oklch(from var(--md-source) 0.4828 calc(c * 0.111) calc(h + 10));
+  --md-ref-palette-neutral-variant50: oklch(from var(--md-source) 0.5690 calc(c * 0.127) calc(h + 10));
+  --md-ref-palette-neutral-variant60: oklch(from var(--md-source) 0.6552 calc(c * 0.124) calc(h + 10));
+  --md-ref-palette-neutral-variant70: oklch(from var(--md-source) 0.7414 calc(c * 0.122) calc(h + 10));
+  --md-ref-palette-neutral-variant80: oklch(from var(--md-source) 0.8276 calc(c * 0.096) calc(h + 10));
+  --md-ref-palette-neutral-variant90: oklch(from var(--md-source) 0.9138 calc(c * 0.045) calc(h + 10));
+  --md-ref-palette-neutral-variant95: oklch(from var(--md-source) 0.9569 calc(c * 0.022) calc(h + 10));
+  --md-ref-palette-neutral-variant98: oklch(from var(--md-source) 0.9828 calc(c * 0.008) calc(h + 10));
+  --md-ref-palette-neutral-variant99: oklch(from var(--md-source) 0.9914 calc(c * 0.004) calc(h + 10));
+  --md-ref-palette-neutral-variant100: #ffffff;
+
+  /* ── Error — hardcoded oklch (independent of source) ── */
+  --md-ref-palette-error0: #000000;
+  --md-ref-palette-error10: oklch(0.2241 0.085 27);
+  --md-ref-palette-error20: oklch(0.3103 0.118 27);
+  --md-ref-palette-error25: oklch(0.3534 0.134 27);
+  --md-ref-palette-error30: oklch(0.3966 0.150 27);
+  --md-ref-palette-error35: oklch(0.4397 0.167 27);
+  --md-ref-palette-error40: oklch(0.4828 0.181 27);
+  --md-ref-palette-error50: oklch(0.5690 0.208 27);
+  --md-ref-palette-error60: oklch(0.6552 0.204 27);
+  --md-ref-palette-error70: oklch(0.7414 0.200 27);
+  --md-ref-palette-error80: oklch(0.8276 0.156 27);
+  --md-ref-palette-error90: oklch(0.9138 0.074 27);
+  --md-ref-palette-error95: oklch(0.9569 0.036 27);
+  --md-ref-palette-error98: oklch(0.9828 0.014 27);
+  --md-ref-palette-error99: oklch(0.9914 0.007 27);
+  --md-ref-palette-error100: #ffffff;
+
+  /* ── Light system colors ── */
+  --md-sys-color-primary-light: var(--md-ref-palette-primary40);
+  --md-sys-color-on-primary-light: var(--md-ref-palette-primary100);
+  --md-sys-color-primary-container-light: var(--md-ref-palette-primary90);
+  --md-sys-color-on-primary-container-light: var(--md-ref-palette-primary10);
+  --md-sys-color-secondary-light: var(--md-ref-palette-secondary40);
+  --md-sys-color-on-secondary-light: var(--md-ref-palette-secondary100);
+  --md-sys-color-secondary-container-light: var(--md-ref-palette-secondary90);
+  --md-sys-color-on-secondary-container-light: var(--md-ref-palette-secondary10);
+  --md-sys-color-tertiary-light: var(--md-ref-palette-tertiary40);
+  --md-sys-color-on-tertiary-light: var(--md-ref-palette-tertiary100);
+  --md-sys-color-tertiary-container-light: var(--md-ref-palette-tertiary90);
+  --md-sys-color-on-tertiary-container-light: var(--md-ref-palette-tertiary10);
+  --md-sys-color-error-light: var(--md-ref-palette-error40);
+  --md-sys-color-error-container-light: var(--md-ref-palette-error90);
+  --md-sys-color-on-error-light: var(--md-ref-palette-error100);
+  --md-sys-color-on-error-container-light: var(--md-ref-palette-error10);
+  --md-sys-color-background-light: var(--md-ref-palette-neutral99);
+  --md-sys-color-on-background-light: var(--md-ref-palette-neutral10);
+  --md-sys-color-surface-light: var(--md-ref-palette-neutral99);
+  --md-sys-color-on-surface-light: var(--md-ref-palette-neutral10);
+  --md-sys-color-surface-variant-light: var(--md-ref-palette-neutral-variant90);
+  --md-sys-color-on-surface-variant-light: var(--md-ref-palette-neutral-variant30);
+  --md-sys-color-outline-light: var(--md-ref-palette-neutral-variant50);
+  --md-sys-color-inverse-on-surface-light: var(--md-ref-palette-neutral95);
+  --md-sys-color-inverse-surface-light: var(--md-ref-palette-neutral20);
+  --md-sys-color-inverse-primary-light: var(--md-ref-palette-primary80);
+  --md-sys-color-shadow-light: var(--md-ref-palette-neutral0);
+  --md-sys-color-surface-tint-light: var(--md-ref-palette-neutral99);
+  --md-sys-color-outline-variant-light: var(--md-ref-palette-neutral-variant80);
+  --md-sys-color-scrim-light: var(--md-ref-palette-neutral0);
+
+  /* ── Dark system colors ── */
+  --md-sys-color-primary-dark: var(--md-ref-palette-primary80);
+  --md-sys-color-on-primary-dark: var(--md-ref-palette-primary20);
+  --md-sys-color-primary-container-dark: var(--md-ref-palette-primary30);
+  --md-sys-color-on-primary-container-dark: var(--md-ref-palette-primary90);
+  --md-sys-color-secondary-dark: var(--md-ref-palette-secondary80);
+  --md-sys-color-on-secondary-dark: var(--md-ref-palette-secondary20);
+  --md-sys-color-secondary-container-dark: var(--md-ref-palette-secondary30);
+  --md-sys-color-on-secondary-container-dark: var(--md-ref-palette-secondary90);
+  --md-sys-color-tertiary-dark: var(--md-ref-palette-tertiary80);
+  --md-sys-color-on-tertiary-dark: var(--md-ref-palette-tertiary20);
+  --md-sys-color-tertiary-container-dark: var(--md-ref-palette-tertiary30);
+  --md-sys-color-on-tertiary-container-dark: var(--md-ref-palette-tertiary90);
+  --md-sys-color-error-dark: var(--md-ref-palette-error80);
+  --md-sys-color-error-container-dark: var(--md-ref-palette-error30);
+  --md-sys-color-on-error-dark: var(--md-ref-palette-error20);
+  --md-sys-color-on-error-container-dark: var(--md-ref-palette-error80);
+  --md-sys-color-background-dark: var(--md-ref-palette-neutral10);
+  --md-sys-color-on-background-dark: var(--md-ref-palette-neutral90);
+  --md-sys-color-surface-dark: var(--md-ref-palette-neutral10);
+  --md-sys-color-on-surface-dark: var(--md-ref-palette-neutral90);
+  --md-sys-color-surface-variant-dark: var(--md-ref-palette-neutral-variant30);
+  --md-sys-color-on-surface-variant-dark: var(--md-ref-palette-neutral-variant80);
+  --md-sys-color-outline-dark: var(--md-ref-palette-neutral-variant60);
+  --md-sys-color-inverse-on-surface-dark: var(--md-ref-palette-neutral20);
+  --md-sys-color-inverse-surface-dark: var(--md-ref-palette-neutral90);
+  --md-sys-color-inverse-primary-dark: var(--md-ref-palette-primary40);
+  --md-sys-color-shadow-dark: var(--md-ref-palette-neutral0);
+  --md-sys-color-surface-tint-dark: var(--md-ref-palette-neutral10);
+  --md-sys-color-outline-variant-dark: var(--md-ref-palette-neutral-variant30);
+  --md-sys-color-scrim-dark: var(--md-ref-palette-neutral0);
+
+  /* ── Typography ── */
+  /* display-large */
+  --md-sys-typescale-display-large-font-family-name: Roboto;
+  --md-sys-typescale-display-large-font-family-style: Regular;
+  --md-sys-typescale-display-large-font-weight: 400px;
+  --md-sys-typescale-display-large-font-size: 57px;
+  --md-sys-typescale-display-large-line-height: 64px;
+  --md-sys-typescale-display-large-letter-spacing: -0.25px;
+  /* display-medium */
+  --md-sys-typescale-display-medium-font-family-name: Roboto;
+  --md-sys-typescale-display-medium-font-family-style: Regular;
+  --md-sys-typescale-display-medium-font-weight: 400px;
+  --md-sys-typescale-display-medium-font-size: 45px;
+  --md-sys-typescale-display-medium-line-height: 52px;
+  --md-sys-typescale-display-medium-letter-spacing: 0px;
+  /* display-small */
+  --md-sys-typescale-display-small-font-family-name: Roboto;
+  --md-sys-typescale-display-small-font-family-style: Regular;
+  --md-sys-typescale-display-small-font-weight: 400px;
+  --md-sys-typescale-display-small-font-size: 36px;
+  --md-sys-typescale-display-small-line-height: 44px;
+  --md-sys-typescale-display-small-letter-spacing: 0px;
+  /* headline-large */
+  --md-sys-typescale-headline-large-font-family-name: Roboto;
+  --md-sys-typescale-headline-large-font-family-style: Regular;
+  --md-sys-typescale-headline-large-font-weight: 400px;
+  --md-sys-typescale-headline-large-font-size: 32px;
+  --md-sys-typescale-headline-large-line-height: 40px;
+  --md-sys-typescale-headline-large-letter-spacing: 0px;
+  /* headline-medium */
+  --md-sys-typescale-headline-medium-font-family-name: Roboto;
+  --md-sys-typescale-headline-medium-font-family-style: Regular;
+  --md-sys-typescale-headline-medium-font-weight: 400px;
+  --md-sys-typescale-headline-medium-font-size: 28px;
+  --md-sys-typescale-headline-medium-line-height: 36px;
+  --md-sys-typescale-headline-medium-letter-spacing: 0px;
+  /* headline-small */
+  --md-sys-typescale-headline-small-font-family-name: Roboto;
+  --md-sys-typescale-headline-small-font-family-style: Regular;
+  --md-sys-typescale-headline-small-font-weight: 400px;
+  --md-sys-typescale-headline-small-font-size: 24px;
+  --md-sys-typescale-headline-small-line-height: 32px;
+  --md-sys-typescale-headline-small-letter-spacing: 0px;
+  /* body-large */
+  --md-sys-typescale-body-large-font-family-name: Roboto;
+  --md-sys-typescale-body-large-font-family-style: Regular;
+  --md-sys-typescale-body-large-font-weight: 400px;
+  --md-sys-typescale-body-large-font-size: 16px;
+  --md-sys-typescale-body-large-line-height: 24px;
+  --md-sys-typescale-body-large-letter-spacing: 0.50px;
+  /* body-medium */
+  --md-sys-typescale-body-medium-font-family-name: Roboto;
+  --md-sys-typescale-body-medium-font-family-style: Regular;
+  --md-sys-typescale-body-medium-font-weight: 400px;
+  --md-sys-typescale-body-medium-font-size: 14px;
+  --md-sys-typescale-body-medium-line-height: 20px;
+  --md-sys-typescale-body-medium-letter-spacing: 0.25px;
+  /* body-small */
+  --md-sys-typescale-body-small-font-family-name: Roboto;
+  --md-sys-typescale-body-small-font-family-style: Regular;
+  --md-sys-typescale-body-small-font-weight: 400px;
+  --md-sys-typescale-body-small-font-size: 12px;
+  --md-sys-typescale-body-small-line-height: 16px;
+  --md-sys-typescale-body-small-letter-spacing: 0.40px;
+  /* label-large */
+  --md-sys-typescale-label-large-font-family-name: Roboto;
+  --md-sys-typescale-label-large-font-family-style: Medium;
+  --md-sys-typescale-label-large-font-weight: 500px;
+  --md-sys-typescale-label-large-font-size: 14px;
+  --md-sys-typescale-label-large-line-height: 20px;
+  --md-sys-typescale-label-large-letter-spacing: 0.10px;
+  /* label-medium */
+  --md-sys-typescale-label-medium-font-family-name: Roboto;
+  --md-sys-typescale-label-medium-font-family-style: Medium;
+  --md-sys-typescale-label-medium-font-weight: 500px;
+  --md-sys-typescale-label-medium-font-size: 12px;
+  --md-sys-typescale-label-medium-line-height: 16px;
+  --md-sys-typescale-label-medium-letter-spacing: 0.50px;
+  /* label-small */
+  --md-sys-typescale-label-small-font-family-name: Roboto;
+  --md-sys-typescale-label-small-font-family-style: Medium;
+  --md-sys-typescale-label-small-font-weight: 500px;
+  --md-sys-typescale-label-small-font-size: 11px;
+  --md-sys-typescale-label-small-line-height: 16px;
+  --md-sys-typescale-label-small-letter-spacing: 0.50px;
+  /* title-large */
+  --md-sys-typescale-title-large-font-family-name: Roboto;
+  --md-sys-typescale-title-large-font-family-style: Regular;
+  --md-sys-typescale-title-large-font-weight: 400px;
+  --md-sys-typescale-title-large-font-size: 22px;
+  --md-sys-typescale-title-large-line-height: 28px;
+  --md-sys-typescale-title-large-letter-spacing: 0px;
+  /* title-medium */
+  --md-sys-typescale-title-medium-font-family-name: Roboto;
+  --md-sys-typescale-title-medium-font-family-style: Medium;
+  --md-sys-typescale-title-medium-font-weight: 500px;
+  --md-sys-typescale-title-medium-font-size: 16px;
+  --md-sys-typescale-title-medium-line-height: 24px;
+  --md-sys-typescale-title-medium-letter-spacing: 0.15px;
+  /* title-small */
+  --md-sys-typescale-title-small-font-family-name: Roboto;
+  --md-sys-typescale-title-small-font-family-style: Medium;
+  --md-sys-typescale-title-small-font-weight: 500px;
+  --md-sys-typescale-title-small-font-size: 14px;
+  --md-sys-typescale-title-small-line-height: 20px;
+  --md-sys-typescale-title-small-letter-spacing: 0.10px;
+}
