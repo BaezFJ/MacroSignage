@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "MacroSignage"
-version = "0.1.0"
+version = "0.2.0"
 description = "Web-based Digital Signage System"
 readme = "README.md"
 license = "MIT"
@@ -34,6 +34,8 @@ dependencies = [
     "python-slugify>=8.0.4",
     "email-validator>=2.3.0",
     "python-usernames>=1.1.0",
+    "flask-migrate>=4.1.0",
+    "pathlib>=1.0.1",
 ]
 
 [project.optional-dependencies]
