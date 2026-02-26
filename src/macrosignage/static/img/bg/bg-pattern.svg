@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <defs>
+    <!-- Pattern uses a raster tile; this is the most practical way to "SVG-ify" photographic textures -->
+    <pattern id="bg" patternUnits="userSpaceOnUse" width="512" height="512">
+      <image href="bg-tile-1024.webp" width="512" height="512" />
+    </pattern>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#bg)"/>
+</svg>
