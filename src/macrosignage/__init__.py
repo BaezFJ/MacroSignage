@@ -48,14 +48,6 @@ def macro_signage_app(instance_path=None):
     # Load instance config overriding default config
     app.config.from_pyfile(application_instance_config_file, silent=True)
 
-    @app.before_first_request
-    def before_first_request():
-        """
-        Execute before first request.
-        """
-        from .extensions import db
-        db.create_all()
-
     @app.route('/uploads/<path:filename>')
     def download_file(filename):
         """
@@ -80,5 +72,9 @@ def macro_signage_app(instance_path=None):
     # Register extensions
     for extension in extensions:
         extension.init_app(app)
+
+    with app.app_context():
+        from .extensions import db
+        db.create_all()
 
     return app

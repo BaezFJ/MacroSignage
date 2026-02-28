@@ -12,11 +12,18 @@ from .forms import SlideForm
 core = Blueprint('core', __name__, template_folder='templates')
 
 
-@core.before_app_first_request
-def before_app_first_request():
+_initialized = False
+
+
+@core.before_app_request
+def ensure_default_displays():
     """
-    Execute before first request.
+    Ensure default displays exist (runs once on the first request).
     """
+    global _initialized
+    if _initialized:
+        return
+    _initialized = True
     d = Display.query.filter_by(name='Default').first()
     if d is None:
         Display.insert_default_displays()
