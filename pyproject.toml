@@ -9,10 +9,13 @@ authors = [
     { name = "Javier Baez", email = "baezdevs@gmail.com" },
 ]
 classifiers = [
-    "Development Status :: 1 - Planning",
+    "Development Status :: 3 - Alpha",
     "Environment :: Web Environment",
     "Framework :: Flask",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
@@ -26,6 +29,9 @@ dependencies = [
     "python-usernames>=1.0",
     "email-validator>=2.0",
 ]
+
+[project.scripts]
+macrosignage = "macrosignage.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/baezfb/MacroSignage"
@@ -41,5 +47,11 @@ source = "vcs"
 [tool.hatch.build.targets.wheel]
 packages = ["src/macrosignage"]
 
-[tool.hatch.build.targets.wheel.shared-data]
-"src/wsgi.py" = "wsgi.py"
+[tool.hatch.build.targets.sdist]
+exclude = [
+    "/.claude/",
+    "/.gitignore",
+    "/.idea/",
+    "/uv.lock",
+    "/src/wsgi.py",
+]
