@@ -8,6 +8,26 @@
   let activeIndex = 0;
   let timerId = null;
   let sliderTimerId = null;
+  let lastContentVersion = null;
+
+  const reloadForContentUpdate = (event) => {
+    try {
+      const payload = JSON.parse(event.data || "{}");
+      if (payload.contentVersion && payload.contentVersion !== lastContentVersion) {
+        if (lastContentVersion !== null) {
+          window.location.reload();
+        }
+        lastContentVersion = payload.contentVersion;
+      }
+    } catch (_error) {
+      window.location.reload();
+    }
+  };
+
+  if (player.dataset.eventsUrl && "EventSource" in window) {
+    const events = new EventSource(player.dataset.eventsUrl);
+    events.addEventListener("content.updated", reloadForContentUpdate);
+  }
 
   const stopVideo = (slide) => {
     const video = slide.querySelector("video");

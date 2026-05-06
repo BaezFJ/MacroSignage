@@ -4,16 +4,32 @@ import os
 from os import PathLike
 
 from dotenv import load_dotenv
-from flask import Flask, redirect, request, url_for
+from flask import Flask, abort, redirect, request, url_for
 from flask_login import current_user
 from sqlalchemy import inspect, text
 
 from .extensions import csrf, db, login_manager, migrate
+from .features.auth.permissions import current_user_can, required_admin_role
 from .web.routes import web_bp
 from .features import features_bp
 
 
-ADMIN_ENDPOINT_PREFIXES = ("admin.", "admin_displays.", "admin_media.", "admin_schedules.", "admin_users.")
+ADMIN_ENDPOINT_PREFIXES = (
+    "admin.",
+    "admin_displays.",
+    "admin_media.",
+    "admin_schedules.",
+    "admin_users.",
+    "admin_tokens.",
+)
+MUTATING_CONTENT_ENDPOINT_PREFIXES = (
+    "admin.",
+    "admin_displays.",
+    "admin_media.",
+    "admin_schedules.",
+    "admin_tokens.",
+    "api.",
+)
 
 
 def load_environment(env_file: str | PathLike[str] | None = None) -> None:
@@ -104,8 +120,34 @@ def create_app(config: dict | None = None, env_file: str | PathLike[str] | None 
     @app.before_request
     def require_admin_login():
         endpoint = request.endpoint or ""
-        if endpoint.startswith(ADMIN_ENDPOINT_PREFIXES) and not current_user.is_authenticated:
-            return redirect(url_for("auth.get_login", next=request.full_path.rstrip("?")))
+        if endpoint.startswith(ADMIN_ENDPOINT_PREFIXES):
+            if not current_user.is_authenticated:
+                return redirect(url_for("auth.get_login", next=request.full_path.rstrip("?")))
+            required_role = required_admin_role(endpoint, request.method)
+            if not current_user_can(required_role):
+                abort(403)
+
+    @app.context_processor
+    def template_permissions():
+        return {
+            "can_admin": lambda: current_user_can("ADMIN"),
+            "can_edit": lambda: current_user_can("EDITOR"),
+            "can_view": lambda: current_user_can("VIEWER"),
+        }
+
+    @app.after_request
+    def mark_content_changes(response):
+        endpoint = request.endpoint or ""
+        if (
+            request.method in {"POST", "PATCH", "PUT", "DELETE"}
+            and response.status_code < 400
+            and endpoint.startswith(MUTATING_CONTENT_ENDPOINT_PREFIXES)
+            and endpoint not in {"auth.get_login", "auth.logout"}
+        ):
+            from .features.admin.services import touch_content_version
+
+            touch_content_version()
+        return response
 
     with app.app_context():
         db.create_all()

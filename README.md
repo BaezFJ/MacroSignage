@@ -195,6 +195,10 @@ Contributions are welcome! MacroSignage is in early development and there are ma
 - Use CSS custom properties from `theme.css` for consistent theming
 - Write descriptive commit messages
 
+## Documentation
+
+Expanded documentation is available in [docs/index.md](docs/index.md).
+
 ### Areas Looking for Contributions
 
 - User authentication system
@@ -229,11 +233,11 @@ Contributions are welcome! MacroSignage is in early development and there are ma
 
 ### v0.5.0 -- Polish and Scale
 
-- [ ] REST API
-- [ ] Real-time updates (WebSocket or SSE)
-- [ ] Multi-user role support (admin, editor, viewer)
-- [ ] CI/CD pipeline with GitHub Actions
-- [ ] Comprehensive documentation
+- [x] REST API
+- [x] Real-time updates (WebSocket or SSE)
+- [x] Multi-user role support (admin, editor, viewer)
+- [x] CI/CD pipeline with GitHub Actions
+- [x] Comprehensive documentation
 
 ### v1.0.0 -- Stable Release
 

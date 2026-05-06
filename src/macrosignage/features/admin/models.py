@@ -2,10 +2,6 @@ from datetime import datetime, timezone
 
 from macrosignage.extensions import db
 
-from ..displays.models import Display
-from ..media.models import MediaAsset, MediaFont, MediaSlide
-from ..schedules.models import Schedule
-
 
 class SignageSettings(db.Model):
     __tablename__ = "signage_settings"
@@ -29,4 +25,17 @@ class SignageSettings(db.Model):
         return bool(self.logo_file_path)
 
 
-__all__ = ["Display", "MediaAsset", "MediaFont", "MediaSlide", "Schedule", "SignageSettings"]
+class ContentVersion(db.Model):
+    __tablename__ = "content_versions"
+
+    id = db.Column(db.Integer, primary_key=True)
+    version = db.Column(db.Integer, nullable=False, default=1)
+    updated_at = db.Column(
+        db.DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+    )
+
+
+__all__ = ["SignageSettings", "ContentVersion"]

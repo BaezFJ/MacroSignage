@@ -1,8 +1,24 @@
-from flask import Blueprint, current_app, flash, redirect, render_template, request, send_from_directory, session, url_for
+import json
+import time
+
+from flask import (
+    Blueprint,
+    Response,
+    current_app,
+    flash,
+    redirect,
+    render_template,
+    request,
+    send_from_directory,
+    session,
+    stream_with_context,
+    url_for,
+)
 
 from macrosignage.extensions import csrf, db
 
 from ..admin.services import get_signage_settings
+from ..admin.services import get_content_version
 from ..media.forms import MEDIA_TYPES, font_choice_map, google_fonts_stylesheet_url, youtube_video_id
 from ..media.services import list_active_fonts
 from .forms import DISPLAY_ORIENTATIONS, DISPLAY_STATUSES, display_form_data
@@ -247,3 +263,27 @@ def show_display_player(display_id: int):
         media_types=MEDIA_TYPES,
         youtube_video_id=youtube_video_id,
     )
+
+
+@display_player_bp.get("/<int:display_id>/events")
+def display_events(display_id: int):
+    display = get_display_for_player(display_id)
+    if not display_has_player_access(display, player_access_for_display(display)):
+        return render_player_unauthorized(display)
+
+    @stream_with_context
+    def event_stream():
+        last_version = None
+        while True:
+            content_version = get_content_version()
+            if content_version.version != last_version:
+                last_version = content_version.version
+                payload = {
+                    "type": "content.updated",
+                    "displayId": display.id,
+                    "contentVersion": content_version.version,
+                }
+                yield f"event: content.updated\ndata: {json.dumps(payload)}\n\n"
+            time.sleep(5)
+
+    return Response(event_stream(), mimetype="text/event-stream")

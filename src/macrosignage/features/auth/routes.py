@@ -1,10 +1,7 @@
 from __future__ import annotations
 
-from functools import wraps
-
 from flask import (
     Blueprint,
-    abort,
     current_app,
     flash,
     redirect,
@@ -24,6 +21,7 @@ from .forms import (
     user_form_data,
 )
 from .models import User
+from .permissions import admin_required
 from .services import (
     apply_user_data,
     authenticate_user,
@@ -48,17 +46,6 @@ def load_user(user_id: str) -> User | None:
         return db.session.get(User, int(user_id))
     except (TypeError, ValueError):
         return None
-
-
-def admin_required(view):
-    @wraps(view)
-    @login_required
-    def wrapped(*args, **kwargs):
-        if not current_user.is_admin:
-            abort(403)
-        return view(*args, **kwargs)
-
-    return wrapped
 
 
 def safe_next_url(value: str | None) -> str:

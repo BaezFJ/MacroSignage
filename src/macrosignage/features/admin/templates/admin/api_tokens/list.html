@@ -1,0 +1,103 @@
+{% extends 'layouts/admin.html' %}
+
+{% block main %}
+    <div class="admin-page-header">
+        <div>
+            <p class="eyebrow">Integrations</p>
+            <h1 class="h2 mb-1">API Tokens</h1>
+            <p class="text-secondary mb-0">Create bearer tokens for external API clients.</p>
+        </div>
+    </div>
+
+    {% if plaintext_token %}
+        <section class="alert alert-warning" role="alert">
+            <p class="fw-semibold mb-1">Copy this token now</p>
+            <code class="d-block text-break">{{ plaintext_token }}</code>
+        </section>
+    {% endif %}
+
+    <section class="card mb-3" aria-label="Create API token">
+        <div class="card-body">
+            <form class="row g-3 align-items-end" method="post" action="{{ url_for('admin_tokens.create_token') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="col-md-5">
+                    <label class="form-label" for="tokenName">Name</label>
+                    <input id="tokenName"
+                           class="form-control {% if errors and errors.get('name') %}is-invalid{% endif %}"
+                           name="name"
+                           value="{{ form_data.name if form_data else '' }}"
+                           maxlength="120">
+                    {% if errors and errors.get('name') %}
+                        <div class="invalid-feedback">{{ errors.name }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label" for="tokenOwner">Owner</label>
+                    <select id="tokenOwner"
+                            class="form-select {% if errors and errors.get('user_id') %}is-invalid{% endif %}"
+                            name="user_id">
+                        {% for user in users %}
+                            <option value="{{ user.id }}">{{ user.username }} ({{ user.role.title() }})</option>
+                        {% endfor %}
+                    </select>
+                    {% if errors and errors.get('user_id') %}
+                        <div class="invalid-feedback">{{ errors.user_id }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-md-2 d-grid">
+                    <button class="btn btn-primary" type="submit">Create token</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <section class="card" aria-label="API token list">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0 admin-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Prefix</th>
+                        <th>Owner</th>
+                        <th>Status</th>
+                        <th>Last used</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for token in tokens %}
+                        <tr>
+                            <td class="fw-semibold">{{ token.name }}</td>
+                            <td><code>{{ token.token_prefix }}...</code></td>
+                            <td>{{ token.user.username if token.user else 'Unknown' }}</td>
+                            <td>
+                                <span class="badge {{ 'text-bg-success' if token.active else 'text-bg-secondary' }}">
+                                    {{ 'Active' if token.active else 'Revoked' }}
+                                </span>
+                            </td>
+                            <td>{{ token.last_used_at.strftime('%Y-%m-%d %H:%M') if token.last_used_at else 'Never' }}</td>
+                            <td class="text-end">
+                                {% if token.active %}
+                                    <form method="post"
+                                          action="{{ url_for('admin_tokens.revoke_token', token_id=token.id) }}"
+                                          onsubmit="return confirm('Revoke this token?');">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button class="btn btn-sm btn-outline-danger" type="submit">Revoke</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="6">
+                                <div class="empty-state empty-state-sm">
+                                    <p class="mb-0 text-secondary">No API tokens created.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+{% endblock %}

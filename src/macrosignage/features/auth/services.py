@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import hmac
 import secrets
 from datetime import datetime, timedelta, timezone
 
@@ -10,7 +11,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from macrosignage.extensions import db
 
-from .models import User
+from .models import ApiToken, User
 
 
 def hash_password(password: str) -> str:
@@ -105,6 +106,53 @@ def user_data_conflict_errors(
 
 def token_hash(token: str) -> str:
     return hashlib.sha256(token.encode("utf-8")).hexdigest()
+
+
+def generate_api_token() -> str:
+    return f"ms_{secrets.token_urlsafe(32)}"
+
+
+def create_api_token(user: User, name: str) -> tuple[ApiToken, str]:
+    token = generate_api_token()
+    api_token = ApiToken(
+        name=name.strip(),
+        token_prefix=token[:10],
+        token_hash=token_hash(token),
+        user=user,
+        active=True,
+    )
+    db.session.add(api_token)
+    return api_token, token
+
+
+def list_api_tokens() -> list[ApiToken]:
+    return db.session.scalars(
+        db.select(ApiToken).order_by(ApiToken.created_at.desc(), ApiToken.id.desc())
+    ).all()
+
+
+def get_api_token(token_id: int) -> ApiToken:
+    return db.get_or_404(ApiToken, token_id)
+
+
+def revoke_api_token(api_token: ApiToken) -> None:
+    api_token.active = False
+
+
+def authenticate_api_token(raw_token: str) -> User | None:
+    if not raw_token:
+        return None
+
+    hashed = token_hash(raw_token)
+    api_token = ApiToken.query.filter_by(token_hash=hashed, active=True).first()
+    if api_token is None or not hmac.compare_digest(api_token.token_hash, hashed):
+        return None
+    if api_token.user is None or not api_token.user.active:
+        return None
+
+    api_token.last_used_at = datetime.now(timezone.utc)
+    db.session.commit()
+    return api_token.user
 
 
 def create_password_reset_token(user: User) -> str:

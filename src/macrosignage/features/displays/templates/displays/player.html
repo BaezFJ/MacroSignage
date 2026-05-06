@@ -9,6 +9,7 @@
 {% block body %}
     <main class="display-player display-player-{{ display.orientation | lower }}"
           data-display-player
+          data-events-url="{{ url_for('display_player.display_events', display_id=display.id) }}"
           aria-label="{{ display.name }} playback">
         {% if playlist %}
             <div class="display-player-stage">
