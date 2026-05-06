@@ -16,13 +16,13 @@ This roadmap tracks the work required to move MacroSignage from pre-alpha toward
 **Description:** Add a startup/runtime configuration check that warns or fails clearly when production is started with unsafe defaults.
 
 **Acceptance criteria:**
-- [ ] Production mode requires a non-default `MACROSIGNAGE_SECRET_KEY`.
-- [ ] Production mode documents `MACROSIGNAGE_SESSION_COOKIE_SECURE=true` for HTTPS deployments.
-- [ ] Configuration warnings are visible in CLI output or admin settings.
+- [x] Production mode requires a non-default `MACROSIGNAGE_SECRET_KEY`.
+- [x] Production mode documents `MACROSIGNAGE_SESSION_COOKIE_SECURE=true` for HTTPS deployments.
+- [x] Configuration warnings are visible in CLI output or admin settings.
 
 **Verification:**
-- [ ] Unit tests cover safe and unsafe production configuration.
-- [ ] `uv run macrosignage-prod --help` still works.
+- [x] Unit tests cover safe and unsafe production configuration.
+- [x] `uv run macrosignage-prod --help` still works.
 
 **Files likely touched:**
 - `src/macrosignage/app.py`
@@ -37,13 +37,13 @@ This roadmap tracks the work required to move MacroSignage from pre-alpha toward
 **Description:** Add conservative HTTP security headers for HTML/admin/player responses without breaking embedded player media.
 
 **Acceptance criteria:**
-- [ ] Responses include `X-Content-Type-Options: nosniff`.
-- [ ] Responses include an appropriate `Referrer-Policy`.
-- [ ] Responses include frame policy or CSP rules that do not break display playback.
-- [ ] HTTPS deployments can enable HSTS.
+- [x] Responses include `X-Content-Type-Options: nosniff`.
+- [x] Responses include an appropriate `Referrer-Policy`.
+- [x] Responses include frame policy or CSP rules that do not break display playback.
+- [x] HTTPS deployments can enable HSTS.
 
 **Verification:**
-- [ ] Tests assert headers on public, admin, auth, API, and player routes.
+- [x] Tests assert headers on public, admin, auth, API, and player routes.
 - [ ] Manual check: display player still renders image, video, HTML, YouTube, and slider media.
 
 **Files likely touched:**
@@ -59,13 +59,13 @@ This roadmap tracks the work required to move MacroSignage from pre-alpha toward
 **Description:** Replace unhandled production errors with user-safe HTML and API error responses.
 
 **Acceptance criteria:**
-- [ ] HTML routes show a generic error page for 500s.
-- [ ] API routes return JSON errors for 404/405/500.
-- [ ] Debug mode behavior remains developer-friendly.
+- [x] HTML routes show a generic error page for 500s.
+- [x] API routes return JSON errors for 404/405/500.
+- [x] Debug mode behavior remains developer-friendly.
 
 **Verification:**
-- [ ] Tests cover HTML and API error responses.
-- [ ] Existing tests continue to pass.
+- [x] Tests cover HTML and API error responses.
+- [x] Existing tests continue to pass.
 
 **Files likely touched:**
 - `src/macrosignage/app.py`
@@ -229,9 +229,9 @@ This roadmap tracks the work required to move MacroSignage from pre-alpha toward
 
 ### Baseline Checkpoint
 
-- [ ] Tasks 1-3 complete.
-- [ ] Full test suite passes.
-- [ ] Production deployment doc updated.
+- [x] Tasks 1-3 complete.
+- [x] Full test suite passes.
+- [x] Production deployment doc updated.
 
 ### Data Safety Checkpoint
 

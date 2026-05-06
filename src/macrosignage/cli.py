@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import sys
 from collections.abc import Sequence
 
 from .app import create_app
@@ -25,7 +26,9 @@ def _run_dev(args: argparse.Namespace) -> int:
 def _run_prod(args: argparse.Namespace) -> int:
     from waitress import serve
 
-    app = create_app()
+    app = create_app({"MACROSIGNAGE_PRODUCTION": True})
+    for warning in getattr(app, "config", {}).get("MACROSIGNAGE_CONFIG_WARNINGS", []):
+        print(f"WARNING: {warning}", file=sys.stderr)
     serve(app, host=args.host, port=args.port, threads=args.threads)
     return 0
 

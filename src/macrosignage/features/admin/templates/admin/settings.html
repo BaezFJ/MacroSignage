@@ -43,6 +43,19 @@
         </div>
     </section>
 
+    {% if settings.production_warnings %}
+        <section class="card mb-4 border-warning" aria-label="Production warnings">
+            <div class="card-body">
+                <h2 class="h5 mb-3">Production Warnings</h2>
+                <ul class="mb-0">
+                    {% for warning in settings.production_warnings %}
+                        <li>{{ warning }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </section>
+    {% endif %}
+
     <section class="card" aria-label="Catalog defaults">
         <div class="card-body">
             <div class="d-flex align-items-start justify-content-between gap-3 mb-3">

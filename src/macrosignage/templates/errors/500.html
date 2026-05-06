@@ -1,0 +1,12 @@
+{% extends 'layouts/_base.html' %}
+
+{% block body %}
+    <main class="container py-5">
+        <section class="mx-auto text-center" style="max-width: 42rem;">
+            <p class="eyebrow">Server Error</p>
+            <h1 class="display-6 mb-3">Something went wrong.</h1>
+            <p class="text-secondary mb-4">MacroSignage could not complete this request. Please try again or check the server logs.</p>
+            <a class="btn btn-primary" href="{{ url_for('web.index') }}">Return home</a>
+        </section>
+    </main>
+{% endblock %}

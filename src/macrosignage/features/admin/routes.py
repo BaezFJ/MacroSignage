@@ -79,6 +79,7 @@ def settings_context():
             ("CSRF protection", "Enabled"),
             ("Database", database_label),
         ],
+        "production_warnings": current_app.config.get("MACROSIGNAGE_CONFIG_WARNINGS", []),
         "database": {
             "uri": database_uri,
             "label": database_label,
