@@ -8,11 +8,25 @@ MacroSignage loads environment variables from `.env` before the Flask app is con
 - `MACROSIGNAGE_DATABASE_URI`: Flask-SQLAlchemy database URI. Defaults to SQLite in the instance directory.
 - `MACROSIGNAGE_MEDIA_UPLOAD_FOLDER`: directory for uploaded media assets.
 - `MACROSIGNAGE_MAX_UPLOAD_BYTES`: maximum upload size in bytes. Defaults to 100 MB.
+- `MACROSIGNAGE_TIMEZONE`: IANA timezone used for schedule forms and playback evaluation. Defaults to the server local timezone.
 - `MACROSIGNAGE_SESSION_COOKIE_SECURE`: set to `true`, `1`, or `yes` when serving over HTTPS.
+- `MACROSIGNAGE_ENABLE_HSTS`: set to `true`, `1`, or `yes` to send HTTP Strict Transport Security headers.
 
 ## First run
 
 Open `/auth/setup` to create the first admin account. After setup, users sign in at `/auth/login`.
+
+See [Auth and RBAC](auth-rbac.md) for role behavior, password reset limitations, and user management.
+
+## Schedule timezone
+
+Set `MACROSIGNAGE_TIMEZONE` to an IANA timezone name before creating production schedules:
+
+```text
+MACROSIGNAGE_TIMEZONE=America/Chicago
+```
+
+Schedule start/end inputs are interpreted in this timezone, stored in UTC, and displayed back in the configured local timezone. See [Scheduling and Playback](scheduling.md) for examples.
 
 ## Database selection
 

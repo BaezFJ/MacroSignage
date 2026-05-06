@@ -68,13 +68,13 @@ Completed audit findings:
 **Description:** Document the first admin account setup, sign-in/sign-out, password reset behavior, user roles, and safe recovery notes.
 
 **Acceptance criteria:**
-- [ ] Guide covers `/auth/setup`, `/auth/login`, `/auth/password-reset`, and `/admin/users/`.
-- [ ] Role permissions are explained in terms of real admin actions.
-- [ ] Password reset limitations and deployment considerations are documented.
+- [x] Guide covers `/auth/setup`, `/auth/login`, `/auth/password-reset`, and `/admin/users/`.
+- [x] Role permissions are explained in terms of real admin actions.
+- [x] Password reset limitations and deployment considerations are documented.
 
 **Verification:**
-- [ ] Existing auth tests map to documented workflows.
-- [ ] No passwords or token examples look real.
+- [x] Existing auth tests map to documented workflows.
+- [x] No passwords or token examples look real.
 
 **Files likely touched:**
 - `docs/auth-rbac.md`
@@ -87,13 +87,13 @@ Completed audit findings:
 **Description:** Document display CRUD, statuses, player tokens, pairing by display URL or token-only flow, disabling access, and maintenance/offline behavior.
 
 **Acceptance criteria:**
-- [ ] Guide covers display statuses: Online, Offline, Maintenance.
-- [ ] Guide explains token generation, reset/rotation, disable, and one-time visibility.
-- [ ] Guide explains player access through browser player and standalone client.
+- [x] Guide covers display statuses: Online, Offline, Maintenance.
+- [x] Guide explains token generation, reset/rotation, disable, and one-time visibility.
+- [x] Guide explains player access through browser player and standalone client.
 
 **Verification:**
-- [ ] Links to player routes and API token docs are correct.
-- [ ] No plaintext token values are reused as if they were permanent.
+- [x] Links to player routes and API token docs are correct.
+- [x] No plaintext token values are reused as if they were permanent.
 
 **Files likely touched:**
 - `docs/displays.md`
@@ -107,14 +107,14 @@ Completed audit findings:
 **Description:** Document media CRUD, supported media types, upload rules, slider media, YouTube URLs, HTML content behavior, logo overlay, and Google font management.
 
 **Acceptance criteria:**
-- [ ] Supported media types are documented: image, text, video, HTML, YouTube, slider.
-- [ ] Upload extensions and size limits are documented.
-- [ ] Slider options are documented: background, foreground, foreground size/position, text, font, animation, slide count, and duration.
-- [ ] Logo settings and global visibility are documented.
+- [x] Supported media types are documented: image, text, video, HTML, YouTube, slider.
+- [x] Upload extensions and size limits are documented.
+- [x] Slider options are documented: background, foreground, foreground size/position, text, font, animation, slide count, and duration.
+- [x] Logo settings and global visibility are documented.
 
 **Verification:**
-- [ ] Guide matches constants in media/admin forms.
-- [ ] Security notes explain HTML iframe sandboxing and external YouTube embeds.
+- [x] Guide matches constants in media/admin forms.
+- [x] Security notes explain HTML iframe sandboxing and external YouTube embeds.
 
 **Files likely touched:**
 - `docs/media.md`
@@ -127,14 +127,14 @@ Completed audit findings:
 **Description:** Document schedule CRUD, active/paused/draft behavior, start/end time handling, weekday rules, display/media assignments, default durations, and no-active-schedule behavior.
 
 **Acceptance criteria:**
-- [ ] Guide explains when a schedule is playable.
-- [ ] Guide explains local timezone configuration with `MACROSIGNAGE_TIMEZONE`.
-- [ ] Guide explains schedule refresh/reload behavior for players.
-- [ ] Guide documents the default "No active schedules for display" page.
+- [x] Guide explains when a schedule is playable.
+- [x] Guide explains local timezone configuration with `MACROSIGNAGE_TIMEZONE`.
+- [x] Guide explains schedule refresh/reload behavior for players.
+- [x] Guide documents the default "No active schedules for display" page.
 
 **Verification:**
-- [ ] Guide matches schedule selection tests.
-- [ ] Time examples use explicit dates and timezones.
+- [x] Guide matches schedule selection tests.
+- [x] Time examples use explicit dates and timezones.
 
 **Files likely touched:**
 - `docs/scheduling.md`
@@ -142,6 +142,12 @@ Completed audit findings:
 - `docs/configuration.md`
 
 **Estimated scope:** Medium
+
+### User Guide Checkpoint
+
+- [x] First-run, auth, display pairing, media, and scheduling guides are linked from `docs/index.md`.
+- [x] Phase 2 guides use placeholder tokens only and avoid real-looking secrets.
+- [x] Phase 2 guides document the implemented no-active-schedules, offline, and maintenance player states.
 
 ## Phase 3: API and Integration Reference
 

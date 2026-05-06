@@ -17,6 +17,11 @@ Enter the MacroSignage server URL and the display token generated from the
 admin display detail page. The client posts the token to the server, pairs the
 display, and opens the display player in the webview.
 
+The display token is shown once in the admin UI. If it is lost, rotate the
+display player token and run setup again. If a display token is disabled from
+the server, existing clients lose access and must be paired again after access
+is restored.
+
 ## Ubuntu
 
 The client uses the pywebview Qt backend by default. If you previously synced
@@ -66,3 +71,6 @@ same platform executables and attaches them to the matching GitHub Release.
 - `--setup`: always show the setup form.
 - `--reset`: clear saved setup before opening.
 - `--windowed`: run in a normal window instead of fullscreen.
+- `--debug`: print client diagnostic details while running.
+
+See the main docs for [display pairing](../docs/displays.md) and [player behavior](../docs/realtime-player.md).
