@@ -289,13 +289,13 @@ Completed audit findings:
 **Description:** Document local setup, tests, packaging, project structure, blueprints, forms/services/models pattern, static assets, frontend vendor assets, and release automation.
 
 **Acceptance criteria:**
-- [ ] Developer guide explains where feature code, templates, tests, and client code live.
-- [ ] Test commands and packaging commands match CI.
-- [ ] Blueprint conventions are documented.
+- [x] Developer guide explains where feature code, templates, tests, and client code live.
+- [x] Test commands and packaging commands match CI.
+- [x] Blueprint conventions are documented.
 
 **Verification:**
-- [ ] CI workflow and docs command list stay aligned.
-- [ ] New contributor can locate where to add a feature.
+- [x] CI workflow and docs command list stay aligned.
+- [x] New contributor can locate where to add a feature.
 
 **Files likely touched:**
 - `docs/development.md`
@@ -308,12 +308,12 @@ Completed audit findings:
 **Description:** Document core architecture decisions and create ADRs for key durable choices.
 
 **Acceptance criteria:**
-- [ ] Architecture overview explains Flask app factory, feature blueprints, SQLAlchemy models, runtime schema patching, player tokens, SSE updates, and static vendoring.
-- [ ] ADRs exist for at least database/runtime schema strategy, token-secured displays, and standalone client packaging.
+- [x] Architecture overview explains Flask app factory, feature blueprints, SQLAlchemy models, runtime schema patching, player tokens, SSE updates, and static vendoring.
+- [x] ADRs exist for at least database/runtime schema strategy, token-secured displays, and standalone client packaging.
 
 **Verification:**
-- [ ] ADRs follow a consistent template.
-- [ ] Architecture docs link to source modules and related guides.
+- [x] ADRs follow a consistent template.
+- [x] Architecture docs link to source modules and related guides.
 
 **Files likely touched:**
 - `docs/architecture.md`
@@ -326,19 +326,25 @@ Completed audit findings:
 **Description:** Refresh README so it is a concise landing page with accurate current features, quick start, docs links, commands, support status, and roadmap links.
 
 **Acceptance criteria:**
-- [ ] README no longer lists implemented features as planned.
-- [ ] README links to core docs instead of duplicating long guide content.
-- [ ] Badges and commands reflect current CI and PyPI usage.
-- [ ] v1.0 roadmap links include production hardening and documentation roadmaps.
+- [x] README no longer lists implemented features as planned.
+- [x] README links to core docs instead of duplicating long guide content.
+- [x] Badges and commands reflect current CI and PyPI usage.
+- [x] v1.0 roadmap links include production hardening and documentation roadmaps.
 
 **Verification:**
-- [ ] README links resolve.
-- [ ] `rg -n "TODO|planned|pending|wsgi.py|WebSocket" README.md` has no stale content.
+- [x] README links resolve.
+- [x] `rg -n "TODO|planned|pending|wsgi.py|WebSocket" README.md` has no stale content.
 
 **Files likely touched:**
 - `README.md`
 
 **Estimated scope:** Medium
+
+### Maintainer Documentation Checkpoint
+
+- [x] Developer guide, architecture overview, ADRs, and README are linked from `docs/index.md`.
+- [x] README is a concise landing page and points to detailed docs.
+- [x] Architecture docs capture runtime schema strategy, display player auth, SSE updates, static vendoring, and client packaging.
 
 ## Phase 6: Documentation Quality Gates
 
@@ -391,24 +397,24 @@ Completed audit findings:
 
 ### User Guide Checkpoint
 
-- [ ] Tasks 3-6 complete.
-- [ ] First admin, display pairing, media setup, and scheduling workflows are documented end to end.
-- [ ] Browser-only/manual verification gaps are listed.
+- [x] Tasks 3-6 complete.
+- [x] First admin, display pairing, media setup, and scheduling workflows are documented end to end.
+- [x] Browser-only/manual verification gaps are listed.
 
 ### API and Integration Checkpoint
 
-- [ ] Tasks 7-9 complete.
-- [ ] REST API, API tokens, and standalone client docs match tests and current code.
+- [x] Tasks 7-9 complete.
+- [x] REST API, API tokens, and standalone client docs match tests and current code.
 
 ### Operator Readiness Checkpoint
 
-- [ ] Tasks 10-12 complete.
-- [ ] Configuration, deployment, health checks, backups, rollback, and troubleshooting are documented.
+- [x] Tasks 10-12 complete.
+- [x] Configuration, deployment, health checks, backups, rollback, and troubleshooting are documented.
 
 ### Maintainer Checkpoint
 
-- [ ] Tasks 13-15 complete.
-- [ ] Developer guide, architecture docs, ADRs, and README are accurate.
+- [x] Tasks 13-15 complete.
+- [x] Developer guide, architecture docs, ADRs, and README are accurate.
 
 ### v1.0 Documentation Complete Checkpoint
 
