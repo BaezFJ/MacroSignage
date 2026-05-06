@@ -1,0 +1,182 @@
+{% extends 'layouts/admin.html' %}
+
+{% block styles %}
+    {% if media.media_type == 'SLIDER' %}
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="{{ google_fonts_url }}">
+    {% endif %}
+{% endblock %}
+
+{% block main %}
+    <div class="admin-page-header">
+        <div>
+            <p class="eyebrow">Media Library</p>
+            <h1 class="h2 mb-1">{{ media.title }}</h1>
+            <p class="text-secondary mb-0">{{ media_types[media.media_type] }}</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-outline-secondary" href="{{ url_for('admin_media.list_media') }}">Back</a>
+            <a class="btn btn-primary" href="{{ url_for('admin_media.edit_media', media_id=media.id) }}">Edit media</a>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-8">
+            <section class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between gap-3 mb-4">
+                        <div>
+                            <h2 class="h5 mb-1">Preview</h2>
+                            <p class="text-secondary mb-0">Admin preview for the selected media source.</p>
+                        </div>
+                        <span class="badge media-type media-type-{{ media.media_type | lower }}">
+                            {{ media_types[media.media_type] }}
+                        </span>
+                    </div>
+
+                    <div class="media-preview">
+                        {% if media.media_type == 'IMAGE' and media.file_path %}
+                            <img src="{{ url_for('admin_media.uploaded_media', filename=media.file_path) }}"
+                                 alt="{{ media.title }}">
+                        {% elif media.media_type == 'VIDEO' and media.file_path %}
+                            <video controls>
+                                <source src="{{ url_for('admin_media.uploaded_media', filename=media.file_path) }}"
+                                        type="{{ media.mime_type or 'video/mp4' }}">
+                            </video>
+                        {% elif media.media_type == 'TEXT' %}
+                            <p class="media-text-preview">{{ media.body }}</p>
+                        {% elif media.media_type == 'HTML' %}
+                            <pre class="media-code-preview"><code>{{ media.body }}</code></pre>
+                        {% elif media.media_type == 'YOUTUBE' and youtube_video_id %}
+                            <div class="ratio ratio-16x9">
+                                <iframe src="https://www.youtube-nocookie.com/embed/{{ youtube_video_id }}"
+                                        title="{{ media.title }}"
+                                        allowfullscreen></iframe>
+                            </div>
+                        {% elif media.media_type == 'SLIDER' and media.slider_slides %}
+                            <div class="admin-slider-preview">
+                                {% for slide in media.slider_slides %}
+                                    <article class="admin-slider-preview-slide">
+                                        <img class="admin-slider-preview-background"
+                                             src="{{ url_for('admin_media.uploaded_media', filename=slide.background_file_path) }}"
+                                             alt="">
+                                        {% if slide.foreground_file_path %}
+                                            <div class="admin-slider-foreground-wrap admin-slider-foreground-{{ slide.foreground_position | lower | replace('_', '-') }}"
+                                                 style="width: {{ slide.foreground_size }}%;">
+                                                <img class="admin-slider-preview-foreground{% if slide.foreground_animation != 'NONE' %} animate__animated animate__{{ slide.foreground_animation }}{% endif %}"
+                                                     src="{{ url_for('admin_media.uploaded_media', filename=slide.foreground_file_path) }}"
+                                                     {% if slide.foreground_animation != 'NONE' %}data-animate-target data-animate-class="animate__{{ slide.foreground_animation }}"{% endif %}
+                                                     alt="">
+                                            </div>
+                                        {% endif %}
+                                        {% if slide.text %}
+                                            <p class="{% if slide.text_animation != 'NONE' %}animate__animated animate__{{ slide.text_animation }}{% endif %}"
+                                               {% if slide.text_animation != 'NONE' %}data-animate-target data-animate-class="animate__{{ slide.text_animation }}"{% endif %}
+                                               style="font-family: '{{ slide.text_font_family }}', sans-serif; font-size: {{ slide.text_font_size }}px;">{{ slide.text }}</p>
+                                        {% endif %}
+                                    </article>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="empty-state empty-state-sm">
+                                <p class="mb-0 text-secondary">No preview is available.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="col-lg-4">
+            <section class="card mb-3">
+                <div class="card-body">
+                    <h2 class="h5">Details</h2>
+                    <dl class="display-detail-grid media-detail-grid">
+                        <div>
+                            <dt>Type</dt>
+                            <dd>{{ media_types[media.media_type] }}</dd>
+                        </div>
+                        <div>
+                            <dt>Assigned displays</dt>
+                            <dd>{{ media.displays | length }}</dd>
+                        </div>
+                        <div>
+                            <dt>Source</dt>
+                            <dd>
+                                {% if media.media_type in ['IMAGE', 'VIDEO'] %}
+                                    {{ media.original_filename or media.file_path or 'No file' }}
+                                {% elif media.media_type == 'YOUTUBE' %}
+                                    YouTube
+                                {% elif media.media_type == 'SLIDER' %}
+                                    {{ media.slider_slides | length }} slide{{ '' if media.slider_slides | length == 1 else 's' }}
+                                {% else %}
+                                    Inline
+                                {% endif %}
+                            </dd>
+                        </div>
+                        <div>
+                            <dt>Created</dt>
+                            <dd>{{ media.created_at.strftime('%b %d, %Y') }}</dd>
+                        </div>
+                    </dl>
+                </div>
+            </section>
+
+            <section class="card mb-3">
+                <div class="card-body">
+                    <h2 class="h5">Assigned Displays</h2>
+                    {% if media.displays %}
+                        <ul class="assigned-list">
+                            {% for display in media.displays %}
+                                <li>
+                                    <a href="{{ url_for('admin_displays.get_display_view', display_id=display.id) }}">{{ display.name }}</a>
+                                    <span class="text-secondary">{{ display.location or 'Unassigned location' }}</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="mb-0 text-secondary">This media is not assigned to any displays.</p>
+                    {% endif %}
+                </div>
+            </section>
+
+            {% if media.media_type == 'SLIDER' %}
+                <section class="card mb-3">
+                    <div class="card-body">
+                        <h2 class="h5">Slides</h2>
+                        {% if media.slider_slides %}
+                            <ul class="assigned-list">
+                                {% for slide in media.slider_slides %}
+                                    <li>
+                                        <span class="fw-semibold">Slide {{ loop.index }}</span>
+                                        <span class="text-secondary">{{ slider_text_positions.get(slide.text_position, slide.text_position) }} text · {{ slider_animations.get(slide.text_animation, slide.text_animation) }} text animation · {{ slider_foreground_positions.get(slide.foreground_position, slide.foreground_position) }} foreground · {{ slide.foreground_size }}% · {{ slider_animations.get(slide.foreground_animation, slide.foreground_animation) }} foreground animation · {{ slide.text_font_family }} · {{ slide.text_font_size }}px · {{ slide.duration_seconds }} seconds</span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="mb-0 text-secondary">No slides have been configured.</p>
+                        {% endif %}
+                    </div>
+                </section>
+            {% endif %}
+
+            <section class="card">
+                <div class="card-body">
+                    <h2 class="h5">Actions</h2>
+                    <div class="d-grid gap-2">
+                        <a class="btn btn-outline-secondary" href="{{ url_for('admin_media.edit_media', media_id=media.id) }}">
+                            Edit media
+                        </a>
+                        <form method="post"
+                              action="{{ url_for('admin_media.delete_media', media_id=media.id) }}"
+                              onsubmit="return confirm('Delete this media item?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button class="btn btn-outline-danger w-100" type="submit">Delete media</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+{% endblock %}

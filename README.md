@@ -6,11 +6,11 @@
 <!-- Replace with GitHub Actions badge URL once CI is configured -->
 [![Build](https://img.shields.io/badge/build-pending-lightgrey)]()
 
-**A web-based digital signage system built with Flask and Material Design 3.**
+**A web-based digital signage system built with Flask and Bootstrap.**
 
-MacroSignage lets you manage and display digital signage content through a modern browser-based interface. It uses Materialize CSS v2.3.2 for a Material Design 3 look and Animate.css for smooth transitions.
+MacroSignage lets you manage and display digital signage content through a modern browser-based interface. It uses Bootstrap v5.3.8 for responsive styling and Animate.css for smooth transitions.
 
-> **Note:** This project is in Pre-Alpha (v0.1.0). APIs and features are subject to change.
+> **Note:** This project is in Pre-Alpha (v0.2.0). APIs and features are subject to change.
 
 <!-- TODO: Add screenshot once the dashboard UI is implemented -->
 <!-- ![MacroSignage Screenshot](docs/images/screenshot.png) -->
@@ -20,20 +20,26 @@ MacroSignage lets you manage and display digital signage content through a moder
 ### Current
 
 - Flask application factory pattern (`create_app`)
-- Material Design 3 theme with light and dark mode support via CSS custom properties
-- Materialize CSS v2.3.2 integration (vendored)
+- Bootstrap v5.3.8 CSS and JavaScript integration (vendored)
+- Bootstrap theme overrides with light and dark mode support via CSS custom properties
 - Animate.css for UI transitions (vendored)
 - Jinja2 template inheritance (base + page templates)
+- Admin dashboard with display management CRUD
+- Media library CRUD for images, text, video, HTML, and YouTube media
+- Many-to-many media assignment between displays and media assets
+- Schedule CRUD with active windows, weekday rules, display targets, and media playlists
+- SQLite-backed display persistence with Flask-SQLAlchemy
+- CSRF protection for admin state-changing forms
 - WSGI-ready entry point for production deployment
 - Installable via PyPI (`pip install MacroSignage`)
 
 ### Planned
 
 - User authentication and session management (Flask-Login)
-- Database models and migrations (Flask-SQLAlchemy)
+- Database migrations (Flask-Migrate)
 - Form handling with CSRF protection (Flask-WTF)
 - Admin dashboard for managing signage content
-- Display/screen management and scheduling
+- Schedule playback execution
 - Media upload and content rotation
 - REST API for programmatic control
 - Real-time display updates via WebSocket or SSE
@@ -42,13 +48,14 @@ MacroSignage lets you manage and display digital signage content through a moder
 
 | Layer     | Technology                 | Version  |
 |-----------|----------------------------|----------|
-| Backend   | Flask                      | >= 2.2.5 |
-| Auth      | Flask-Login                | >= 0.6.1 |
-| Forms     | Flask-WTF                  | >= 1.0.1 |
-| ORM       | Flask-SQLAlchemy           | >= 2.5.1 |
-| Frontend  | Materialize CSS            | 2.3.2    |
+| Backend   | Flask                      | >= 3.1.3 |
+| Auth      | Flask-Login                | >= 0.6.3 |
+| Forms     | Flask-WTF                  | >= 1.3.0 |
+| ORM       | Flask-SQLAlchemy           | >= 3.1.1 |
+| WSGI      | Waitress                   | >= 3.0.2 |
+| Frontend  | Bootstrap                  | 5.3.8    |
 | Animation | Animate.css                | 4.1.1    |
-| Theme     | Custom MD3 (CSS Variables) | --       |
+| Theme     | Bootstrap CSS variables    | --       |
 | Language  | Python                     | >= 3.10  |
 | Packaging | setuptools + uv            | --       |
 
@@ -82,7 +89,8 @@ uv sync --all-groups
 # Or with pip
 python -m venv .venv
 source .venv/bin/activate
-pip install -e ".[dev]"
+pip install -e .
+pip install build twine
 ```
 
 ## Quick Start
@@ -90,8 +98,8 @@ pip install -e ".[dev]"
 1. **Run the development server:**
 
    ```bash
-   # Using Flask CLI
-   flask --app src.macrosignage run --debug
+   # Using the MacroSignage CLI
+   macrosignage dev
 
    # Or using the WSGI entry point
    python wsgi.py
@@ -101,11 +109,10 @@ pip install -e ".[dev]"
 
 ### Production Deployment
 
-For production, use a WSGI server such as Gunicorn:
+For production, use the packaged Waitress-backed command:
 
 ```bash
-pip install gunicorn
-gunicorn "src.macrosignage:create_app()"
+macrosignage prod --host 0.0.0.0 --port 8080
 ```
 
 ## Project Structure
@@ -117,10 +124,10 @@ MacroSignage/
 │       ├── __init__.py            # App factory (create_app)
 │       ├── static/
 │       │   ├── css/
-│       │   │   └── theme.css      # Material Design 3 custom theme
+│       │   │   └── theme.css      # Bootstrap theme overrides
 │       │   ├── js/                # Application JavaScript
 │       │   └── vendor/            # Vendored frontend libraries
-│       │       ├── materialize/   # Materialize CSS v2.3.2
+│       │       ├── bootstrap/     # Bootstrap v5.3.8
 │       │       └── animate/       # Animate.css v4.1.1
 │       └── templates/
 │           ├── base.html          # Base template (shared layout)
@@ -138,10 +145,10 @@ MacroSignage/
 ### Running in Development Mode
 
 ```bash
-flask --app src.macrosignage run --debug
+macrosignage dev
 ```
 
-The `--debug` flag enables auto-reload and the interactive debugger.
+The development command enables Flask debug mode by default.
 
 ### Building for Distribution
 

@@ -1,0 +1,55 @@
+{% extends 'layouts/admin.html' %}
+
+{% block main %}
+    <div class="admin-page-header">
+        <div>
+            <p class="eyebrow">Access Control</p>
+            <h1 class="h2 mb-1">{{ user.username }}</h1>
+            <p class="text-secondary mb-0">{{ user.email }}</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-outline-secondary" href="{{ url_for('admin_users.list_users') }}">Back to users</a>
+            <a class="btn btn-primary" href="{{ url_for('admin_users.edit_user', user_id=user.id) }}">Edit user</a>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-8">
+            <section class="card h-100">
+                <div class="card-body">
+                    <h2 class="h5 mb-3">Account Details</h2>
+                    <dl class="display-detail-grid">
+                        <div>
+                            <dt>Username</dt>
+                            <dd>{{ user.username }}</dd>
+                        </div>
+                        <div>
+                            <dt>Email</dt>
+                            <dd>{{ user.email }}</dd>
+                        </div>
+                        <div>
+                            <dt>Role</dt>
+                            <dd>{{ user_roles.get(user.role, user.role) }}</dd>
+                        </div>
+                        <div>
+                            <dt>Status</dt>
+                            <dd>{{ 'Active' if user.active else 'Inactive' }}</dd>
+                        </div>
+                    </dl>
+                </div>
+            </section>
+        </div>
+
+        <div class="col-lg-4">
+            <section class="card">
+                <div class="card-body">
+                    <h2 class="h5 mb-3">Danger Zone</h2>
+                    <form method="post" action="{{ url_for('admin_users.delete_user', user_id=user.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button class="btn btn-outline-danger w-100" type="submit">Delete user</button>
+                    </form>
+                </div>
+            </section>
+        </div>
+    </div>
+{% endblock %}

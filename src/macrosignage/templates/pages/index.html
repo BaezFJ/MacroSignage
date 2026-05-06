@@ -1,5 +1,76 @@
-{% extends 'base.html' %}
+{% extends 'layouts/_base.html' %}
 
 {% block body %}
-	<h1>MacroSignage</h1>
+<main class="container app-shell">
+    <nav class="navbar navbar-expand-md py-3" aria-label="Primary navigation">
+        <a class="navbar-brand fw-semibold" href="#">MacroSignage</a>
+        <div class="ms-auto d-flex gap-2">
+            <a class="btn btn-link" href="#status">Status</a>
+            <a class="btn btn-outline-secondary" href="#roadmap">Roadmap</a>
+        </div>
+    </nav>
+
+    <section class="hero animate__animated animate__fadeIn row align-items-center g-4">
+        <div class="col-lg-7">
+            <p class="eyebrow">Digital signage control</p>
+            <h1 class="display-4 fw-semibold">Manage screens, schedules, and display content from one web console.</h1>
+            <p class="hero-copy lead">
+                MacroSignage is the Flask-based foundation for browser-managed signage,
+                built for local deployments and simple operations.
+            </p>
+            <div class="hero-actions d-flex flex-wrap gap-3">
+                <a href="#status" class="btn btn-primary btn-lg">View status</a>
+                <a href="#roadmap" class="btn btn-outline-secondary btn-lg">See roadmap</a>
+            </div>
+        </div>
+        <aside class="col-lg-5" aria-labelledby="status">
+            <div class="card status-card">
+                <div class="card-body">
+                    <h2 id="status" class="h4 card-title">Current Build</h2>
+                    <dl class="status-list">
+                        <div>
+                            <dt>Application</dt>
+                            <dd>Flask factory ready</dd>
+                        </div>
+                        <div>
+                            <dt>Frontend</dt>
+                            <dd>Bootstrap 5.3 bundled</dd>
+                        </div>
+                        <div>
+                            <dt>Runtime</dt>
+                            <dd>CLI for dev and prod</dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+        </aside>
+    </section>
+
+    <section id="roadmap" class="row g-3 roadmap-grid" aria-label="Planned capabilities">
+        <div class="col-md-4">
+            <article class="card h-100">
+                <div class="card-body">
+                    <h2 class="h5">Display Groups</h2>
+                    <p>Create sets of screens for locations, zones, or departments.</p>
+                </div>
+            </article>
+        </div>
+        <div class="col-md-4">
+            <article class="card h-100">
+                <div class="card-body">
+                    <h2 class="h5">Scheduling</h2>
+                    <p>Plan campaigns and rotate media across active displays.</p>
+                </div>
+            </article>
+        </div>
+        <div class="col-md-4">
+            <article class="card h-100">
+                <div class="card-body">
+                    <h2 class="h5">Admin Workflow</h2>
+                    <p>Manage uploads, users, and approvals through a focused dashboard.</p>
+                </div>
+            </article>
+        </div>
+    </section>
+</main>
 {% endblock %}

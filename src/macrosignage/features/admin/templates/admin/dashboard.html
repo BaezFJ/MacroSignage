@@ -1,0 +1,74 @@
+{% extends 'layouts/admin.html' %}
+
+{% block main %}
+    <div class="admin-page-header">
+        <div>
+            <p class="eyebrow">Overview</p>
+            <h1 class="h2 mb-1">Admin Dashboard</h1>
+            <p class="text-secondary mb-0">Monitor displays, playback status, and publishing activity.</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-outline-secondary" href="{{ url_for('admin_media.create_media') }}">Add media</a>
+            <a class="btn btn-primary" href="{{ url_for('admin_schedules.create_schedule') }}">Create schedule</a>
+        </div>
+    </div>
+
+    <section class="row g-3 mb-4" aria-label="Signage summary">
+        <div class="col-md-4">
+            <article class="card metric-card h-100">
+                <div class="card-body">
+                    <p class="text-secondary mb-1">Displays online</p>
+                    <p class="metric-value">{{ online_display_count }}</p>
+                    <p class="mb-0 text-secondary">{{ display_count }} registered display{{ '' if display_count == 1 else 's' }}.</p>
+                </div>
+            </article>
+        </div>
+        <div class="col-md-4">
+            <article class="card metric-card h-100">
+                <div class="card-body">
+                    <p class="text-secondary mb-1">Active schedules</p>
+                    <p class="metric-value">{{ active_schedule_count }}</p>
+                    <p class="mb-0 text-secondary">Create a schedule to start playback.</p>
+                </div>
+            </article>
+        </div>
+        <div class="col-md-4">
+            <article class="card metric-card h-100">
+                <div class="card-body">
+                    <p class="text-secondary mb-1">Media assets</p>
+                    <p class="metric-value">{{ media_count }}</p>
+                    <p class="mb-0 text-secondary">Images, video, text, HTML, and YouTube media.</p>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <section class="row g-3">
+        <div class="col-lg-8">
+            <article class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
+                        <h2 class="h5 mb-0">Recent Activity</h2>
+                        <button class="btn btn-sm btn-outline-secondary" type="button">Refresh</button>
+                    </div>
+                    <div class="empty-state">
+                        <p class="mb-1 fw-semibold">No activity yet</p>
+                        <p class="mb-0 text-secondary">Display events and publish history will appear here.</p>
+                    </div>
+                </div>
+            </article>
+        </div>
+        <div class="col-lg-4">
+            <article class="card h-100">
+                <div class="card-body">
+                    <h2 class="h5">Setup Checklist</h2>
+                    <ol class="checklist">
+                        <li><a href="{{ url_for('admin_displays.create_display') }}">Register your first display.</a></li>
+                        <li><a href="{{ url_for('admin_media.create_media') }}">Upload media assets.</a></li>
+                        <li><a href="{{ url_for('admin_schedules.create_schedule') }}">Create a playback schedule.</a></li>
+                    </ol>
+                </div>
+            </article>
+        </div>
+    </section>
+{% endblock %}

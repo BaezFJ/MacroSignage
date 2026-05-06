@@ -1,0 +1,150 @@
+{% extends 'layouts/admin.html' %}
+
+{% block main %}
+    <div class="admin-page-header">
+        <div>
+            <p class="eyebrow">Schedules</p>
+            <h1 class="h2 mb-1">{{ schedule.name }}</h1>
+            <p class="text-secondary mb-0">Playback window and assigned signage content.</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-outline-secondary" href="{{ url_for('admin_schedules.list_schedules') }}">Back</a>
+            <a class="btn btn-primary" href="{{ url_for('admin_schedules.edit_schedule', schedule_id=schedule.id) }}">Edit schedule</a>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-8">
+            <section class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between gap-3 mb-4">
+                        <div>
+                            <h2 class="h5 mb-1">Schedule Profile</h2>
+                            <p class="text-secondary mb-0">Timing rules and playback defaults.</p>
+                        </div>
+                        <span class="badge schedule-status schedule-status-{{ schedule.status | lower }}">
+                            {{ schedule_statuses[schedule.status] }}
+                        </span>
+                    </div>
+
+                    <dl class="display-detail-grid">
+                        <div>
+                            <dt>Starts</dt>
+                            <dd>{{ schedule.starts_at.strftime('%b %d, %Y %H:%M') if schedule.starts_at else 'Any time' }}</dd>
+                        </div>
+                        <div>
+                            <dt>Ends</dt>
+                            <dd>{{ schedule.ends_at.strftime('%b %d, %Y %H:%M') if schedule.ends_at else 'No end date' }}</dd>
+                        </div>
+                        <div>
+                            <dt>Run days</dt>
+                            <dd>
+                                {% if schedule.weekday_values %}
+                                    {% for value in schedule.weekday_values %}
+                                        {{ weekdays[value] }}{{ ', ' if not loop.last else '' }}
+                                    {% endfor %}
+                                {% else %}
+                                    Every day
+                                {% endif %}
+                            </dd>
+                        </div>
+                        <div>
+                            <dt>Default duration</dt>
+                            <dd>{{ schedule.default_duration_seconds }} seconds</dd>
+                        </div>
+                    </dl>
+
+                    <hr>
+
+                    <h2 class="h5">Notes</h2>
+                    <p class="mb-0 text-secondary">{{ schedule.notes or 'No notes have been added for this schedule.' }}</p>
+                </div>
+            </section>
+        </div>
+
+        <div class="col-lg-4">
+            <section class="card mb-3">
+                <div class="card-body">
+                    <h2 class="h5">Display Targets</h2>
+                    {% if schedule.displays %}
+                        <ul class="assigned-list">
+                            {% for display in schedule.displays %}
+                                <li>
+                                    <a href="{{ url_for('admin_displays.get_display_view', display_id=display.id) }}">{{ display.name }}</a>
+                                    <span class="text-secondary">{{ display.location or 'Unassigned location' }}</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="mb-0 text-secondary">This schedule is not assigned to any displays.</p>
+                    {% endif %}
+                </div>
+            </section>
+
+            <section class="card">
+                <div class="card-body">
+                    <h2 class="h5">Actions</h2>
+                    <div class="d-grid gap-2">
+                        <a class="btn btn-outline-secondary" href="{{ url_for('admin_schedules.edit_schedule', schedule_id=schedule.id) }}">
+                            Edit schedule
+                        </a>
+                        <form method="post"
+                              action="{{ url_for('admin_schedules.delete_schedule', schedule_id=schedule.id) }}"
+                              onsubmit="return confirm('Delete this schedule?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button class="btn btn-outline-danger w-100" type="submit">Delete schedule</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <section class="card mt-3">
+        <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
+                <div>
+                    <h2 class="h5 mb-1">Media Playlist</h2>
+                    <p class="mb-0 text-secondary">Media assets included in this schedule.</p>
+                </div>
+                <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('admin_media.create_media') }}">Add media</a>
+            </div>
+            {% if schedule.media_assets %}
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0 admin-table">
+                        <thead>
+                        <tr>
+                            <th scope="col">Title</th>
+                            <th scope="col">Type</th>
+                            <th class="text-end" scope="col">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for media in schedule.media_assets %}
+                            <tr>
+                                <th scope="row">
+                                    <a href="{{ url_for('admin_media.get_media_view', media_id=media.id) }}">{{ media.title }}</a>
+                                </th>
+                                <td>{{ media.media_type.title() }}</td>
+                                <td class="text-end">
+                                    <a class="btn btn-sm btn-outline-secondary"
+                                       href="{{ url_for('admin_media.edit_media', media_id=media.id) }}">
+                                        Edit
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="empty-state empty-state-sm">
+                    <div>
+                        <p class="mb-1 fw-semibold">No media assigned</p>
+                        <p class="mb-0 text-secondary">Assign media from the schedule edit form.</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+{% endblock %}

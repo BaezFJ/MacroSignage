@@ -19,9 +19,19 @@ env/
 
 # Environment variables
 .env
+.env.*
+!.env.example
 
 # Flask
 instance/
+
+# Local databases outside the Flask instance folder
+*.sqlite
+*.sqlite3
+*.db
+
+# Logs
+*.log
 
 # Unit test / coverage reports
 htmlcov/
@@ -40,6 +50,11 @@ coverage.xml
 .mypy_cache/
 .dmypy.json
 .pytype/
+.ruff_cache/
+
+# Local agent metadata
+.codex/
+.agents/
 
 # IDEs
 .idea/

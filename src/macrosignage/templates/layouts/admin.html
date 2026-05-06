@@ -1,0 +1,130 @@
+{% extends 'layouts/_base.html' %}
+
+{% macro admin_nav() %}
+    {% set active_endpoint = request.endpoint %}
+    <nav class="admin-sidenav-nav" aria-label="Admin navigation">
+        <a class="admin-nav-link {{ 'active' if active_endpoint == 'admin.get_dashboard' else '' }}"
+           href="{{ url_for('admin.get_dashboard') }}"
+           {% if active_endpoint == 'admin.get_dashboard' %}aria-current="page"{% endif %}>
+            <span>Dashboard</span>
+        </a>
+        <a class="admin-nav-link {{ 'active' if active_endpoint in ['admin_displays.list_displays', 'admin_displays.create_display', 'admin_displays.get_display_view', 'admin_displays.edit_display'] else '' }}"
+           href="{{ url_for('admin_displays.list_displays') }}"
+           {% if active_endpoint in ['admin_displays.list_displays', 'admin_displays.create_display', 'admin_displays.get_display_view', 'admin_displays.edit_display'] %}aria-current="page"{% endif %}>
+            <span>Displays</span>
+        </a>
+        <a class="admin-nav-link {{ 'active' if active_endpoint in ['admin_schedules.list_schedules', 'admin_schedules.create_schedule', 'admin_schedules.get_schedule_view', 'admin_schedules.edit_schedule'] else '' }}"
+           href="{{ url_for('admin_schedules.list_schedules') }}"
+           {% if active_endpoint in ['admin_schedules.list_schedules', 'admin_schedules.create_schedule', 'admin_schedules.get_schedule_view', 'admin_schedules.edit_schedule'] %}aria-current="page"{% endif %}>
+            <span>Schedules</span>
+        </a>
+        <a class="admin-nav-link {{ 'active' if active_endpoint in ['admin_media.list_media', 'admin_media.create_media', 'admin_media.get_media_view', 'admin_media.edit_media'] else '' }}"
+           href="{{ url_for('admin_media.list_media') }}"
+           {% if active_endpoint in ['admin_media.list_media', 'admin_media.create_media', 'admin_media.get_media_view', 'admin_media.edit_media'] %}aria-current="page"{% endif %}>
+            <span>Media Library</span>
+        </a>
+        <a class="admin-nav-link {{ 'active' if active_endpoint in ['admin_users.list_users', 'admin_users.create_user', 'admin_users.get_user_view', 'admin_users.edit_user'] else '' }}"
+           href="{{ url_for('admin_users.list_users') }}"
+           {% if active_endpoint in ['admin_users.list_users', 'admin_users.create_user', 'admin_users.get_user_view', 'admin_users.edit_user'] %}aria-current="page"{% endif %}>
+            <span>Users</span>
+        </a>
+        <a class="admin-nav-link {{ 'active' if active_endpoint in ['admin.get_settings', 'admin.list_fonts', 'admin.create_font', 'admin.edit_font'] else '' }}"
+           href="{{ url_for('admin.get_settings') }}"
+           {% if active_endpoint in ['admin.get_settings', 'admin.list_fonts', 'admin.create_font', 'admin.edit_font'] %}aria-current="page"{% endif %}>
+            <span>Settings</span>
+        </a>
+    </nav>
+{% endmacro %}
+
+{% block body %}
+<div class="admin-shell">
+    <header class="navbar navbar-expand-lg sticky-top admin-navbar border-bottom">
+        <div class="container-fluid gap-3">
+            <button class="navbar-toggler d-lg-none"
+                    type="button"
+                    data-bs-toggle="offcanvas"
+                    data-bs-target="#adminSidenav"
+                    aria-controls="adminSidenav"
+                    aria-label="Toggle admin navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <a class="navbar-brand fw-semibold me-lg-4" href="{{ url_for('admin.get_dashboard') }}">
+                MacroSignage
+            </a>
+
+            <form class="admin-search d-none d-md-flex" role="search">
+                <label class="visually-hidden" for="adminSearch">Search admin</label>
+                <input id="adminSearch"
+                       class="form-control"
+                       type="search"
+                       placeholder="Search displays, schedules, media"
+                       aria-label="Search admin">
+            </form>
+
+            <div class="ms-auto d-flex align-items-center gap-2">
+                <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('web.index') }}">View site</a>
+                <div class="dropdown">
+                    <button class="btn btn-primary btn-sm dropdown-toggle"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                        Admin
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{{ url_for('auth.get_login') }}">Login</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form method="post" action="{{ url_for('auth.logout') }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button class="dropdown-item" type="submit">Sign out</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="offcanvas offcanvas-start d-lg-none" tabindex="-1" id="adminSidenav" aria-labelledby="adminSidenavLabel">
+        <div class="offcanvas-header">
+            <h2 class="offcanvas-title h5" id="adminSidenavLabel">Admin navigation</h2>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            {{ admin_nav() }}
+        </div>
+    </div>
+
+    <div class="admin-layout">
+        <aside class="admin-sidebar d-none d-lg-flex">
+            <div class="admin-sidebar-header">
+                <p class="eyebrow mb-1">Admin Console</p>
+                <p class="mb-0 text-secondary">Manage signage operations</p>
+            </div>
+            {{ admin_nav() }}
+        </aside>
+
+        <main class="admin-main">
+            <div class="admin-main-inner">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div class="admin-flashes" aria-live="polite">
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category if category in ['success', 'info', 'warning', 'danger'] else 'info' }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+                {% block main %}
+
+                {% endblock %}
+            </div>
+        </main>
+    </div>
+</div>
+
+{% endblock %}

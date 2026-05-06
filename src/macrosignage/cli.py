@@ -1,0 +1,66 @@
+from __future__ import annotations
+
+import argparse
+from collections.abc import Sequence
+
+from .app import create_app
+
+
+def _add_server_options(
+    parser: argparse.ArgumentParser,
+    *,
+    default_host: str,
+    default_port: int,
+) -> None:
+    parser.add_argument("--host", default=default_host, help="Host interface to bind.")
+    parser.add_argument("--port", default=default_port, type=int, help="Port to bind.")
+
+
+def _run_dev(args: argparse.Namespace) -> int:
+    app = create_app()
+    app.run(host=args.host, port=args.port, debug=args.debug)
+    return 0
+
+
+def _run_prod(args: argparse.Namespace) -> int:
+    from waitress import serve
+
+    app = create_app()
+    serve(app, host=args.host, port=args.port, threads=args.threads)
+    return 0
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog="macrosignage",
+        description="Run the MacroSignage web application.",
+    )
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    dev_parser = subparsers.add_parser("dev", help="Run the Flask development server.")
+    _add_server_options(dev_parser, default_host="127.0.0.1", default_port=5000)
+    dev_parser.add_argument(
+        "--debug",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Enable Flask debug mode.",
+    )
+    dev_parser.set_defaults(func=_run_dev)
+
+    prod_parser = subparsers.add_parser("prod", help="Run with the Waitress WSGI server.")
+    _add_server_options(prod_parser, default_host="0.0.0.0", default_port=8080)
+    prod_parser.add_argument(
+        "--threads",
+        default=4,
+        type=int,
+        help="Number of Waitress worker threads.",
+    )
+    prod_parser.set_defaults(func=_run_prod)
+
+    return parser
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    return args.func(args)

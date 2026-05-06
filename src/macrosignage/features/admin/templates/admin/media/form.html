@@ -1,0 +1,369 @@
+{% extends 'layouts/admin.html' %}
+
+{% block main %}
+    <div class="admin-page-header">
+        <div>
+            <p class="eyebrow">Media Library</p>
+            <h1 class="h2 mb-1">{{ title }}</h1>
+            <p class="text-secondary mb-0">Create reusable media and assign it to any number of displays.</p>
+        </div>
+        <a class="btn btn-outline-secondary" href="{{ url_for('admin_media.list_media') }}">Back to media</a>
+    </div>
+
+    <form method="post" action="{{ form_action }}" enctype="multipart/form-data" novalidate>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="row g-3">
+            <div class="col-lg-8">
+                <section class="card">
+                    <div class="card-body">
+                        <h2 class="h5 mb-3">Media Details</h2>
+                        <div class="mb-3">
+                            <label class="form-label" for="mediaTitle">Title</label>
+                            <input id="mediaTitle"
+                                   class="form-control {% if errors.get('title') %}is-invalid{% endif %}"
+                                   type="text"
+                                   name="title"
+                                   value="{{ media.title or '' }}"
+                                   required
+                                   autocomplete="off">
+                            {% if errors.get('title') %}
+                                <div class="invalid-feedback">{{ errors.title }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" for="mediaTypeForm">Media type</label>
+                            <select id="mediaTypeForm"
+                                    class="form-select {% if errors.get('media_type') %}is-invalid{% endif %}"
+                                    name="media_type"
+                                    data-media-type-control>
+                                {% for value, label in media_types.items() %}
+                                    <option value="{{ value }}" {% if media.media_type == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                            {% if errors.get('media_type') %}
+                                <div class="invalid-feedback">{{ errors.media_type }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="media-source-panel" data-media-panel="IMAGE VIDEO">
+                            <label class="form-label" for="mediaFile">Upload file</label>
+                            <input id="mediaFile"
+                                   class="form-control {% if errors.get('file') %}is-invalid{% endif %}"
+                                   type="file"
+                                   name="file"
+                                   accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm,video/ogg,video/quicktime">
+                            {% if errors.get('file') %}
+                                <div class="invalid-feedback">{{ errors.file }}</div>
+                            {% endif %}
+                            {% if media.file_path %}
+                                <p class="form-text mb-0">Current file: {{ media.original_filename or media.file_path }}</p>
+                            {% else %}
+                                <p class="form-text mb-0">Images support JPG, PNG, GIF, and WebP. Videos support MP4, WebM, OGG, and MOV.</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="media-source-panel" data-media-panel="TEXT HTML">
+                            <label class="form-label" for="mediaBody">Content</label>
+                            <textarea id="mediaBody"
+                                      class="form-control {% if errors.get('body') %}is-invalid{% endif %}"
+                                      name="body"
+                                      rows="10"
+                                      placeholder="Enter text or HTML content">{{ media.body or '' }}</textarea>
+                            {% if errors.get('body') %}
+                                <div class="invalid-feedback">{{ errors.body }}</div>
+                            {% endif %}
+                            <p class="form-text mb-0">HTML is stored as content but not rendered inside the admin preview.</p>
+                        </div>
+
+                        <div class="media-source-panel" data-media-panel="YOUTUBE">
+                            <label class="form-label" for="mediaSourceUrl">YouTube URL</label>
+                            <input id="mediaSourceUrl"
+                                   class="form-control {% if errors.get('source_url') %}is-invalid{% endif %}"
+                                   type="url"
+                                   name="source_url"
+                                   value="{{ media.source_url or '' }}"
+                                   placeholder="https://www.youtube.com/watch?v=...">
+                            {% if errors.get('source_url') %}
+                                <div class="invalid-feedback">{{ errors.source_url }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="media-source-panel" data-media-panel="SLIDER">
+                            <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+                                <div>
+                                    <h3 class="h6 mb-1">Slides</h3>
+                                    <p class="form-text mb-0">Each slide uses a background image, optional foreground image, text, and duration.</p>
+                                </div>
+                                <div class="slider-count-control">
+                                    <label class="form-label" for="sliderSlideCount">Slides</label>
+                                    <input id="sliderSlideCount"
+                                           class="form-control {% if errors.get('slider_slide_count') %}is-invalid{% endif %}"
+                                           type="number"
+                                           name="slider_slide_count"
+                                           min="1"
+                                           max="{{ max_slider_slides }}"
+                                           step="1"
+                                           value="{{ slider_slide_count }}"
+                                           data-slider-count>
+                                    {% if errors.get('slider_slide_count') %}
+                                        <div class="invalid-feedback">{{ errors.slider_slide_count }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="slider-form-list" data-slider-list>
+                                {% for index in range(max_slider_slides) %}
+                                    {% set slide = slider_slides[index] if index < slider_slides|length else none %}
+                                    <section class="slider-form-slide" data-slider-slide="{{ index }}" {% if index >= slider_slide_count %}hidden{% endif %}>
+                                        <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
+                                            <h4 class="h6 mb-0">Slide {{ index + 1 }}</h4>
+                                            <span class="badge text-bg-secondary">{{ index + 1 }}</span>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label" for="sliderBackground{{ index }}">Background image</label>
+                                            <input id="sliderBackground{{ index }}"
+                                                   class="form-control {% if errors.get('slider_background_' ~ index) %}is-invalid{% endif %}"
+                                                   type="file"
+                                                   name="slider_background_{{ index }}"
+                                                   accept="image/jpeg,image/png,image/gif,image/webp">
+                                            {% if errors.get('slider_background_' ~ index) %}
+                                                <div class="invalid-feedback">{{ errors.get('slider_background_' ~ index) }}</div>
+                                            {% endif %}
+                                            {% if slide and slide.background_file_path %}
+                                                <p class="form-text mb-0">Current background: {{ slide.background_original_filename or slide.background_file_path }}</p>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label" for="sliderForeground{{ index }}">Foreground image</label>
+                                            <input id="sliderForeground{{ index }}"
+                                                   class="form-control {% if errors.get('slider_foreground_' ~ index) %}is-invalid{% endif %}"
+                                                   type="file"
+                                                   name="slider_foreground_{{ index }}"
+                                                   accept="image/jpeg,image/png,image/gif,image/webp">
+                                            {% if errors.get('slider_foreground_' ~ index) %}
+                                                <div class="invalid-feedback">{{ errors.get('slider_foreground_' ~ index) }}</div>
+                                            {% endif %}
+                                            {% if slide and slide.foreground_file_path %}
+                                                <p class="form-text mb-0">Current foreground: {{ slide.foreground_original_filename or slide.foreground_file_path }}</p>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="row g-3 mb-3">
+                                            <div class="col-md-4">
+                                                <label class="form-label" for="sliderForegroundSize{{ index }}">Foreground size</label>
+                                                <div class="input-group">
+                                                    <input id="sliderForegroundSize{{ index }}"
+                                                           class="form-control {% if errors.get('slider_foreground_size_' ~ index) %}is-invalid{% endif %}"
+                                                           type="number"
+                                                           name="slider_foreground_size_{{ index }}"
+                                                           min="10"
+                                                           max="100"
+                                                           step="1"
+                                                           value="{{ slide.foreground_size if slide else default_slider_foreground_size }}">
+                                                    <span class="input-group-text">%</span>
+                                                    {% if errors.get('slider_foreground_size_' ~ index) %}
+                                                        <div class="invalid-feedback">{{ errors.get('slider_foreground_size_' ~ index) }}</div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label" for="sliderForegroundPosition{{ index }}">Foreground position</label>
+                                                <select id="sliderForegroundPosition{{ index }}"
+                                                        class="form-select {% if errors.get('slider_foreground_position_' ~ index) %}is-invalid{% endif %}"
+                                                        name="slider_foreground_position_{{ index }}">
+                                                    {% for value, label in slider_foreground_positions.items() %}
+                                                        <option value="{{ value }}" {% if slide and slide.foreground_position == value %}selected{% elif not slide and value == default_slider_foreground_position %}selected{% endif %}>{{ label }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                                {% if errors.get('slider_foreground_position_' ~ index) %}
+                                                    <div class="invalid-feedback">{{ errors.get('slider_foreground_position_' ~ index) }}</div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label" for="sliderForegroundAnimation{{ index }}">Foreground animation</label>
+                                                <select id="sliderForegroundAnimation{{ index }}"
+                                                        class="form-select {% if errors.get('slider_foreground_animation_' ~ index) %}is-invalid{% endif %}"
+                                                        name="slider_foreground_animation_{{ index }}">
+                                                    {% for value, label in slider_animations.items() %}
+                                                        <option value="{{ value }}" {% if slide and slide.foreground_animation == value %}selected{% elif not slide and value == default_slider_animation %}selected{% endif %}>{{ label }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                                {% if errors.get('slider_foreground_animation_' ~ index) %}
+                                                    <div class="invalid-feedback">{{ errors.get('slider_foreground_animation_' ~ index) }}</div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label" for="sliderText{{ index }}">Text</label>
+                                            <textarea id="sliderText{{ index }}"
+                                                      class="form-control"
+                                                      name="slider_text_{{ index }}"
+                                                      rows="3"
+                                                      placeholder="Slide headline or message">{{ slide.text if slide else '' }}</textarea>
+                                        </div>
+
+                                        <div class="row g-3">
+                                            <div class="col-md-7">
+                                                <label class="form-label" for="sliderTextPosition{{ index }}">Text position</label>
+                                                <select id="sliderTextPosition{{ index }}"
+                                                        class="form-select {% if errors.get('slider_text_position_' ~ index) %}is-invalid{% endif %}"
+                                                        name="slider_text_position_{{ index }}">
+                                                    {% for value, label in slider_text_positions.items() %}
+                                                        <option value="{{ value }}" {% if slide and slide.text_position == value %}selected{% elif not slide and value == 'CENTER' %}selected{% endif %}>{{ label }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                                {% if errors.get('slider_text_position_' ~ index) %}
+                                                    <div class="invalid-feedback">{{ errors.get('slider_text_position_' ~ index) }}</div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-5">
+                                                <label class="form-label" for="sliderDuration{{ index }}">Seconds</label>
+                                                <input id="sliderDuration{{ index }}"
+                                                       class="form-control {% if errors.get('slider_duration_' ~ index) %}is-invalid{% endif %}"
+                                                       type="number"
+                                                       name="slider_duration_{{ index }}"
+                                                       min="1"
+                                                       step="1"
+                                                       value="{{ slide.duration_seconds if slide else 10 }}">
+                                                {% if errors.get('slider_duration_' ~ index) %}
+                                                    <div class="invalid-feedback">{{ errors.get('slider_duration_' ~ index) }}</div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-7">
+                                                <label class="form-label" for="sliderTextAnimation{{ index }}">Text animation</label>
+                                                <select id="sliderTextAnimation{{ index }}"
+                                                        class="form-select {% if errors.get('slider_text_animation_' ~ index) %}is-invalid{% endif %}"
+                                                        name="slider_text_animation_{{ index }}">
+                                                    {% for value, label in slider_animations.items() %}
+                                                        <option value="{{ value }}" {% if slide and slide.text_animation == value %}selected{% elif not slide and value == default_slider_animation %}selected{% endif %}>{{ label }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                                {% if errors.get('slider_text_animation_' ~ index) %}
+                                                    <div class="invalid-feedback">{{ errors.get('slider_text_animation_' ~ index) }}</div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-7">
+                                                <label class="form-label" for="sliderFontFamily{{ index }}">Font family</label>
+                                                <select id="sliderFontFamily{{ index }}"
+                                                        class="form-select {% if errors.get('slider_font_family_' ~ index) %}is-invalid{% endif %}"
+                                                        name="slider_font_family_{{ index }}">
+                                                    {% for value, label in google_font_families.items() %}
+                                                        <option value="{{ value }}" {% if slide and slide.text_font_family == value %}selected{% elif not slide and value == default_slider_font_family %}selected{% endif %}>{{ label }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                                {% if errors.get('slider_font_family_' ~ index) %}
+                                                    <div class="invalid-feedback">{{ errors.get('slider_font_family_' ~ index) }}</div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-5">
+                                                <label class="form-label" for="sliderFontSize{{ index }}">Font size</label>
+                                                <div class="input-group">
+                                                    <input id="sliderFontSize{{ index }}"
+                                                           class="form-control {% if errors.get('slider_font_size_' ~ index) %}is-invalid{% endif %}"
+                                                           type="number"
+                                                           name="slider_font_size_{{ index }}"
+                                                           min="16"
+                                                           max="240"
+                                                           step="1"
+                                                           value="{{ slide.text_font_size if slide else default_slider_font_size }}">
+                                                    <span class="input-group-text">px</span>
+                                                    {% if errors.get('slider_font_size_' ~ index) %}
+                                                        <div class="invalid-feedback">{{ errors.get('slider_font_size_' ~ index) }}</div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </section>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="form-label" for="mediaNotes">Notes</label>
+                            <textarea id="mediaNotes"
+                                      class="form-control"
+                                      name="notes"
+                                      rows="4"
+                                      placeholder="Usage guidance, campaign context, or production notes">{{ media.notes or '' }}</textarea>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="col-lg-4">
+                <section class="card mb-3">
+                    <div class="card-body">
+                        <h2 class="h5 mb-3">Display Assignment</h2>
+                        {% if displays %}
+                            <div class="display-assignment-list">
+                                {% for display in displays %}
+                                    <div class="form-check">
+                                        <input id="displayAssignment{{ display.id }}"
+                                               class="form-check-input"
+                                               type="checkbox"
+                                               name="display_ids"
+                                               value="{{ display.id }}"
+                                               {% if display in media.displays %}checked{% endif %}>
+                                        <label class="form-check-label" for="displayAssignment{{ display.id }}">
+                                            {{ display.name }}
+                                            <span class="d-block text-secondary">{{ display.location or 'Unassigned location' }}</span>
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="mb-0 text-secondary">Create a display before assigning media.</p>
+                        {% endif %}
+                    </div>
+                </section>
+
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary" type="submit">{{ submit_label }}</button>
+                    <a class="btn btn-outline-secondary" href="{{ url_for('admin_media.list_media') }}">Cancel</a>
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        (() => {
+            const control = document.querySelector("[data-media-type-control]");
+            const panels = [...document.querySelectorAll("[data-media-panel]")];
+            const sliderCount = document.querySelector("[data-slider-count]");
+            const sliderSlides = [...document.querySelectorAll("[data-slider-slide]")];
+
+            if (!control || panels.length === 0) {
+                return;
+            }
+
+            const syncPanels = () => {
+                panels.forEach((panel) => {
+                    const supportedTypes = panel.dataset.mediaPanel.split(" ");
+                    panel.hidden = !supportedTypes.includes(control.value);
+                });
+            };
+
+            const syncSliderSlides = () => {
+                if (!sliderCount || sliderSlides.length === 0) {
+                    return;
+                }
+                const count = Number.parseInt(sliderCount.value || "1", 10);
+                sliderSlides.forEach((slide) => {
+                    const index = Number.parseInt(slide.dataset.sliderSlide || "0", 10);
+                    slide.hidden = index >= count;
+                });
+            };
+
+            control.addEventListener("change", syncPanels);
+            sliderCount?.addEventListener("input", syncSliderSlides);
+            syncPanels();
+            syncSliderSlides();
+        })();
+    </script>
+{% endblock %}

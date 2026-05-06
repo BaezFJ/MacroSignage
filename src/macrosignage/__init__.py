@@ -1,14 +1,4 @@
-__version__ = "0.1.0"
+from .app import create_app
 
-from flask import Flask, render_template
-
-
-def create_app():
-
-    app = Flask(__name__)
-
-    @app.route("/")
-    def index():
-        return render_template("pages/index.html", title="Macro Signage")
-
-    return app
+__version__ = "0.2.0"
+__all__ = ["create_app", "__version__"]

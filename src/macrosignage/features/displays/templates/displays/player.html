@@ -1,0 +1,101 @@
+{% extends 'layouts/_base.html' %}
+
+{% block styles %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="{{ google_fonts_url }}">
+{% endblock %}
+
+{% block body %}
+    <main class="display-player display-player-{{ display.orientation | lower }}"
+          data-display-player
+          aria-label="{{ display.name }} playback">
+        {% if playlist %}
+            <div class="display-player-stage">
+                {% for media in playlist %}
+                    <section class="display-player-slide {% if loop.first %}active{% endif %}"
+                             data-player-slide
+                             data-duration="{{ media.slider_duration_seconds if media.media_type == 'SLIDER' else default_duration }}"
+                             aria-hidden="{{ 'false' if loop.first else 'true' }}">
+                        {% if media.media_type == 'IMAGE' and media.file_path %}
+                            <img class="display-player-media"
+                                 src="{{ url_for('display_player.player_media_file', filename=media.file_path) }}"
+                                 alt="{{ media.title }}">
+                        {% elif media.media_type == 'VIDEO' and media.file_path %}
+                            <video class="display-player-media"
+                                   muted
+                                   playsinline
+                                   preload="metadata">
+                                <source src="{{ url_for('display_player.player_media_file', filename=media.file_path) }}"
+                                        type="{{ media.mime_type or 'video/mp4' }}">
+                            </video>
+                        {% elif media.media_type == 'TEXT' %}
+                            <article class="display-player-text">
+                                <p>{{ media.body }}</p>
+                            </article>
+                        {% elif media.media_type == 'HTML' %}
+                            <iframe class="display-player-frame"
+                                    title="{{ media.title }}"
+                                    sandbox=""
+                                    srcdoc="{{ media.body or '' }}"></iframe>
+                        {% elif media.media_type == 'YOUTUBE' and youtube_video_id(media.source_url or '') %}
+                            <iframe class="display-player-frame"
+                                    title="{{ media.title }}"
+                                    data-player-youtube
+                                    data-src="https://www.youtube-nocookie.com/embed/{{ youtube_video_id(media.source_url or '') }}?autoplay=1&mute=1&playsinline=1&rel=0&modestbranding=1"
+                                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                                    allowfullscreen></iframe>
+                        {% elif media.media_type == 'SLIDER' and media.slider_slides %}
+                            <article class="display-slider" data-player-slider>
+                                {% for slide in media.slider_slides %}
+                                    <section class="display-slider-slide {% if loop.first %}active{% endif %}"
+                                             data-slider-inner-slide
+                                             data-duration="{{ slide.duration_seconds }}">
+                                        <img class="display-slider-background"
+                                             src="{{ url_for('display_player.player_media_file', filename=slide.background_file_path) }}"
+                                             alt="">
+                                        {% if slide.foreground_file_path %}
+                                            <div class="display-slider-foreground-wrap display-slider-foreground-{{ slide.foreground_position | lower | replace('_', '-') }}"
+                                                 style="width: {{ slide.foreground_size }}%;">
+                                                <img class="display-slider-foreground{% if slide.foreground_animation != 'NONE' %} animate__animated animate__{{ slide.foreground_animation }}{% endif %}"
+                                                     src="{{ url_for('display_player.player_media_file', filename=slide.foreground_file_path) }}"
+                                                     {% if slide.foreground_animation != 'NONE' %}data-animate-target data-animate-class="animate__{{ slide.foreground_animation }}"{% endif %}
+                                                     alt="">
+                                            </div>
+                                        {% endif %}
+                                        <div class="display-slider-content display-slider-content-{{ slide.text_position | lower | replace('_', '-') }}">
+                                            {% if slide.text %}
+                                                <p class="{% if slide.text_animation != 'NONE' %}animate__animated animate__{{ slide.text_animation }}{% endif %}"
+                                                   {% if slide.text_animation != 'NONE' %}data-animate-target data-animate-class="animate__{{ slide.text_animation }}"{% endif %}
+                                                   style="font-family: '{{ slide.text_font_family }}', sans-serif; font-size: {{ slide.text_font_size }}px;">{{ slide.text }}</p>
+                                            {% endif %}
+                                        </div>
+                                    </section>
+                                {% endfor %}
+                            </article>
+                        {% else %}
+                            <article class="display-player-empty">
+                                <p>{{ media.title }}</p>
+                                <span>{{ media_types.get(media.media_type, media.media_type) }} unavailable</span>
+                            </article>
+                        {% endif %}
+                    </section>
+                {% endfor %}
+            </div>
+        {% else %}
+            <section class="display-player-empty">
+                <p>{{ display.name }}</p>
+                <span>No media scheduled</span>
+            </section>
+        {% endif %}
+        {% if logo_settings.logo_enabled and logo_settings.has_logo %}
+            <img class="display-logo display-logo-{{ logo_settings.logo_position | lower | replace('_', '-') }}"
+                 src="{{ url_for('display_player.player_media_file', filename=logo_settings.logo_file_path) }}"
+                 alt="">
+        {% endif %}
+    </main>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for('static', filename='js/display-player.js') }}"></script>
+{% endblock %}

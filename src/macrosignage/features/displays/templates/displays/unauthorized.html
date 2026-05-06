@@ -1,0 +1,24 @@
+{% extends 'layouts/_base.html' %}
+
+{% block body %}
+    <main class="display-auth display-player-{{ display.orientation | lower }}"
+          aria-label="{{ display.name }} access required">
+        <section class="display-auth-panel">
+            <p class="display-auth-kicker">Access Required</p>
+            <h1>{{ display.name }}</h1>
+            <p>{{ reason }}</p>
+            {% if reason != 'Display access disabled' %}
+                <form class="display-auth-form" method="post" action="{{ pair_action }}">
+                    <label class="visually-hidden" for="player-token">Player token</label>
+                    <input id="player-token"
+                           name="token"
+                           type="password"
+                           autocomplete="off"
+                           placeholder="Player token"
+                           required>
+                    <button type="submit">Pair display</button>
+                </form>
+            {% endif %}
+        </section>
+    </main>
+{% endblock %}

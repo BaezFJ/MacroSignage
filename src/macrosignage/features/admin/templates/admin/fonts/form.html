@@ -1,0 +1,87 @@
+{% extends 'layouts/admin.html' %}
+
+{% block main %}
+    <div class="admin-page-header">
+        <div>
+            <p class="eyebrow">Settings</p>
+            <h1 class="h2 mb-1">{{ title }}</h1>
+            <p class="text-secondary mb-0">Add a Google Font by its family name.</p>
+        </div>
+        <a class="btn btn-outline-secondary" href="{{ url_for('admin.list_fonts') }}">Back to fonts</a>
+    </div>
+
+    <form method="post" action="{{ form_action }}" novalidate>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="row g-3">
+            <div class="col-lg-8">
+                <section class="card">
+                    <div class="card-body">
+                        <h2 class="h5 mb-3">Font Details</h2>
+
+                        <div class="mb-3">
+                            <label class="form-label" for="fontFamily">Google font family</label>
+                            <input id="fontFamily"
+                                   class="form-control {% if errors.get('family') %}is-invalid{% endif %}"
+                                   type="text"
+                                   name="family"
+                                   value="{{ font.family or '' }}"
+                                   placeholder="Roboto Condensed"
+                                   required
+                                   autocomplete="off">
+                            {% if errors.get('family') %}
+                                <div class="invalid-feedback">{{ errors.family }}</div>
+                            {% endif %}
+                            <p class="form-text mb-0">Use the family name from Google Fonts, not the CSS URL.</p>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" for="fontDisplayName">Display name</label>
+                            <input id="fontDisplayName"
+                                   class="form-control {% if errors.get('display_name') %}is-invalid{% endif %}"
+                                   type="text"
+                                   name="display_name"
+                                   value="{{ font.display_name or '' }}"
+                                   placeholder="Roboto Condensed"
+                                   autocomplete="off">
+                            {% if errors.get('display_name') %}
+                                <div class="invalid-feedback">{{ errors.display_name }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-check form-switch">
+                            <input id="fontActive"
+                                   class="form-check-input"
+                                   type="checkbox"
+                                   name="active"
+                                   {% if font.active %}checked{% endif %}>
+                            <label class="form-check-label" for="fontActive">Available in slider media</label>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="col-lg-4">
+                <section class="card mb-3">
+                    <div class="card-body">
+                        <h2 class="h5 mb-3">Source</h2>
+                        <dl class="display-detail-grid media-detail-grid mb-0">
+                            <div>
+                                <dt>Provider</dt>
+                                <dd>Google Fonts</dd>
+                            </div>
+                            <div>
+                                <dt>Usage</dt>
+                                <dd>Slider text</dd>
+                            </div>
+                        </dl>
+                    </div>
+                </section>
+
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary" type="submit">{{ submit_label }}</button>
+                    <a class="btn btn-outline-secondary" href="{{ url_for('admin.list_fonts') }}">Cancel</a>
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock %}

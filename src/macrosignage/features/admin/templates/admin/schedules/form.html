@@ -1,0 +1,178 @@
+{% extends 'layouts/admin.html' %}
+
+{% block main %}
+    <div class="admin-page-header">
+        <div>
+            <p class="eyebrow">Schedules</p>
+            <h1 class="h2 mb-1">{{ title }}</h1>
+            <p class="text-secondary mb-0">Choose playback timing, display targets, and media assets.</p>
+        </div>
+        <a class="btn btn-outline-secondary" href="{{ url_for('admin_schedules.list_schedules') }}">Back to schedules</a>
+    </div>
+
+    <form method="post" action="{{ form_action }}" novalidate>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="row g-3">
+            <div class="col-lg-8">
+                <section class="card mb-3">
+                    <div class="card-body">
+                        <h2 class="h5 mb-3">Schedule Details</h2>
+                        <div class="mb-3">
+                            <label class="form-label" for="scheduleName">Name</label>
+                            <input id="scheduleName"
+                                   class="form-control {% if errors.get('name') %}is-invalid{% endif %}"
+                                   type="text"
+                                   name="name"
+                                   value="{{ schedule.name or '' }}"
+                                   required
+                                   autocomplete="off">
+                            {% if errors.get('name') %}
+                                <div class="invalid-feedback">{{ errors.name }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label" for="scheduleStatusForm">Status</label>
+                                <select id="scheduleStatusForm"
+                                        class="form-select {% if errors.get('status') %}is-invalid{% endif %}"
+                                        name="status">
+                                    {% for value, label in schedule_statuses.items() %}
+                                        <option value="{{ value }}" {% if schedule.status == value %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                                {% if errors.get('status') %}
+                                    <div class="invalid-feedback">{{ errors.status }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label" for="scheduleStartsAt">Starts at</label>
+                                <input id="scheduleStartsAt"
+                                       class="form-control {% if errors.get('starts_at') %}is-invalid{% endif %}"
+                                       type="datetime-local"
+                                       name="starts_at"
+                                       value="{{ format_datetime_local(schedule.starts_at) }}">
+                                {% if errors.get('starts_at') %}
+                                    <div class="invalid-feedback">{{ errors.starts_at }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label" for="scheduleEndsAt">Ends at</label>
+                                <input id="scheduleEndsAt"
+                                       class="form-control {% if errors.get('ends_at') %}is-invalid{% endif %}"
+                                       type="datetime-local"
+                                       name="ends_at"
+                                       value="{{ format_datetime_local(schedule.ends_at) }}">
+                                {% if errors.get('ends_at') %}
+                                    <div class="invalid-feedback">{{ errors.ends_at }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="form-label" for="defaultDuration">Default item duration</label>
+                            <div class="input-group">
+                                <input id="defaultDuration"
+                                       class="form-control {% if errors.get('default_duration_seconds') %}is-invalid{% endif %}"
+                                       type="number"
+                                       min="1"
+                                       max="86400"
+                                       step="1"
+                                       name="default_duration_seconds"
+                                       value="{{ schedule.default_duration_seconds }}">
+                                <span class="input-group-text">seconds</span>
+                                {% if errors.get('default_duration_seconds') %}
+                                    <div class="invalid-feedback">{{ errors.default_duration_seconds }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <p class="form-label">Run days</p>
+                            <div class="weekday-toggle-group" role="group" aria-label="Run days">
+                                {% for value, label in weekdays.items() %}
+                                    <input id="weekday{{ value }}"
+                                           class="btn-check"
+                                           type="checkbox"
+                                           name="weekdays"
+                                           value="{{ value }}"
+                                           {% if value in schedule.weekday_values %}checked{% endif %}>
+                                    <label class="btn btn-outline-secondary btn-sm" for="weekday{{ value }}">{{ label }}</label>
+                                {% endfor %}
+                            </div>
+                            <p class="form-text mb-0">Leave all days unchecked to allow playback every day.</p>
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="form-label" for="scheduleNotes">Notes</label>
+                            <textarea id="scheduleNotes"
+                                      class="form-control"
+                                      name="notes"
+                                      rows="4"
+                                      placeholder="Campaign context, operational notes, or rollout details">{{ schedule.notes or '' }}</textarea>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <div class="card-body">
+                        <h2 class="h5 mb-3">Media Playlist</h2>
+                        {% if media_items %}
+                            <div class="assignment-grid">
+                                {% for media in media_items %}
+                                    <div class="form-check assignment-option">
+                                        <input id="scheduleMedia{{ media.id }}"
+                                               class="form-check-input"
+                                               type="checkbox"
+                                               name="media_ids"
+                                               value="{{ media.id }}"
+                                               {% if media in schedule.media_assets %}checked{% endif %}>
+                                        <label class="form-check-label" for="scheduleMedia{{ media.id }}">
+                                            {{ media.title }}
+                                            <span class="d-block text-secondary">{{ media.media_type.title() }}</span>
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="mb-0 text-secondary">Create media before assigning a schedule playlist.</p>
+                        {% endif %}
+                    </div>
+                </section>
+            </div>
+
+            <div class="col-lg-4">
+                <section class="card mb-3">
+                    <div class="card-body">
+                        <h2 class="h5 mb-3">Display Targets</h2>
+                        {% if displays %}
+                            <div class="assignment-list">
+                                {% for display in displays %}
+                                    <div class="form-check assignment-option">
+                                        <input id="scheduleDisplay{{ display.id }}"
+                                               class="form-check-input"
+                                               type="checkbox"
+                                               name="display_ids"
+                                               value="{{ display.id }}"
+                                               {% if display in schedule.displays %}checked{% endif %}>
+                                        <label class="form-check-label" for="scheduleDisplay{{ display.id }}">
+                                            {{ display.name }}
+                                            <span class="d-block text-secondary">{{ display.location or 'Unassigned location' }}</span>
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="mb-0 text-secondary">Create a display before targeting schedules.</p>
+                        {% endif %}
+                    </div>
+                </section>
+
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary" type="submit">{{ submit_label }}</button>
+                    <a class="btn btn-outline-secondary" href="{{ url_for('admin_schedules.list_schedules') }}">Cancel</a>
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock %}

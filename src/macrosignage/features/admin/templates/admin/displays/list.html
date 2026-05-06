@@ -1,0 +1,100 @@
+{% extends 'layouts/admin.html' %}
+
+{% block main %}
+    <div class="admin-page-header">
+        <div>
+            <p class="eyebrow">Display Management</p>
+            <h1 class="h2 mb-1">Displays</h1>
+            <p class="text-secondary mb-0">Register screens and track their playback readiness.</p>
+        </div>
+        <a class="btn btn-primary" href="{{ url_for('admin_displays.create_display') }}">Add display</a>
+    </div>
+
+    <section class="card mb-3" aria-label="Display filters">
+        <div class="card-body">
+            <form class="row g-3 align-items-end" method="get" action="{{ url_for('admin_displays.list_displays') }}">
+                <div class="col-md-6">
+                    <label class="form-label" for="displaySearch">Search</label>
+                    <input id="displaySearch"
+                           class="form-control"
+                           type="search"
+                           name="q"
+                           value="{{ search_query }}"
+                           placeholder="Display name or location">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" for="displayStatus">Status</label>
+                    <select id="displayStatus" class="form-select" name="status">
+                        <option value="">All statuses</option>
+                        {% for value, label in display_statuses.items() %}
+                            <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 d-grid">
+                    <button class="btn btn-outline-secondary" type="submit">Filter</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <section class="card" aria-label="Displays list">
+        {% if displays %}
+            <div class="table-responsive">
+                <table class="table align-middle mb-0 admin-table">
+                    <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Location</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Resolution</th>
+                        <th scope="col">Orientation</th>
+                        <th class="text-end" scope="col">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for display in displays %}
+                        <tr>
+                            <th scope="row">
+                                <a href="{{ url_for('admin_displays.get_display_view', display_id=display.id) }}">{{ display.name }}</a>
+                            </th>
+                            <td>{{ display.location or 'Unassigned' }}</td>
+                            <td>
+                                <span class="badge display-status display-status-{{ display.status | lower }}">
+                                    {{ display_statuses[display.status] }}
+                                </span>
+                            </td>
+                            <td>{{ display.resolution_label }}</td>
+                            <td>{{ display.orientation.title() }}</td>
+                            <td>
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a class="btn btn-sm btn-outline-secondary"
+                                       href="{{ url_for('admin_displays.edit_display', display_id=display.id) }}">
+                                        Edit
+                                    </a>
+                                    <form method="post"
+                                          action="{{ url_for('admin_displays.delete_display', display_id=display.id) }}"
+                                          onsubmit="return confirm('Delete this display?');">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="card-body">
+                <div class="empty-state">
+                    <div>
+                        <p class="mb-1 fw-semibold">No displays found</p>
+                        <p class="mb-3 text-secondary">Register a display to start managing screen inventory.</p>
+                        <a class="btn btn-primary" href="{{ url_for('admin_displays.create_display') }}">Add display</a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </section>
+{% endblock %}

@@ -1,0 +1,145 @@
+{% extends 'layouts/admin.html' %}
+
+{% block main %}
+    <div class="admin-page-header">
+        <div>
+            <p class="eyebrow">Administration</p>
+            <h1 class="h2 mb-1">Settings</h1>
+            <p class="text-secondary mb-0">Review runtime configuration and supported signage defaults.</p>
+        </div>
+        <a class="btn btn-outline-secondary" href="{{ url_for('admin.get_dashboard') }}">Back to dashboard</a>
+    </div>
+
+    <section class="row g-3 mb-4" aria-label="Application settings">
+        <div class="col-lg-6">
+            <article class="card h-100">
+                <div class="card-body">
+                    <h2 class="h5 mb-3">Application</h2>
+                    <dl class="settings-list">
+                        {% for label, value in settings.application %}
+                            <div>
+                                <dt>{{ label }}</dt>
+                                <dd>{{ value }}</dd>
+                            </div>
+                        {% endfor %}
+                    </dl>
+                </div>
+            </article>
+        </div>
+        <div class="col-lg-6">
+            <article class="card h-100">
+                <div class="card-body">
+                    <h2 class="h5 mb-3">Storage</h2>
+                    <dl class="settings-list">
+                        {% for label, value in settings.storage %}
+                            <div>
+                                <dt>{{ label }}</dt>
+                                <dd>{{ value }}</dd>
+                            </div>
+                        {% endfor %}
+                    </dl>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <section class="card" aria-label="Catalog defaults">
+        <div class="card-body">
+            <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+                <h2 class="h5 mb-0">Catalog Defaults</h2>
+                <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('admin.list_fonts') }}">Manage fonts</a>
+            </div>
+            <dl class="settings-list settings-list-wide">
+                {% for label, value in settings.catalog %}
+                    <div>
+                        <dt>{{ label }}</dt>
+                        <dd>{{ value }}</dd>
+                    </div>
+                {% endfor %}
+            </dl>
+        </div>
+    </section>
+
+    <section class="card mt-4" aria-label="Logo settings">
+        <div class="card-body">
+            <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+                <div>
+                    <h2 class="h5 mb-1">Logo</h2>
+                    <p class="text-secondary mb-0">Control the global logo overlay shown on display playback.</p>
+                </div>
+                {% if logo_settings.has_logo %}
+                    <img class="settings-logo-preview"
+                         src="{{ url_for('admin_media.uploaded_media', filename=logo_settings.logo_file_path) }}"
+                         alt="{{ logo_settings.logo_original_filename or 'Current logo' }}">
+                {% endif %}
+            </div>
+
+            <form method="post"
+                  action="{{ url_for('admin.update_logo_settings') }}"
+                  enctype="multipart/form-data"
+                  novalidate>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label class="form-label" for="logoUpload">Logo image</label>
+                        <input id="logoUpload"
+                               class="form-control {% if logo_errors and logo_errors.get('logo') %}is-invalid{% endif %}"
+                               type="file"
+                               name="logo"
+                               accept="image/jpeg,image/png,image/gif,image/webp">
+                        {% if logo_errors and logo_errors.get('logo') %}
+                            <div class="invalid-feedback">{{ logo_errors.logo }}</div>
+                        {% endif %}
+                        {% if logo_settings.has_logo %}
+                            <p class="form-text mb-0">Current logo: {{ logo_settings.logo_original_filename or logo_settings.logo_file_path }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label" for="logoPosition">Position</label>
+                        <select id="logoPosition"
+                                class="form-select {% if logo_errors and logo_errors.get('logo_position') %}is-invalid{% endif %}"
+                                name="logo_position">
+                            {% for value, label in logo_positions.items() %}
+                                <option value="{{ value }}" {% if logo_settings.logo_position == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        {% if logo_errors and logo_errors.get('logo_position') %}
+                            <div class="invalid-feedback">{{ logo_errors.logo_position }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-check form-switch">
+                            <input id="logoEnabled"
+                                   class="form-check-input"
+                                   type="checkbox"
+                                   name="logo_enabled"
+                                   {% if logo_settings.logo_enabled %}checked{% endif %}>
+                            <label class="form-check-label" for="logoEnabled">Show logo</label>
+                        </div>
+                        {% if logo_settings.has_logo %}
+                            <div class="form-check mt-2">
+                                <input id="removeLogo"
+                                       class="form-check-input"
+                                       type="checkbox"
+                                       name="remove_logo">
+                                <label class="form-check-label" for="removeLogo">Remove logo</label>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-2 d-grid">
+                        <button class="btn btn-primary" type="submit">Save logo</button>
+                    </div>
+                </div>
+            </form>
+
+            <dl class="settings-list settings-list-wide mt-4 mb-0">
+                {% for label, value in settings.logo %}
+                    <div>
+                        <dt>{{ label }}</dt>
+                        <dd>{{ value }}</dd>
+                    </div>
+                {% endfor %}
+            </dl>
+        </div>
+    </section>
+{% endblock %}

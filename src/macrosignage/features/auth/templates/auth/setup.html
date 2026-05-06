@@ -1,0 +1,68 @@
+{% extends 'layouts/auth.html' %}
+
+{% block content %}
+    <div class="mb-4">
+        <p class="eyebrow">First Run</p>
+        <h1 class="h3 mb-1">Create admin account</h1>
+        <p class="text-secondary mb-0">This account will manage users and signage operations.</p>
+    </div>
+
+    <form method="post" novalidate>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="mb-3">
+            <label class="form-label" for="setupUsername">Username</label>
+            <input id="setupUsername"
+                   class="form-control {% if errors.get('username') %}is-invalid{% endif %}"
+                   type="text"
+                   name="username"
+                   value="{{ user.username or '' }}"
+                   autocomplete="username"
+                   required>
+            {% if errors.get('username') %}
+                <div class="invalid-feedback">{{ errors.username }}</div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label" for="setupEmail">Email</label>
+            <input id="setupEmail"
+                   class="form-control {% if errors.get('email') %}is-invalid{% endif %}"
+                   type="email"
+                   name="email"
+                   value="{{ user.email or '' }}"
+                   autocomplete="email"
+                   required>
+            {% if errors.get('email') %}
+                <div class="invalid-feedback">{{ errors.email }}</div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label" for="setupPassword">Password</label>
+            <input id="setupPassword"
+                   class="form-control {% if errors.get('password') %}is-invalid{% endif %}"
+                   type="password"
+                   name="password"
+                   autocomplete="new-password"
+                   required>
+            {% if errors.get('password') %}
+                <div class="invalid-feedback">{{ errors.password }}</div>
+            {% endif %}
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label" for="setupConfirmPassword">Confirm password</label>
+            <input id="setupConfirmPassword"
+                   class="form-control {% if errors.get('confirm_password') %}is-invalid{% endif %}"
+                   type="password"
+                   name="confirm_password"
+                   autocomplete="new-password"
+                   required>
+            {% if errors.get('confirm_password') %}
+                <div class="invalid-feedback">{{ errors.confirm_password }}</div>
+            {% endif %}
+        </div>
+
+        <button class="btn btn-primary w-100" type="submit">Create admin account</button>
+    </form>
+{% endblock %}

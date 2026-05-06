@@ -1,0 +1,21 @@
+{% extends 'layouts/_base.html' %}
+
+{% block body %}
+    <main class="auth-shell">
+        <section class="auth-panel">
+            <a class="auth-brand" href="{{ url_for('web.index') }}">MacroSignage</a>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="mb-3" aria-live="polite">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category if category in ['success', 'info', 'warning', 'danger'] else 'info' }} mb-2" role="alert">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            {% block content %}{% endblock %}
+        </section>
+    </main>
+{% endblock %}

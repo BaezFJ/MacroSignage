@@ -1,0 +1,83 @@
+{% extends 'layouts/admin.html' %}
+
+{% block main %}
+    <div class="admin-page-header">
+        <div>
+            <p class="eyebrow">Access Control</p>
+            <h1 class="h2 mb-1">Users</h1>
+            <p class="text-secondary mb-0">Manage accounts that can access the admin console.</p>
+        </div>
+        <a class="btn btn-primary" href="{{ url_for('admin_users.create_user') }}">New user</a>
+    </div>
+
+    <section class="card mb-3" aria-label="User filters">
+        <div class="card-body">
+            <form class="row g-2 align-items-end" method="get">
+                <div class="col-md-7">
+                    <label class="form-label" for="userSearch">Search</label>
+                    <input id="userSearch"
+                           class="form-control"
+                           type="search"
+                           name="q"
+                           value="{{ search_query }}"
+                           placeholder="Username or email">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label" for="userRoleFilter">Role</label>
+                    <select id="userRoleFilter" class="form-select" name="role">
+                        <option value="">All roles</option>
+                        {% for value, label in user_roles.items() %}
+                            <option value="{{ value }}" {% if selected_role == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 d-grid">
+                    <button class="btn btn-outline-secondary" type="submit">Filter</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <section class="card" aria-label="Users list">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 admin-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Username</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Role</th>
+                        <th scope="col">Status</th>
+                        <th scope="col" class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                        <tr>
+                            <td class="fw-semibold">
+                                <a href="{{ url_for('admin_users.get_user_view', user_id=user.id) }}">{{ user.username }}</a>
+                            </td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user_roles.get(user.role, user.role) }}</td>
+                            <td>
+                                <span class="badge {{ 'text-bg-success' if user.active else 'text-bg-secondary' }}">
+                                    {{ 'Active' if user.active else 'Inactive' }}
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('admin_users.edit_user', user_id=user.id) }}">Edit</a>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="5">
+                                <div class="empty-state empty-state-sm">
+                                    <p class="mb-0 text-secondary">No users found.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+{% endblock %}
