@@ -15,8 +15,20 @@ permissions:
   contents: write
 
 jobs:
+  create-release:
+    name: Create release notes
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+          generate_release_notes: true
+
   build-release-client:
     name: ${{ matrix.name }}
+    needs: create-release
     runs-on: ${{ matrix.os }}
 
     strategy:

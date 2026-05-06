@@ -46,6 +46,9 @@ def test_client_release_workflow_can_upload_assets_for_tag_or_manual_rerun():
     assert "tags:" in workflow
     assert '- "v*"' in workflow
     assert "contents: write" in workflow
+    assert "create-release:" in workflow
+    assert "generate_release_notes: true" in workflow
+    assert "needs: create-release" in workflow
     assert "working-directory: client" in workflow
     assert "executable-path: dist/MacroSignageClient.exe" in workflow
     assert "executable-path: dist/MacroSignageClient" in workflow
@@ -54,3 +57,18 @@ def test_client_release_workflow_can_upload_assets_for_tag_or_manual_rerun():
     assert "tag_name: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}" in workflow
     assert "files: client/dist/${{ matrix.asset-name }}" in workflow
     assert "fail_on_unmatched_files: true" in workflow
+
+
+def test_github_release_notes_are_grouped_by_change_type():
+    config = (ROOT / ".github" / "release.yml").read_text(encoding="utf-8")
+
+    assert "changelog:" in config
+    assert "exclude:" in config
+    assert "ignore-for-release" in config
+    assert "Breaking Changes" in config
+    assert "Features" in config
+    assert "Fixes" in config
+    assert "Documentation" in config
+    assert "Maintenance" in config
+    assert "Other Changes" in config
+    assert '        - "*"' in config
