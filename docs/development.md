@@ -150,4 +150,15 @@ Browser media playback for real image, video, YouTube, HTML iframe, and slider t
 - `.github/workflows/client-build.yml`: builds standalone client executables on demand and for `v*` tags.
 - `.github/workflows/client-release.yml`: uploads standalone client executables to the matching GitHub Release.
 
+## Version Tag Release Test
+
+The release process was exercised with the `v0.2.1` tag on May 6, 2026:
+
+- `Publish PyPI` succeeded from the `v0.2.1` tag.
+- `Build Client` succeeded from the `v0.2.1` tag.
+- `Release Client` exposed a workflow path bug in the tagged workflow, then succeeded through manual dispatch targeting `v0.2.1` after the workflow path was fixed.
+- The GitHub Release for `v0.2.1` contains Windows, macOS, and Linux client executable assets.
+
+Regression coverage for the release workflow triggers and client asset paths lives in `tests/test_release_workflows.py`.
+
 Before tagging, run the checks above, complete the [Release Documentation Checklist](release-documentation-checklist.md), and review [Architecture](architecture.md), [Deployment](deployment.md), and the active roadmaps.

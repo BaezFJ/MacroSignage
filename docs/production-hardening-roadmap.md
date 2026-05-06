@@ -248,8 +248,19 @@ This roadmap tracks the work required to move MacroSignage from pre-alpha toward
 ### v1.0 Readiness Checkpoint
 
 - [x] Tasks 9-10 complete.
-- [ ] Release process tested on a version tag.
+- [x] Release process tested on a version tag.
 - [ ] README v1.0 roadmap item can be marked complete.
+
+### Release Process Tag Test Notes
+
+The `v0.2.1` tag was pushed on May 6, 2026 to exercise the release automation:
+
+- `Publish PyPI` completed successfully from tag `v0.2.1`.
+- `Build Client` completed successfully from tag `v0.2.1`.
+- `Release Client` failed on the tag because the tagged workflow referenced `client/dist/...` while already using `working-directory: client`.
+- The current workflow fixes that path to `dist/...` for the rename step and keeps `client/dist/...` only for the upload action path.
+- `Release Client` was rerun with manual dispatch for `v0.2.1` and uploaded Windows, macOS, and Linux assets to the GitHub Release.
+- `tests/test_release_workflows.py` now guards the `v*` triggers, PyPI trusted publishing setup, manual release rerun input, client executable paths, and release asset upload settings.
 
 ## Risks and Mitigations
 
