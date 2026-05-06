@@ -3,8 +3,7 @@
 [![PyPI version](https://img.shields.io/pypi/v/MacroSignage)](https://pypi.org/project/MacroSignage/)
 [![Python versions](https://img.shields.io/pypi/pyversions/MacroSignage)](https://pypi.org/project/MacroSignage/)
 [![License](https://img.shields.io/github/license/BaezFJ/MacroSignage)](LICENSE)
-<!-- Replace with GitHub Actions badge URL once CI is configured -->
-[![Build](https://img.shields.io/badge/build-pending-lightgrey)]()
+[![CI](https://github.com/BaezFJ/MacroSignage/actions/workflows/ci.yml/badge.svg)](https://github.com/BaezFJ/MacroSignage/actions/workflows/ci.yml)
 
 **A web-based digital signage system built with Flask and Bootstrap.**
 
@@ -12,37 +11,35 @@ MacroSignage lets you manage and display digital signage content through a moder
 
 > **Note:** This project is in Pre-Alpha (v0.2.1). APIs and features are subject to change.
 
-<!-- TODO: Add screenshot once the dashboard UI is implemented -->
-<!-- ![MacroSignage Screenshot](docs/images/screenshot.png) -->
-
 ## Features
-
-### Current
 
 - Flask application factory pattern (`create_app`)
 - Bootstrap v5.3.8 CSS and JavaScript integration (vendored)
 - Bootstrap theme overrides with light and dark mode support via CSS custom properties
 - Animate.css for UI transitions (vendored)
-- Jinja2 template inheritance (base + page templates)
-- Admin dashboard with display management CRUD
-- Media library CRUD for images, text, video, HTML, and YouTube media
-- Many-to-many media assignment between displays and media assets
-- Schedule CRUD with active windows, weekday rules, display targets, and media playlists
-- SQLite-backed display persistence with Flask-SQLAlchemy
+- Jinja2 layouts for public, auth, admin, and display player pages
+- Admin dashboard with recent activity and settings diagnostics
+- Display management CRUD with token-secured player pairing
+- Media library CRUD for images, text, video, HTML, YouTube, and slider media
+- Slider media with background, foreground image, text, font, position, duration, and animation options
+- Global logo overlay settings
+- Schedule CRUD with active windows, weekday rules, display targets, media playlists, and no-active-schedule fallback
+- User authentication, password reset flow, and role-based access control
+- API token management with create, reset, revoke, and delete actions
+- REST API for displays, media, schedules, users, fonts, settings, health, and player playlists
+- Real-time display updates through server-sent events
+- Standalone pywebview display client under `client/`
+- SQLite by default with configurable Flask-SQLAlchemy database URI support
 - CSRF protection for admin state-changing forms
-- WSGI-ready entry point for production deployment
+- Waitress-backed production command and deployment examples for systemd and Docker
+- GitHub Actions for CI, PyPI publishing, and client executable builds
 - Installable via PyPI (`pip install MacroSignage`)
 
-### Planned
+## v1.0 Focus
 
-- User authentication and session management (Flask-Login)
-- Database migrations (Flask-Migrate)
-- Form handling with CSRF protection (Flask-WTF)
-- Admin dashboard for managing signage content
-- Schedule playback execution
-- Media upload and content rotation
-- REST API for programmatic control
-- Real-time display updates via WebSocket or SSE
+- Finish user, operator, API, client, and maintainer documentation.
+- Complete manual browser playback checks for all media types.
+- Finalize production-readiness review for deployment, backup, restore, and rollback workflows.
 
 ## Tech Stack
 
@@ -100,9 +97,6 @@ pip install build twine
    ```bash
    # Using the MacroSignage CLI
    macrosignage dev
-
-   # Or using the WSGI entry point
-   python wsgi.py
    ```
 
 2. **Open your browser** and navigate to `http://127.0.0.1:5000`
@@ -125,9 +119,14 @@ macrosignage-prod --host 0.0.0.0 --port 8080
 
 ```
 MacroSignage/
+├── client/                         # Standalone pywebview display client
+├── deploy/                         # systemd and Docker deployment examples
+├── docs/                           # User, operator, API, and maintainer docs
 ├── src/
 │   └── macrosignage/              # Main application package
-│       ├── __init__.py            # App factory (create_app)
+│       ├── app.py                  # App factory and runtime setup
+│       ├── cli.py                  # Development and production CLI commands
+│       ├── features/               # Admin, auth, API, display, media, schedule features
 │       ├── static/
 │       │   ├── css/
 │       │   │   └── theme.css      # Bootstrap theme overrides
@@ -136,10 +135,8 @@ MacroSignage/
 │       │       ├── bootstrap/     # Bootstrap v5.3.8
 │       │       └── animate/       # Animate.css v4.1.1
 │       └── templates/
-│           ├── base.html          # Base template (shared layout)
-│           └── pages/
-│               └── index.html     # Home page
-├── wsgi.py                        # WSGI entry point
+│           ├── layouts/            # Shared layouts
+│           └── pages/              # Public pages
 ├── pyproject.toml                 # Project metadata and dependencies
 ├── uv.lock                        # Dependency lock file
 ├── LICENSE                        # MIT License
@@ -226,29 +223,29 @@ Expanded documentation is available in [docs/index.md](docs/index.md).
 
 ### v0.3.0 -- Core Features
 
-- [ ] Admin dashboard layout
-- [ ] Content/media management (upload, organize, delete)
-- [ ] Display/screen registration and management
-- [ ] Content-to-display assignment
+- [x] Admin dashboard layout
+- [x] Content/media management (upload, organize, delete)
+- [x] Display/screen registration and management
+- [x] Content-to-display assignment
 
 ### v0.4.0 -- Scheduling and Playback
 
-- [ ] Content scheduling (time-based rotation)
-- [ ] Signage display player view (fullscreen, auto-rotation)
-- [ ] Playlist management
+- [x] Content scheduling (time-based rotation)
+- [x] Signage display player view (fullscreen, auto-rotation)
+- [x] Playlist management
 
 ### v0.5.0 -- Polish and Scale
 
 - [x] REST API
-- [x] Real-time updates (WebSocket or SSE)
+- [x] Real-time updates with server-sent events
 - [x] Multi-user role support (admin, editor, viewer)
 - [x] CI/CD pipeline with GitHub Actions
-- [x] Comprehensive documentation
+- [x] Production and documentation roadmaps
 
 ### v1.0.0 -- Stable Release
 
 - [ ] Production-hardened and fully tested ([roadmap](docs/production-hardening-roadmap.md))
-- [ ] Complete documentation
+- [ ] Complete documentation ([roadmap](docs/documentation-roadmap.md))
 - [ ] Deployment guides (Docker, systemd, cloud)
 
 ## License
