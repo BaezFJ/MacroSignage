@@ -13,6 +13,7 @@ MacroSignage is a Flask-based digital signage manager with an admin console, dis
 
 - [Media Library](media.md): manage image, text, video, HTML, YouTube, and slider media with fonts and logo overlays.
 - [Scheduling and Playback](scheduling.md): configure active playback windows, weekdays, display assignments, and no-active-schedule behavior.
+- [Standalone Client](client.md): install, pair, reset, debug, and package the pywebview display client.
 - [API Tokens](api-tokens.md): create and manage bearer tokens for external integrations.
 - [Realtime and Player Behavior](realtime-player.md): understand display player refresh behavior, SSE updates, and player API access.
 - [Deployment](deployment.md): deploy with production settings, health checks, backups, systemd, Docker, and HTTPS.

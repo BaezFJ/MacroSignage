@@ -156,13 +156,13 @@ Completed audit findings:
 **Description:** Replace the endpoint list with request/response examples, auth requirements, role requirements, validation errors, and stable response shapes.
 
 **Acceptance criteria:**
-- [ ] Every documented endpoint includes method, path, auth requirement, role requirement, and response shape.
-- [ ] CRUD examples are provided for displays, media, schedules, users, fonts, settings, and player endpoints.
-- [ ] Error examples cover `401`, `403`, `404`, `405`, `422`, and `500`.
+- [x] Every documented endpoint includes method, path, auth requirement, role requirement, and response shape.
+- [x] CRUD examples are provided for displays, media, schedules, users, fonts, settings, and player endpoints.
+- [x] Error examples cover `401`, `403`, `404`, `405`, `422`, and `500`.
 
 **Verification:**
-- [ ] API docs match `tests/test_api.py`.
-- [ ] Serializer fields match `src/macrosignage/features/api/serializers.py`.
+- [x] API docs match `tests/test_api.py`.
+- [x] Serializer fields match `src/macrosignage/features/api/serializers.py`.
 
 **Files likely touched:**
 - `docs/rest-api.md`
@@ -175,13 +175,13 @@ Completed audit findings:
 **Description:** Document API token lifecycle, ownership, role inheritance, creation, reset, revoke, delete, storage model, and curl examples.
 
 **Acceptance criteria:**
-- [ ] Guide explains tokens are shown once and stored hashed.
-- [ ] Guide explains reset invalidates the previous token.
-- [ ] Guide includes viewer/editor/admin examples.
+- [x] Guide explains tokens are shown once and stored hashed.
+- [x] Guide explains reset invalidates the previous token.
+- [x] Guide includes viewer/editor/admin examples.
 
 **Verification:**
-- [ ] Guide matches token route tests.
-- [ ] Examples use placeholder tokens only.
+- [x] Guide matches token route tests.
+- [x] Examples use placeholder tokens only.
 
 **Files likely touched:**
 - `docs/api-tokens.md`
@@ -194,14 +194,14 @@ Completed audit findings:
 **Description:** Document the pywebview client from install through pairing, saved configuration, reset behavior, Linux GUI dependency notes, and GitHub release executables.
 
 **Acceptance criteria:**
-- [ ] Guide covers `macrosignage-client --help`, `--setup`, `--reset`, `--windowed`, and `--debug`.
-- [ ] Guide explains server/host and display token input.
-- [ ] Guide links to GitHub release executable workflow.
-- [ ] Linux Qt/GTK troubleshooting is included or linked.
+- [x] Guide covers `macrosignage-client --help`, `--setup`, `--reset`, `--windowed`, and `--debug`.
+- [x] Guide explains server/host and display token input.
+- [x] Guide links to GitHub release executable workflow.
+- [x] Linux Qt/GTK troubleshooting is included or linked.
 
 **Verification:**
-- [ ] Guide matches `client/macrosignage_client/app.py`.
-- [ ] Client docs do not imply the client is part of the main PyPI package.
+- [x] Guide matches `client/macrosignage_client/app.py`.
+- [x] Client docs do not imply the client is part of the main PyPI package.
 
 **Files likely touched:**
 - `client/README.md`
@@ -209,6 +209,12 @@ Completed audit findings:
 - `docs/troubleshooting.md`
 
 **Estimated scope:** Medium
+
+### API and Integration Checkpoint
+
+- [x] REST API, API token, and standalone client guides are linked from `docs/index.md`.
+- [x] REST examples use placeholder tokens, placeholder domains, and documented response fields.
+- [x] Player API authentication is documented separately from bearer API tokens.
 
 ## Phase 4: Operator and Deployment Documentation
 

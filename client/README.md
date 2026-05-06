@@ -5,6 +5,15 @@ Standalone pywebview client for display players.
 The client is intentionally separate from the main Flask package so it can be
 packaged into a small desktop executable for display setup.
 
+Prebuilt client executables are available from the GitHub Releases page:
+
+```text
+https://github.com/BaezFJ/MacroSignage/releases
+```
+
+Download the build for the display device's operating system when you want the
+easiest setup path.
+
 ## Run locally
 
 ```bash
@@ -21,6 +30,28 @@ The display token is shown once in the admin UI. If it is lost, rotate the
 display player token and run setup again. If a display token is disabled from
 the server, existing clients lose access and must be paired again after access
 is restored.
+
+Use `--help` to see every supported option:
+
+```bash
+uv run macrosignage-client --help
+```
+
+The client accepts a full server URL, such as `https://signage.example.invalid`,
+or a host such as `signage.local:5000`. Hosts without a scheme are treated as
+`http://`.
+
+## Saved setup
+
+When "Remember setup on this device" is enabled, the client saves
+`client.json` in the platform config directory:
+
+- Windows: `%APPDATA%\MacroSignage\client.json`
+- macOS: `~/Library/Application Support/MacroSignage/client.json`
+- Linux: `${XDG_CONFIG_HOME}/MacroSignage/client.json`, or `~/.config/MacroSignage/client.json`
+
+On non-Windows systems the config file is written with `0600` permissions. The
+display token is saved only when remembered setup is enabled.
 
 ## Ubuntu
 
@@ -65,12 +96,15 @@ downloadable artifact.
 
 The `Release Client` workflow runs when a `v*` tag is pushed. It builds the
 same platform executables and attaches them to the matching GitHub Release.
+Users can download those executables from
+`https://github.com/BaezFJ/MacroSignage/releases`.
 
 ## Setup controls
 
+- `--help`: show CLI usage.
 - `--setup`: always show the setup form.
 - `--reset`: clear saved setup before opening.
 - `--windowed`: run in a normal window instead of fullscreen.
 - `--debug`: print client diagnostic details while running.
 
-See the main docs for [display pairing](../docs/displays.md) and [player behavior](../docs/realtime-player.md).
+See the main docs for [standalone client setup](../docs/client.md), [display pairing](../docs/displays.md), and [player behavior](../docs/realtime-player.md).
