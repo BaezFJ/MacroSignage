@@ -59,6 +59,7 @@ Changelog = "https://github.com/BaezFJ/MacroSignage/releases"
 
 [project.scripts]
 macrosignage = "macrosignage.cli:main"
+macrosignage-prod = "macrosignage.cli:prod_main"
 
 [dependency-groups]
 dev = [

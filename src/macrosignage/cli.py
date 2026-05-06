@@ -30,6 +30,16 @@ def _run_prod(args: argparse.Namespace) -> int:
     return 0
 
 
+def _add_prod_options(parser: argparse.ArgumentParser) -> None:
+    _add_server_options(parser, default_host="0.0.0.0", default_port=8080)
+    parser.add_argument(
+        "--threads",
+        default=4,
+        type=int,
+        help="Number of Waitress worker threads.",
+    )
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="macrosignage",
@@ -48,13 +58,7 @@ def build_parser() -> argparse.ArgumentParser:
     dev_parser.set_defaults(func=_run_dev)
 
     prod_parser = subparsers.add_parser("prod", help="Run with the Waitress WSGI server.")
-    _add_server_options(prod_parser, default_host="0.0.0.0", default_port=8080)
-    prod_parser.add_argument(
-        "--threads",
-        default=4,
-        type=int,
-        help="Number of Waitress worker threads.",
-    )
+    _add_prod_options(prod_parser)
     prod_parser.set_defaults(func=_run_prod)
 
     return parser
@@ -64,3 +68,13 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     return args.func(args)
+
+
+def prod_main(argv: Sequence[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(
+        prog="macrosignage-prod",
+        description="Run the MacroSignage web application with the Waitress WSGI server.",
+    )
+    _add_prod_options(parser)
+    args = parser.parse_args(argv)
+    return _run_prod(args)

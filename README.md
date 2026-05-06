@@ -115,6 +115,12 @@ For production, use the packaged Waitress-backed command:
 macrosignage prod --host 0.0.0.0 --port 8080
 ```
 
+Installed packages also include a dedicated production script:
+
+```bash
+macrosignage-prod --host 0.0.0.0 --port 8080
+```
+
 ## Project Structure
 
 ```
