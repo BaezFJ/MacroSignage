@@ -408,11 +408,19 @@ class AppConfigTestCase(unittest.TestCase):
 
         with app.app_context():
             inspector = db.inspect(db.engine)
+            media_columns = {column["name"] for column in inspector.get_columns("media_assets")}
             display_columns = {column["name"] for column in inspector.get_columns("displays")}
             schedule_columns = {column["name"] for column in inspector.get_columns("schedules")}
             slide_columns = {column["name"] for column in inspector.get_columns("media_slides")}
             settings_columns = {column["name"] for column in inspector.get_columns("signage_settings")}
 
+            self.assertTrue(
+                {
+                    "neon_text_color",
+                    "neon_frame_color",
+                    "neon_background_color",
+                }.issubset(media_columns)
+            )
             self.assertTrue(
                 {
                     "player_token_hash",

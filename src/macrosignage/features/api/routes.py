@@ -23,7 +23,13 @@ from ..displays.services import (
     player_token_is_valid,
     remember_player_token_use,
 )
-from ..media.forms import MEDIA_TYPES
+from ..media.forms import (
+    DEFAULT_NEON_BACKGROUND_COLOR,
+    DEFAULT_NEON_FRAME_COLOR,
+    DEFAULT_NEON_TEXT_COLOR,
+    MEDIA_TYPES,
+    parse_hex_color,
+)
 from ..media.models import MediaAsset, MediaFont
 from ..schedules.forms import SCHEDULE_STATUSES, WEEKDAYS
 from ..schedules.models import Schedule
@@ -163,6 +169,30 @@ def apply_media_json(media: MediaAsset, data: dict[str, object], partial: bool =
         media.body = str(data.get("body") or "").strip() or None
     if "sourceUrl" in data or not partial:
         media.source_url = str(data.get("sourceUrl") or "").strip() or None
+    if "neonTextColor" in data or not partial:
+        media.neon_text_color, error = parse_hex_color(
+            str(data.get("neonTextColor") or DEFAULT_NEON_TEXT_COLOR),
+            DEFAULT_NEON_TEXT_COLOR,
+            "Neon text color",
+        )
+        if error:
+            errors["neonTextColor"] = error
+    if "neonFrameColor" in data or not partial:
+        media.neon_frame_color, error = parse_hex_color(
+            str(data.get("neonFrameColor") or DEFAULT_NEON_FRAME_COLOR),
+            DEFAULT_NEON_FRAME_COLOR,
+            "Neon frame color",
+        )
+        if error:
+            errors["neonFrameColor"] = error
+    if "neonBackgroundColor" in data or not partial:
+        media.neon_background_color, error = parse_hex_color(
+            str(data.get("neonBackgroundColor") or DEFAULT_NEON_BACKGROUND_COLOR),
+            DEFAULT_NEON_BACKGROUND_COLOR,
+            "Neon background color",
+        )
+        if error:
+            errors["neonBackgroundColor"] = error
     if "notes" in data or not partial:
         media.notes = str(data.get("notes") or "").strip() or None
     if "displayIds" in data:
@@ -170,12 +200,16 @@ def apply_media_json(media: MediaAsset, data: dict[str, object], partial: bool =
             media.displays = related_displays(data.get("displayIds"))
         except (TypeError, ValueError):
             errors["displayIds"] = "Display ids must be an array of integers."
-    if media.media_type in {"TEXT", "HTML"} and not media.body:
+    if media.media_type in {"TEXT", "HTML", "NEON_SIGN"} and not media.body:
         errors["body"] = "Content is required for this media type."
     if media.media_type == "YOUTUBE" and not media.source_url:
         errors["sourceUrl"] = "YouTube URL is required."
     if media.media_type in {"IMAGE", "VIDEO"} and not media.file_path:
         errors["file"] = "File upload is not available through the JSON API."
+    if media.media_type != "NEON_SIGN":
+        media.neon_text_color = None
+        media.neon_frame_color = None
+        media.neon_background_color = None
     return errors
 
 

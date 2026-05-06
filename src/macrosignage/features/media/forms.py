@@ -13,6 +13,7 @@ MEDIA_TYPES = {
     "HTML": "HTML",
     "YOUTUBE": "YouTube video",
     "SLIDER": "Slider",
+    "NEON_SIGN": "Neon Sign",
 }
 
 SLIDER_TEXT_POSITIONS = {
@@ -64,6 +65,10 @@ DEFAULT_SLIDER_FONT_SIZE = 72
 MIN_SLIDER_FONT_SIZE = 16
 MAX_SLIDER_FONT_SIZE = 240
 FONT_FAMILY_PATTERN = re.compile(r"^[A-Za-z0-9 .:&'_-]+$")
+HEX_COLOR_PATTERN = re.compile(r"^#[0-9A-Fa-f]{6}$")
+DEFAULT_NEON_TEXT_COLOR = "#ff4fd8"
+DEFAULT_NEON_FRAME_COLOR = "#37ff79"
+DEFAULT_NEON_BACKGROUND_COLOR = "#1b1210"
 
 IMAGE_EXTENSIONS = {"jpg", "jpeg", "png", "gif", "webp"}
 VIDEO_EXTENSIONS = {"mp4", "webm", "ogg", "mov"}
@@ -161,6 +166,13 @@ def parse_positive_int(value: str, field_label: str) -> tuple[int | None, str | 
     if parsed <= 0:
         return None, f"{field_label} must be greater than zero."
     return parsed, None
+
+
+def parse_hex_color(value: str, default: str, field_label: str) -> tuple[str, str | None]:
+    color = (value or default).strip()
+    if HEX_COLOR_PATTERN.match(color):
+        return color.lower(), None
+    return default, f"{field_label} must be a 6-digit hex color."
 
 
 def slider_form_data(form, files, media=None, fonts=None) -> tuple[list[dict[str, object]], dict[str, str]]:
@@ -270,6 +282,21 @@ def media_form_data(form, files, media=None, fonts=None) -> tuple[dict[str, obje
     notes = form.get("notes", "").strip()
     upload = files.get("file")
     slider_slides: list[dict[str, object]] = []
+    neon_text_color, neon_text_color_error = parse_hex_color(
+        form.get("neon_text_color", DEFAULT_NEON_TEXT_COLOR),
+        DEFAULT_NEON_TEXT_COLOR,
+        "Neon text color",
+    )
+    neon_frame_color, neon_frame_color_error = parse_hex_color(
+        form.get("neon_frame_color", DEFAULT_NEON_FRAME_COLOR),
+        DEFAULT_NEON_FRAME_COLOR,
+        "Neon frame color",
+    )
+    neon_background_color, neon_background_color_error = parse_hex_color(
+        form.get("neon_background_color", DEFAULT_NEON_BACKGROUND_COLOR),
+        DEFAULT_NEON_BACKGROUND_COLOR,
+        "Neon background color",
+    )
 
     if not title:
         errors["title"] = "Media title is required."
@@ -283,7 +310,7 @@ def media_form_data(form, files, media=None, fonts=None) -> tuple[dict[str, obje
             errors["file"] = "Upload a replacement file when changing between file media types."
         elif media is None or not media.file_path:
             errors["file"] = "Upload a file for this media type."
-    elif media_type in {"TEXT", "HTML"}:
+    elif media_type in {"TEXT", "HTML", "NEON_SIGN"}:
         if not body:
             errors["body"] = "Content is required for this media type."
     elif media_type == "YOUTUBE":
@@ -294,6 +321,13 @@ def media_form_data(form, files, media=None, fonts=None) -> tuple[dict[str, obje
     elif media_type == "SLIDER":
         slider_slides, slider_errors = slider_form_data(form, files, media, fonts)
         errors.update(slider_errors)
+    if media_type == "NEON_SIGN":
+        if neon_text_color_error:
+            errors["neon_text_color"] = neon_text_color_error
+        if neon_frame_color_error:
+            errors["neon_frame_color"] = neon_frame_color_error
+        if neon_background_color_error:
+            errors["neon_background_color"] = neon_background_color_error
 
     return (
         {
@@ -303,6 +337,9 @@ def media_form_data(form, files, media=None, fonts=None) -> tuple[dict[str, obje
             "source_url": source_url or None,
             "notes": notes or None,
             "slider_slides": slider_slides,
+            "neon_text_color": neon_text_color,
+            "neon_frame_color": neon_frame_color,
+            "neon_background_color": neon_background_color,
         },
         errors,
     )

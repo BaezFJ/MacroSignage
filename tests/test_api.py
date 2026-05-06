@@ -159,6 +159,25 @@ class ApiContractTestCase(unittest.TestCase):
         self.assertEqual(updated.status_code, 200)
         self.assertEqual(updated.get_json()["data"]["mediaType"], "HTML")
 
+        neon = self.client.post(
+            "/api/v1/media",
+            json={
+                "title": "API Neon",
+                "mediaType": "NEON_SIGN",
+                "body": "Open",
+                "neonTextColor": "#ff33cc",
+                "neonFrameColor": "#33ff77",
+                "neonBackgroundColor": "#201514",
+            },
+            headers=headers,
+        )
+        self.assertEqual(neon.status_code, 201)
+        neon_data = neon.get_json()["data"]
+        self.assertEqual(neon_data["mediaType"], "NEON_SIGN")
+        self.assertEqual(neon_data["neonTextColor"], "#ff33cc")
+        self.assertEqual(neon_data["neonFrameColor"], "#33ff77")
+        self.assertEqual(neon_data["neonBackgroundColor"], "#201514")
+
         deleted = self.client.delete(f"/api/v1/media/{media_id}", headers=headers)
         self.assertEqual(deleted.status_code, 204)
         self.assertIsNone(db.session.get(MediaAsset, media_id))

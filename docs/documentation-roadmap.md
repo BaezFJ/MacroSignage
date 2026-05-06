@@ -107,7 +107,7 @@ Completed audit findings:
 **Description:** Document media CRUD, supported media types, upload rules, slider media, YouTube URLs, HTML content behavior, logo overlay, and Google font management.
 
 **Acceptance criteria:**
-- [x] Supported media types are documented: image, text, video, HTML, YouTube, slider.
+- [x] Supported media types are documented: image, text, neon sign, video, HTML, YouTube, slider.
 - [x] Upload extensions and size limits are documented.
 - [x] Slider options are documented: background, foreground, foreground size/position, text, font, animation, slide count, and duration.
 - [x] Logo settings and global visibility are documented.

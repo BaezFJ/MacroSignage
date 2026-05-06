@@ -111,6 +111,15 @@ def ensure_runtime_schema() -> None:
         if "text_animation" not in columns:
             statements.append("ALTER TABLE media_slides ADD COLUMN text_animation VARCHAR(40) NOT NULL DEFAULT 'NONE'")
 
+    if "media_assets" in tables:
+        columns = {column["name"] for column in inspector.get_columns("media_assets")}
+        if "neon_text_color" not in columns:
+            statements.append("ALTER TABLE media_assets ADD COLUMN neon_text_color VARCHAR(7)")
+        if "neon_frame_color" not in columns:
+            statements.append("ALTER TABLE media_assets ADD COLUMN neon_frame_color VARCHAR(7)")
+        if "neon_background_color" not in columns:
+            statements.append("ALTER TABLE media_assets ADD COLUMN neon_background_color VARCHAR(7)")
+
     if "displays" in tables:
         columns = {column["name"] for column in inspector.get_columns("displays")}
         if "player_token_hash" not in columns:

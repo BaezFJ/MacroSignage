@@ -46,6 +46,13 @@
                             </video>
                         {% elif media.media_type == 'TEXT' %}
                             <p class="media-text-preview">{{ media.body }}</p>
+                        {% elif media.media_type == 'NEON_SIGN' %}
+                            <article class="neon-sign-preview"
+                                     style="--neon-text-color: {{ media.neon_text_color or '#ff4fd8' }}; --neon-frame-color: {{ media.neon_frame_color or '#37ff79' }}; --neon-background-color: {{ media.neon_background_color or '#1b1210' }};">
+                                <div class="neon-sign-frame">
+                                    <p>{{ media.body }}</p>
+                                </div>
+                            </article>
                         {% elif media.media_type == 'HTML' %}
                             <pre class="media-code-preview"><code>{{ media.body }}</code></pre>
                         {% elif media.media_type == 'YOUTUBE' and youtube_video_id %}
@@ -110,6 +117,8 @@
                                     YouTube
                                 {% elif media.media_type == 'SLIDER' %}
                                     {{ media.slider_slides | length }} slide{{ '' if media.slider_slides | length == 1 else 's' }}
+                                {% elif media.media_type == 'NEON_SIGN' %}
+                                    Neon sign text
                                 {% else %}
                                     Inline
                                 {% endif %}
@@ -157,6 +166,28 @@
                         {% else %}
                             <p class="mb-0 text-secondary">No slides have been configured.</p>
                         {% endif %}
+                    </div>
+                </section>
+            {% endif %}
+
+            {% if media.media_type == 'NEON_SIGN' %}
+                <section class="card mb-3">
+                    <div class="card-body">
+                        <h2 class="h5">Neon Colors</h2>
+                        <dl class="display-detail-grid media-detail-grid">
+                            <div>
+                                <dt>Text</dt>
+                                <dd>{{ media.neon_text_color or '#ff4fd8' }}</dd>
+                            </div>
+                            <div>
+                                <dt>Frame</dt>
+                                <dd>{{ media.neon_frame_color or '#37ff79' }}</dd>
+                            </div>
+                            <div>
+                                <dt>Background</dt>
+                                <dd>{{ media.neon_background_color or '#1b1210' }}</dd>
+                            </div>
+                        </dl>
                     </div>
                 </section>
             {% endif %}

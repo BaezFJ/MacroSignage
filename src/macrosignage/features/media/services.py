@@ -120,8 +120,17 @@ def delete_upload(filename: str | None) -> None:
 def apply_media_data(media: MediaAsset, form_data: dict[str, object], displays) -> None:
     media.media_type = str(form_data["media_type"])
     media.title = str(form_data["title"])
-    media.body = form_data["body"] if media.media_type in {"TEXT", "HTML"} else None
+    media.body = form_data["body"] if media.media_type in {"TEXT", "HTML", "NEON_SIGN"} else None
     media.source_url = form_data["source_url"] if media.media_type == "YOUTUBE" else None
+    media.neon_text_color = (
+        str(form_data["neon_text_color"]) if media.media_type == "NEON_SIGN" else None
+    )
+    media.neon_frame_color = (
+        str(form_data["neon_frame_color"]) if media.media_type == "NEON_SIGN" else None
+    )
+    media.neon_background_color = (
+        str(form_data["neon_background_color"]) if media.media_type == "NEON_SIGN" else None
+    )
     media.notes = form_data["notes"]
     media.displays = displays
 

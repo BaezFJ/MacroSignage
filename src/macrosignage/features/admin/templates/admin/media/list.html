@@ -5,7 +5,7 @@
         <div>
             <p class="eyebrow">Media Library</p>
             <h1 class="h2 mb-1">Media</h1>
-            <p class="text-secondary mb-0">Manage images, text, video, HTML, and YouTube media for displays.</p>
+            <p class="text-secondary mb-0">Manage images, text, neon signs, video, HTML, and YouTube media for displays.</p>
         </div>
         <a class="btn btn-primary" href="{{ url_for('admin_media.create_media') }}">Add media</a>
     </div>
@@ -68,6 +68,10 @@
                                     {{ media.original_filename or media.file_path }}
                                 {% elif media.media_type == 'YOUTUBE' %}
                                     YouTube URL
+                                {% elif media.media_type == 'SLIDER' %}
+                                    {{ media.slider_slides | length }} slide{{ '' if media.slider_slides | length == 1 else 's' }}
+                                {% elif media.media_type == 'NEON_SIGN' %}
+                                    Neon sign text
                                 {% else %}
                                     Inline content
                                 {% endif %}

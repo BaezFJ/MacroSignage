@@ -209,6 +209,58 @@ class SliderMediaTestCase(unittest.TestCase):
         self.assertIn("Roboto+Condensed", body)
         self.assertIn("font-family: 'Roboto Condensed', sans-serif; font-size: 88px;", body)
 
+    def test_create_neon_sign_media_and_render_display_player(self):
+        display = self.create_display()
+
+        response = self.client.post(
+            "/admin/media/new",
+            data={
+                "title": "Open Sign",
+                "media_type": "NEON_SIGN",
+                "display_ids": str(display.id),
+                "body": "Open Late",
+                "neon_text_color": "#ff33cc",
+                "neon_frame_color": "#33ff77",
+                "neon_background_color": "#201514",
+            },
+            follow_redirects=False,
+        )
+
+        self.assertEqual(response.status_code, 302)
+        media = MediaAsset.query.filter_by(title="Open Sign").one()
+        self.assertEqual(media.media_type, "NEON_SIGN")
+        self.assertEqual(media.body, "Open Late")
+        self.assertEqual(media.neon_text_color, "#ff33cc")
+        self.assertEqual(media.neon_frame_color, "#33ff77")
+        self.assertEqual(media.neon_background_color, "#201514")
+        self.create_active_schedule(display, media)
+        self.authorize_display(display)
+
+        player = self.client.get(f"/displays/{display.id}/play")
+        self.assertEqual(player.status_code, 200)
+        body = player.get_data(as_text=True)
+        self.assertIn("display-neon-sign", body)
+        self.assertIn("Open Late", body)
+        self.assertIn("--neon-text-color: #ff33cc", body)
+        self.assertIn("--neon-frame-color: #33ff77", body)
+        self.assertIn("--neon-background-color: #201514", body)
+
+    def test_neon_sign_rejects_invalid_color(self):
+        response = self.client.post(
+            "/admin/media/new",
+            data={
+                "title": "Bad Neon",
+                "media_type": "NEON_SIGN",
+                "body": "Broken",
+                "neon_text_color": "hotpink",
+                "neon_frame_color": "#33ff77",
+                "neon_background_color": "#201514",
+            },
+        )
+
+        self.assertEqual(response.status_code, 422)
+        self.assertIn("Neon text color must be a 6-digit hex color.", response.get_data(as_text=True))
+
 
 if __name__ == "__main__":
     unittest.main()

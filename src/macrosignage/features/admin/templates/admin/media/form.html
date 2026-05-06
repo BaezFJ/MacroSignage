@@ -63,17 +63,56 @@
                             {% endif %}
                         </div>
 
-                        <div class="media-source-panel" data-media-panel="TEXT HTML">
+                        <div class="media-source-panel" data-media-panel="TEXT HTML NEON_SIGN">
                             <label class="form-label" for="mediaBody">Content</label>
                             <textarea id="mediaBody"
                                       class="form-control {% if errors.get('body') %}is-invalid{% endif %}"
                                       name="body"
                                       rows="10"
-                                      placeholder="Enter text or HTML content">{{ media.body or '' }}</textarea>
+                                      placeholder="Enter display text or HTML content">{{ media.body or '' }}</textarea>
                             {% if errors.get('body') %}
                                 <div class="invalid-feedback">{{ errors.body }}</div>
                             {% endif %}
-                            <p class="form-text mb-0">HTML is stored as content but not rendered inside the admin preview.</p>
+                            <p class="form-text mb-0">Text and neon signs render as display copy. HTML is stored as content but not rendered inside the admin preview.</p>
+                        </div>
+
+                        <div class="media-source-panel" data-media-panel="NEON_SIGN">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label" for="neonTextColor">Text color</label>
+                                    <input id="neonTextColor"
+                                           class="form-control form-control-color {% if errors.get('neon_text_color') %}is-invalid{% endif %}"
+                                           type="color"
+                                           name="neon_text_color"
+                                           value="{{ media.neon_text_color or default_neon_text_color }}">
+                                    {% if errors.get('neon_text_color') %}
+                                        <div class="invalid-feedback">{{ errors.neon_text_color }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label" for="neonFrameColor">Frame color</label>
+                                    <input id="neonFrameColor"
+                                           class="form-control form-control-color {% if errors.get('neon_frame_color') %}is-invalid{% endif %}"
+                                           type="color"
+                                           name="neon_frame_color"
+                                           value="{{ media.neon_frame_color or default_neon_frame_color }}">
+                                    {% if errors.get('neon_frame_color') %}
+                                        <div class="invalid-feedback">{{ errors.neon_frame_color }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label" for="neonBackgroundColor">Background color</label>
+                                    <input id="neonBackgroundColor"
+                                           class="form-control form-control-color {% if errors.get('neon_background_color') %}is-invalid{% endif %}"
+                                           type="color"
+                                           name="neon_background_color"
+                                           value="{{ media.neon_background_color or default_neon_background_color }}">
+                                    {% if errors.get('neon_background_color') %}
+                                        <div class="invalid-feedback">{{ errors.neon_background_color }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <p class="form-text mb-0 mt-2">The player derives the glow from the text and frame colors.</p>
                         </div>
 
                         <div class="media-source-panel" data-media-panel="YOUTUBE">

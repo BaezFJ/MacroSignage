@@ -13,7 +13,7 @@ Use this checklist before pushing a release tag. It is intentionally manual beca
 
 - [ ] [Auth and RBAC](auth-rbac.md) covers first admin setup, login/logout, password reset limits, users, and roles.
 - [ ] [Display Management and Player Pairing](displays.md) covers display statuses, player token generation/rotation/disable, and browser/client pairing.
-- [ ] [Media Library](media.md) covers image, text, video, HTML, YouTube, slider media, fonts, uploads, and logo overlay.
+- [ ] [Media Library](media.md) covers image, text, neon sign, video, HTML, YouTube, slider media, fonts, uploads, and logo overlay.
 - [ ] [Scheduling and Playback](scheduling.md) covers active/draft/paused schedules, weekdays, timezone handling, display/media assignments, and no-active-schedule behavior.
 - [ ] Admin Settings pages remain readable at desktop and mobile widths, including diagnostics, database settings, logo settings, API tokens, and fonts.
 

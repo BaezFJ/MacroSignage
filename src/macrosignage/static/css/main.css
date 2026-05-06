@@ -316,6 +316,12 @@ body {
   border-color: var(--bs-success-border-subtle);
 }
 
+.media-type-neon_sign {
+  color: var(--bs-warning-text-emphasis);
+  background: var(--bs-warning-bg-subtle);
+  border-color: var(--bs-warning-border-subtle);
+}
+
 .schedule-status {
   border: 1px solid transparent;
 }
@@ -523,6 +529,96 @@ body {
   overflow: auto;
   color: var(--bs-body-color);
   background: transparent;
+}
+
+.neon-sign-preview,
+.display-neon-sign {
+  --neon-text-color: #ff4fd8;
+  --neon-frame-color: #37ff79;
+  --neon-background-color: #1b1210;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  padding: clamp(1.5rem, 5vh, 4rem);
+  overflow: hidden;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px) 0 0 / 4.5rem 100%,
+    linear-gradient(90deg, rgba(0, 0, 0, 0.22), transparent 18%, rgba(255, 255, 255, 0.05) 48%, transparent 72%, rgba(0, 0, 0, 0.28)),
+    var(--neon-background-color);
+}
+
+.neon-sign-preview {
+  min-height: 22rem;
+}
+
+.neon-sign-frame,
+.display-neon-frame {
+  display: grid;
+  place-items: center;
+  width: min(100%, 64rem);
+  min-height: 12rem;
+  padding: clamp(1.25rem, 5vh, 4rem);
+  border: clamp(0.25rem, 1vh, 0.75rem) solid var(--neon-frame-color);
+  border-radius: 1.5rem;
+  box-shadow:
+    0 0 0.4rem var(--neon-frame-color),
+    0 0 1.3rem var(--neon-frame-color),
+    0 0 3.2rem color-mix(in srgb, var(--neon-frame-color) 75%, transparent),
+    inset 0 0 0.5rem var(--neon-frame-color),
+    inset 0 0 1.7rem color-mix(in srgb, var(--neon-frame-color) 65%, transparent);
+}
+
+.neon-sign-frame p,
+.display-neon-frame p {
+  max-width: 14ch;
+  margin: 0;
+  color: #fff;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 4rem;
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: 0;
+  text-align: center;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+  text-shadow:
+    0 0 0.2rem #fff,
+    0 0 0.55rem var(--neon-text-color),
+    0 0 1.2rem var(--neon-text-color),
+    0 0 2.7rem var(--neon-text-color),
+    0 0 4.5rem color-mix(in srgb, var(--neon-text-color) 72%, transparent);
+}
+
+.display-neon-frame {
+  width: min(86vw, 94rem);
+  min-height: min(44vh, 28rem);
+  border-radius: clamp(1rem, 3vh, 2.5rem);
+}
+
+.display-neon-frame p {
+  font-size: clamp(3rem, 14vh, 10rem);
+  animation: neon-flicker 6.5s linear infinite;
+}
+
+@keyframes neon-flicker {
+  0%,
+  18%,
+  21%,
+  24%,
+  54%,
+  100% {
+    opacity: 1;
+  }
+
+  19%,
+  23% {
+    opacity: 0.78;
+  }
+
+  55% {
+    opacity: 0.9;
+  }
 }
 
 .admin-slider-preview {

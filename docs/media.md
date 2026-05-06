@@ -12,6 +12,7 @@ Media records are the assets that schedules assign to displays. Admins and edito
 | `HTML` | Store HTML content rendered in a sandboxed frame. |
 | `YouTube video` | Embed a YouTube URL in the player. |
 | `Slider` | Build one or more composed slides with background image, optional foreground image, text, font, animation, and duration. |
+| `Neon Sign` | Render full-screen sign text with configurable neon text, frame, and background colors. |
 
 Media can be assigned to many schedules, and schedules can contain many media records. Displays receive media through their active schedules.
 
@@ -66,6 +67,18 @@ Slider media supports up to 12 slides. Each slide has:
 - Duration: whole seconds, default 10 seconds, maximum 1 hour per slide.
 
 Slider duration is controlled per slide. Regular non-slider media use the schedule default duration.
+
+## Neon Sign Media
+
+Neon sign media stores sign copy in the content field. The player renders it as an uppercase neon tube sign with a glowing frame and textured dark background.
+
+Each neon sign has:
+
+- Text color: controls the neon lettering glow.
+- Frame color: controls the sign border and its glow.
+- Background color: controls the dark backing behind the sign.
+
+Neon signs use the schedule default duration.
 
 ## Fonts
 

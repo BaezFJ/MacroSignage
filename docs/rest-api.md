@@ -186,6 +186,9 @@ Valid `status` values are `ONLINE`, `OFFLINE`, and `MAINTENANCE`. Valid `orienta
   "mimeType": null,
   "body": "Hello",
   "sourceUrl": null,
+  "neonTextColor": null,
+  "neonFrameColor": null,
+  "neonBackgroundColor": null,
   "notes": null,
   "displayIds": [1],
   "scheduleIds": [],
@@ -195,7 +198,7 @@ Valid `status` values are `ONLINE`, `OFFLINE`, and `MAINTENANCE`. Valid `orienta
 }
 ```
 
-Valid `mediaType` values are `IMAGE`, `TEXT`, `VIDEO`, `HTML`, `YOUTUBE`, and `SLIDER`. The JSON API can create text, HTML, and YouTube records. Image, video, and slider file uploads are managed through the admin UI.
+Valid `mediaType` values are `IMAGE`, `TEXT`, `VIDEO`, `HTML`, `YOUTUBE`, `SLIDER`, and `NEON_SIGN`. The JSON API can create text, HTML, YouTube, and neon sign records. Image, video, and slider file uploads are managed through the admin UI.
 
 Slider media responses include `sliderSlides` with:
 
@@ -382,6 +385,19 @@ YouTube request:
   "title": "Intro Video",
   "mediaType": "YOUTUBE",
   "sourceUrl": "https://youtu.be/VIDEO_ID"
+}
+```
+
+Neon sign request:
+
+```json
+{
+  "title": "Open Sign",
+  "mediaType": "NEON_SIGN",
+  "body": "Open",
+  "neonTextColor": "#ff33cc",
+  "neonFrameColor": "#33ff77",
+  "neonBackgroundColor": "#201514"
 }
 ```
 

@@ -35,6 +35,13 @@
                             <article class="display-player-text">
                                 <p>{{ media.body }}</p>
                             </article>
+                        {% elif media.media_type == 'NEON_SIGN' %}
+                            <article class="display-neon-sign"
+                                     style="--neon-text-color: {{ media.neon_text_color or '#ff4fd8' }}; --neon-frame-color: {{ media.neon_frame_color or '#37ff79' }}; --neon-background-color: {{ media.neon_background_color or '#1b1210' }};">
+                                <div class="display-neon-frame">
+                                    <p>{{ media.body }}</p>
+                                </div>
+                            </article>
                         {% elif media.media_type == 'HTML' %}
                             <iframe class="display-player-frame"
                                     title="{{ media.title }}"
