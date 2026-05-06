@@ -7,6 +7,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 MARKDOWN_FILES = [ROOT / "README.md", ROOT / "client" / "README.md", *sorted((ROOT / "docs").rglob("*.md"))]
 LINK_PATTERN = re.compile(r"(?<!!)\[[^\]]+\]\((?!https?://|mailto:)([^)]+)\)")
+GITHUB_BLOB_PREFIX = "https://github.com/BaezFJ/MacroSignage/blob/master/"
 HEADING_PATTERN = re.compile(r"^(#{1,6})\s+(.+?)\s*$", re.MULTILINE)
 
 
@@ -44,6 +45,20 @@ def split_link(raw_link: str) -> tuple[str, str]:
     return target, ""
 
 
+def assert_link_resolves(source: Path, raw_link: str, failures: list[str], anchor_cache: dict[Path, set[str]]) -> None:
+    target_path, fragment = split_link(raw_link)
+    if not target_path and not fragment:
+        return
+    resolved = (source.parent / target_path).resolve() if target_path else source.resolve()
+    if not resolved.exists():
+        failures.append(f"{source.relative_to(ROOT)} -> {raw_link} missing file")
+        return
+    if fragment and resolved.suffix == ".md":
+        anchors = anchor_cache.setdefault(resolved, anchors_for(resolved))
+        if fragment not in anchors:
+            failures.append(f"{source.relative_to(ROOT)} -> {raw_link} missing anchor")
+
+
 def test_markdown_local_links_resolve_to_files_and_anchors():
     failures = []
     anchor_cache: dict[Path, set[str]] = {}
@@ -51,19 +66,30 @@ def test_markdown_local_links_resolve_to_files_and_anchors():
     for source in MARKDOWN_FILES:
         text = source.read_text(encoding="utf-8")
         for raw_link in LINK_PATTERN.findall(text):
-            target_path, fragment = split_link(raw_link)
-            if not target_path and not fragment:
-                continue
-            resolved = (source.parent / target_path).resolve() if target_path else source.resolve()
-            if not resolved.exists():
-                failures.append(f"{source.relative_to(ROOT)} -> {raw_link} missing file")
-                continue
-            if fragment and resolved.suffix == ".md":
-                anchors = anchor_cache.setdefault(resolved, anchors_for(resolved))
-                if fragment not in anchors:
-                    failures.append(f"{source.relative_to(ROOT)} -> {raw_link} missing anchor")
+            assert_link_resolves(source, raw_link, failures, anchor_cache)
 
     assert failures == []
+
+
+def test_readme_github_documentation_links_resolve_to_repo_files():
+    readme = ROOT / "README.md"
+    text = readme.read_text(encoding="utf-8")
+    failures = []
+    anchor_cache: dict[Path, set[str]] = {}
+
+    for raw_url in re.findall(rf"{re.escape(GITHUB_BLOB_PREFIX)}[^)\s]+", text):
+        repo_path = raw_url.removeprefix(GITHUB_BLOB_PREFIX)
+        assert_link_resolves(readme, repo_path, failures, anchor_cache)
+
+    assert failures == []
+
+
+def test_readme_uses_pypi_safe_documentation_links():
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+
+    assert "](docs/" not in readme
+    assert "](LICENSE)" not in readme
+    assert GITHUB_BLOB_PREFIX in readme
 
 
 def test_docs_index_and_readme_reference_core_documentation():

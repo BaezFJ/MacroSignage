@@ -2,12 +2,12 @@
 
 [![PyPI version](https://img.shields.io/pypi/v/MacroSignage)](https://pypi.org/project/MacroSignage/)
 [![Python versions](https://img.shields.io/pypi/pyversions/MacroSignage)](https://pypi.org/project/MacroSignage/)
-[![License](https://img.shields.io/github/license/BaezFJ/MacroSignage)](LICENSE)
+[![License](https://img.shields.io/github/license/BaezFJ/MacroSignage)](https://github.com/BaezFJ/MacroSignage/blob/master/LICENSE)
 [![CI](https://github.com/BaezFJ/MacroSignage/actions/workflows/ci.yml/badge.svg)](https://github.com/BaezFJ/MacroSignage/actions/workflows/ci.yml)
 
 MacroSignage is a Flask-based digital signage manager with an admin console, token-secured display players, scheduling, media playback, REST API access, and a standalone pywebview display client.
 
-> **Status:** Pre-alpha v0.2.2. Data models and API contracts can change before v1.0.
+> **Status:** Pre-alpha v0.2.3. Data models and API contracts can change before v1.0.
 
 ## Features
 
@@ -58,7 +58,7 @@ MACROSIGNAGE_SESSION_COOKIE_SECURE=true \
 macrosignage-prod --host 127.0.0.1 --port 8080 --threads 4
 ```
 
-See [Deployment](docs/deployment.md) for systemd, Docker, HTTPS, health checks, backups, restore, and rollback.
+See [Deployment](https://github.com/BaezFJ/MacroSignage/blob/master/docs/deployment.md) for systemd, Docker, HTTPS, health checks, backups, restore, and rollback.
 
 ## Client Executables
 
@@ -68,26 +68,26 @@ Prebuilt standalone display client executables are available on the GitHub Relea
 https://github.com/BaezFJ/MacroSignage/releases
 ```
 
-The client source package lives in `client/`. See [Standalone Client](docs/client.md).
+The client source package lives in `client/`. See [Standalone Client](https://github.com/BaezFJ/MacroSignage/blob/master/docs/client.md).
 
 ## Documentation
 
-Start with [docs/index.md](docs/index.md).
+Start with [docs/index.md](https://github.com/BaezFJ/MacroSignage/blob/master/docs/index.md).
 
 Core guides:
 
-- [Installation](docs/installation.md)
-- [Configuration](docs/configuration.md)
-- [Auth and RBAC](docs/auth-rbac.md)
-- [Display Management and Player Pairing](docs/displays.md)
-- [Media Library](docs/media.md)
-- [Scheduling and Playback](docs/scheduling.md)
-- [REST API](docs/rest-api.md)
-- [API Tokens](docs/api-tokens.md)
-- [Deployment](docs/deployment.md)
-- [Troubleshooting](docs/troubleshooting.md)
-- [Development](docs/development.md)
-- [Architecture](docs/architecture.md)
+- [Installation](https://github.com/BaezFJ/MacroSignage/blob/master/docs/installation.md)
+- [Configuration](https://github.com/BaezFJ/MacroSignage/blob/master/docs/configuration.md)
+- [Auth and RBAC](https://github.com/BaezFJ/MacroSignage/blob/master/docs/auth-rbac.md)
+- [Display Management and Player Pairing](https://github.com/BaezFJ/MacroSignage/blob/master/docs/displays.md)
+- [Media Library](https://github.com/BaezFJ/MacroSignage/blob/master/docs/media.md)
+- [Scheduling and Playback](https://github.com/BaezFJ/MacroSignage/blob/master/docs/scheduling.md)
+- [REST API](https://github.com/BaezFJ/MacroSignage/blob/master/docs/rest-api.md)
+- [API Tokens](https://github.com/BaezFJ/MacroSignage/blob/master/docs/api-tokens.md)
+- [Deployment](https://github.com/BaezFJ/MacroSignage/blob/master/docs/deployment.md)
+- [Troubleshooting](https://github.com/BaezFJ/MacroSignage/blob/master/docs/troubleshooting.md)
+- [Development](https://github.com/BaezFJ/MacroSignage/blob/master/docs/development.md)
+- [Architecture](https://github.com/BaezFJ/MacroSignage/blob/master/docs/architecture.md)
 
 ## Development Commands
 
@@ -105,17 +105,17 @@ uv run twine check dist/*
 - CI runs on pull requests and pushes to `main`.
 - PyPI publishing runs when a `v*` tag is pushed.
 - Client executable build and release workflows produce Windows, macOS, and Linux assets.
-- Release documentation review is tracked in [the checklist](docs/release-documentation-checklist.md).
+- Release documentation review is tracked in [the checklist](https://github.com/BaezFJ/MacroSignage/blob/master/docs/release-documentation-checklist.md).
 
 ## v1.0 Remaining Work
 
-- [ ] Production-hardened and fully tested ([roadmap](docs/production-hardening-roadmap.md))
-- [x] Complete documentation ([roadmap](docs/documentation-roadmap.md))
+- [ ] Production-hardened and fully tested ([roadmap](https://github.com/BaezFJ/MacroSignage/blob/master/docs/production-hardening-roadmap.md))
+- [x] Complete documentation ([roadmap](https://github.com/BaezFJ/MacroSignage/blob/master/docs/documentation-roadmap.md))
 - [x] Deployment guides for Docker, systemd, health checks, backups, and rollback
 
 ## License
 
-MacroSignage is licensed under the MIT License. See [LICENSE](LICENSE).
+MacroSignage is licensed under the MIT License. See [LICENSE](https://github.com/BaezFJ/MacroSignage/blob/master/LICENSE).
 
 Copyright (c) 2022 Javier Baez
 
