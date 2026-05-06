@@ -77,14 +77,28 @@
                             </td>
                             <td>{{ token.last_used_at.strftime('%Y-%m-%d %H:%M') if token.last_used_at else 'Never' }}</td>
                             <td class="text-end">
-                                {% if token.active %}
+                                <div class="d-flex flex-wrap justify-content-end gap-2">
                                     <form method="post"
-                                          action="{{ url_for('admin_tokens.revoke_token', token_id=token.id) }}"
-                                          onsubmit="return confirm('Revoke this token?');">
+                                          action="{{ url_for('admin_tokens.reset_token', token_id=token.id) }}"
+                                          onsubmit="return confirm('Reset this token? The current secret will stop working immediately.');">
                                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                        <button class="btn btn-sm btn-outline-danger" type="submit">Revoke</button>
+                                        <button class="btn btn-sm btn-outline-primary" type="submit">Reset</button>
                                     </form>
-                                {% endif %}
+                                    {% if token.active %}
+                                        <form method="post"
+                                              action="{{ url_for('admin_tokens.revoke_token', token_id=token.id) }}"
+                                              onsubmit="return confirm('Revoke this token?');">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <button class="btn btn-sm btn-outline-warning" type="submit">Revoke</button>
+                                        </form>
+                                    {% endif %}
+                                    <form method="post"
+                                          action="{{ url_for('admin_tokens.delete_token', token_id=token.id) }}"
+                                          onsubmit="return confirm('Delete this token permanently?');">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     {% else %}

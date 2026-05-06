@@ -139,6 +139,19 @@ def revoke_api_token(api_token: ApiToken) -> None:
     api_token.active = False
 
 
+def reset_api_token(api_token: ApiToken) -> str:
+    token = generate_api_token()
+    api_token.token_prefix = token[:10]
+    api_token.token_hash = token_hash(token)
+    api_token.active = True
+    api_token.last_used_at = None
+    return token
+
+
+def delete_api_token(api_token: ApiToken) -> None:
+    db.session.delete(api_token)
+
+
 def authenticate_api_token(raw_token: str) -> User | None:
     if not raw_token:
         return None

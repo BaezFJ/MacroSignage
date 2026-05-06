@@ -22,6 +22,8 @@ ADMIN_ONLY_ENDPOINTS = {
     "admin_tokens.list_tokens",
     "admin_tokens.create_token",
     "admin_tokens.revoke_token",
+    "admin_tokens.reset_token",
+    "admin_tokens.delete_token",
     "admin_displays.rotate_display_player_token",
     "admin_displays.enable_display_player_token",
     "admin_displays.disable_display_player_token",

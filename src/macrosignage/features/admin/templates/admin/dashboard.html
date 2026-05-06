@@ -49,12 +49,32 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
                         <h2 class="h5 mb-0">Recent Activity</h2>
-                        <button class="btn btn-sm btn-outline-secondary" type="button">Refresh</button>
+                        <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('admin.get_dashboard') }}">Refresh</a>
                     </div>
-                    <div class="empty-state">
-                        <p class="mb-1 fw-semibold">No activity yet</p>
-                        <p class="mb-0 text-secondary">Display events and publish history will appear here.</p>
-                    </div>
+                    {% if recent_activities %}
+                        <div class="activity-list" role="list">
+                            {% for activity in recent_activities %}
+                                <a class="activity-item"
+                                   role="listitem"
+                                   href="{{ url_for(activity.endpoint, **activity.route_values) }}">
+                                    <span class="badge {{ activity.badge_class }}">{{ activity.title }}</span>
+                                    <span class="activity-copy">
+                                        <span class="fw-semibold">{{ activity.subject }}</span>
+                                        <span class="text-secondary">{{ activity.description }}</span>
+                                    </span>
+                                    <time class="activity-time text-secondary"
+                                          datetime="{{ activity.happened_at.isoformat() }}">
+                                        {{ activity.happened_at.strftime('%b %d, %Y %I:%M %p') }}
+                                    </time>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <p class="mb-1 fw-semibold">No activity yet</p>
+                            <p class="mb-0 text-secondary">Display events and publish history will appear here.</p>
+                        </div>
+                    {% endif %}
                 </div>
             </article>
         </div>

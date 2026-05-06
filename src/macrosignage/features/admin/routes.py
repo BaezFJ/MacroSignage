@@ -12,7 +12,7 @@ from macrosignage.config import (
 from macrosignage.extensions import db
 
 from .forms import LOGO_POSITIONS, database_settings_form_data, logo_settings_form_data
-from .services import apply_logo_settings, get_signage_settings
+from .services import apply_logo_settings, get_signage_settings, recent_dashboard_activities
 from ..displays.forms import DISPLAY_ORIENTATIONS, DISPLAY_STATUSES
 from ..displays.services import count_displays, count_online_displays
 from ..media.forms import IMAGE_EXTENSIONS, MEDIA_TYPES, VIDEO_EXTENSIONS, font_form_data
@@ -119,6 +119,7 @@ def get_dashboard():
         online_display_count=count_online_displays(),
         media_count=count_media(),
         active_schedule_count=count_active_schedules(),
+        recent_activities=recent_dashboard_activities(),
     )
 
 

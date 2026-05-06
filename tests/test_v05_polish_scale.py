@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+import re
 import tempfile
 import unittest
 from pathlib import Path
 
 from macrosignage.app import create_app
 from macrosignage.extensions import db
-from macrosignage.features.auth.models import User
+from macrosignage.features.auth.models import ApiToken, User
 from macrosignage.features.auth.services import create_api_token, hash_password, revoke_api_token
 from macrosignage.features.displays.models import Display
 from macrosignage.features.displays.services import rotate_player_token
@@ -117,6 +118,55 @@ class PolishScaleTestCase(unittest.TestCase):
         revoke_api_token(token)
         db.session.commit()
         self.assertEqual(self.client.get("/api/v1/displays", headers=editor_headers).status_code, 401)
+
+    def test_admin_can_reset_api_token_and_old_secret_stops_working(self):
+        admin = self.create_user("token-admin", "ADMIN")
+        editor = self.create_user("reset-editor", "EDITOR")
+        api_token, plaintext = create_api_token(editor, "Reset me")
+        db.session.commit()
+        old_hash = api_token.token_hash
+
+        self.assertEqual(self.login(admin.username).status_code, 302)
+        response = self.client.post(f"/admin/api-tokens/{api_token.id}/reset")
+        self.assertEqual(response.status_code, 200)
+        body = response.get_data(as_text=True)
+        self.assertIn("Copy this token now", body)
+        self.assertIn("Reset me", body)
+
+        db.session.refresh(api_token)
+        self.assertTrue(api_token.active)
+        self.assertIsNone(api_token.last_used_at)
+        self.assertNotEqual(api_token.token_hash, old_hash)
+        self.assertNotIn(api_token.token_hash, body)
+
+        self.assertEqual(
+            self.client.get("/api/v1/displays", headers={"Authorization": f"Bearer {plaintext}"}).status_code,
+            401,
+        )
+
+        token_match = re.search(r"<code class=\"d-block text-break\">([^<]+)</code>", body)
+        self.assertIsNotNone(token_match)
+        rotated_plaintext = token_match.group(1)
+        self.assertEqual(
+            self.client.get("/api/v1/displays", headers={"Authorization": f"Bearer {rotated_plaintext}"}).status_code,
+            200,
+        )
+
+    def test_admin_can_delete_api_token(self):
+        admin = self.create_user("delete-admin", "ADMIN")
+        editor = self.create_user("delete-editor", "EDITOR")
+        api_token, plaintext = create_api_token(editor, "Delete me")
+        db.session.commit()
+        token_id = api_token.id
+
+        self.assertEqual(self.login(admin.username).status_code, 302)
+        response = self.client.post(f"/admin/api-tokens/{token_id}/delete", follow_redirects=False)
+        self.assertEqual(response.status_code, 302)
+        self.assertIsNone(db.session.get(ApiToken, token_id))
+        self.assertEqual(
+            self.client.get("/api/v1/displays", headers={"Authorization": f"Bearer {plaintext}"}).status_code,
+            401,
+        )
 
     def test_api_media_schedule_and_player_playlist(self):
         editor = self.create_user("playlist-editor", "EDITOR")
