@@ -123,13 +123,13 @@ This roadmap tracks the work required to move MacroSignage from pre-alpha toward
 **Description:** Add integration tests for displays, media, schedules, settings, logo, fonts, users, and API token CRUD paths.
 
 **Acceptance criteria:**
-- [ ] Create/edit/delete flows are tested for each admin resource.
-- [ ] Permission failures are tested for viewer/editor roles.
-- [ ] Validation failures return expected status and messages.
+- [x] Create/edit/delete flows are tested for each admin resource.
+- [x] Permission failures are tested for viewer/editor roles.
+- [x] Validation failures return expected status and messages.
 
 **Verification:**
-- [ ] Full test suite passes.
-- [ ] Coverage gaps are documented when browser-only behavior cannot be tested directly.
+- [x] Full test suite passes.
+- [x] Coverage gaps are documented when browser-only behavior cannot be tested directly.
 
 **Files likely touched:**
 - `tests/test_admin_dashboard.py`
@@ -145,14 +145,14 @@ This roadmap tracks the work required to move MacroSignage from pre-alpha toward
 **Description:** Expand REST API tests to cover list/get/create/update/delete, validation errors, auth failures, and player-token access.
 
 **Acceptance criteria:**
-- [ ] API CRUD endpoints return stable JSON shapes.
-- [ ] Invalid input returns `422` with details.
-- [ ] Missing/invalid credentials return `401`.
-- [ ] Insufficient roles return `403`.
+- [x] API CRUD endpoints return stable JSON shapes.
+- [x] Invalid input returns `422` with details.
+- [x] Missing/invalid credentials return `401`.
+- [x] Insufficient roles return `403`.
 
 **Verification:**
-- [ ] API tests pass independently.
-- [ ] Serializer output remains backward compatible unless intentionally changed.
+- [x] API tests pass independently.
+- [x] Serializer output remains backward compatible unless intentionally changed.
 
 **Files likely touched:**
 - `tests/test_api.py`
@@ -166,14 +166,14 @@ This roadmap tracks the work required to move MacroSignage from pre-alpha toward
 **Description:** Ensure installed commands, package data, static assets, templates, and client packaging stay valid.
 
 **Acceptance criteria:**
-- [ ] `macrosignage`, `macrosignage-prod`, and `macrosignage-client` entry points are tested.
-- [ ] Built wheel contains required templates/static assets.
-- [ ] Release workflows are documented and linked.
+- [x] `macrosignage`, `macrosignage-prod`, and `macrosignage-client` entry points are tested.
+- [x] Built wheel contains required templates/static assets.
+- [x] Release workflows are documented and linked.
 
 **Verification:**
-- [ ] `uv build`
-- [ ] `uv run twine check dist/*`
-- [ ] Package smoke test from built wheel in a temporary environment.
+- [x] `uv build`
+- [x] `uv run twine check dist/*`
+- [x] Package smoke test from built wheel in a temporary environment.
 
 **Files likely touched:**
 - `tests/test_cli.py`
@@ -241,9 +241,9 @@ This roadmap tracks the work required to move MacroSignage from pre-alpha toward
 
 ### Test Completion Checkpoint
 
-- [ ] Tasks 6-8 complete.
-- [ ] CI runs all required checks.
-- [ ] Critical user workflows have automated coverage.
+- [x] Tasks 6-8 complete.
+- [x] CI runs all required checks.
+- [x] Critical user workflows have automated coverage.
 
 ### v1.0 Readiness Checkpoint
 

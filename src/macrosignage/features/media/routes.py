@@ -87,7 +87,9 @@ def create_media():
     if request.method == "POST":
         slider_slide_count = requested_slider_slide_count()
         form_data, errors = media_form_data(request.form, request.files, fonts=font_choices)
-        apply_media_data(media, form_data, selected_displays(request.form))
+        if not errors:
+            db.session.add(media)
+        apply_media_data(media, form_data, selected_displays(request.form) if not errors else [])
 
         upload = request.files.get("file")
         if not errors and media.media_type in {"IMAGE", "VIDEO"} and upload and upload.filename:
@@ -96,7 +98,6 @@ def create_media():
             apply_slider_slides(media, form_data["slider_slides"])
 
         if not errors:
-            db.session.add(media)
             db.session.commit()
             flash(f"{media.title} was created.", "success")
             return redirect(url_for("admin_media.get_media_view", media_id=media.id))

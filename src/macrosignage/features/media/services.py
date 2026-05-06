@@ -29,13 +29,17 @@ def seed_default_fonts() -> None:
 
 
 def list_fonts() -> list[MediaFont]:
-    return db.session.scalars(db.select(MediaFont).order_by(MediaFont.display_name.asc(), MediaFont.id.asc())).all()
+    with db.session.no_autoflush:
+        return db.session.scalars(db.select(MediaFont).order_by(MediaFont.display_name.asc(), MediaFont.id.asc())).all()
 
 
 def list_active_fonts() -> list[MediaFont]:
-    return db.session.scalars(
-        db.select(MediaFont).where(MediaFont.active.is_(True)).order_by(MediaFont.display_name.asc(), MediaFont.id.asc())
-    ).all()
+    with db.session.no_autoflush:
+        return db.session.scalars(
+            db.select(MediaFont)
+            .where(MediaFont.active.is_(True))
+            .order_by(MediaFont.display_name.asc(), MediaFont.id.asc())
+        ).all()
 
 
 def get_font(font_id: int) -> MediaFont:
@@ -71,7 +75,8 @@ def list_media(search_query: str = "", selected_type: str = "") -> list[MediaAss
 
 
 def list_all_media() -> list[MediaAsset]:
-    return db.session.scalars(db.select(MediaAsset).order_by(MediaAsset.title.asc())).all()
+    with db.session.no_autoflush:
+        return db.session.scalars(db.select(MediaAsset).order_by(MediaAsset.title.asc())).all()
 
 
 def get_media(media_id: int) -> MediaAsset:

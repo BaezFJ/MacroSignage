@@ -31,7 +31,8 @@ def list_displays(search_query: str = "", selected_status: str = "") -> list[Dis
 
 
 def list_all_displays() -> list[Display]:
-    return db.session.scalars(db.select(Display).order_by(Display.name.asc())).all()
+    with db.session.no_autoflush:
+        return db.session.scalars(db.select(Display).order_by(Display.name.asc())).all()
 
 
 def get_display(display_id: int) -> Display:
@@ -123,7 +124,8 @@ def selected_displays(form) -> list[Display]:
     if not display_ids:
         return []
 
-    return db.session.scalars(db.select(Display).where(Display.id.in_(display_ids))).all()
+    with db.session.no_autoflush:
+        return db.session.scalars(db.select(Display).where(Display.id.in_(display_ids))).all()
 
 
 def apply_display_data(display: Display, form_data: dict[str, object]) -> None:
