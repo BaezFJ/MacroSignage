@@ -58,6 +58,9 @@ Windows, macOS, and Linux. Run it manually from the GitHub Actions tab, or push
 a version tag such as `v0.2.1`. The workflow uploads each platform build as a
 downloadable artifact.
 
+The `Release Client` workflow runs when a `v*` tag is pushed. It builds the
+same platform executables and attaches them to the matching GitHub Release.
+
 ## Setup controls
 
 - `--setup`: always show the setup form.

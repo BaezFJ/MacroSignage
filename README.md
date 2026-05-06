@@ -10,7 +10,7 @@
 
 MacroSignage lets you manage and display digital signage content through a modern browser-based interface. It uses Bootstrap v5.3.8 for responsive styling and Animate.css for smooth transitions.
 
-> **Note:** This project is in Pre-Alpha (v0.2.0). APIs and features are subject to change.
+> **Note:** This project is in Pre-Alpha (v0.2.1). APIs and features are subject to change.
 
 <!-- TODO: Add screenshot once the dashboard UI is implemented -->
 <!-- ![MacroSignage Screenshot](docs/images/screenshot.png) -->
