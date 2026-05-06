@@ -56,6 +56,20 @@
         </section>
     {% endif %}
 
+    <section class="card mb-4" aria-label="Operational diagnostics">
+        <div class="card-body">
+            <h2 class="h5 mb-3">Operational Diagnostics</h2>
+            <dl class="settings-list settings-list-wide mb-0">
+                {% for label, value in settings.diagnostics %}
+                    <div>
+                        <dt>{{ label }}</dt>
+                        <dd>{{ value }}</dd>
+                    </div>
+                {% endfor %}
+            </dl>
+        </div>
+    </section>
+
     <section class="card" aria-label="Catalog defaults">
         <div class="card-body">
             <div class="d-flex align-items-start justify-content-between gap-3 mb-3">

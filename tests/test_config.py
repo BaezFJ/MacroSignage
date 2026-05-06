@@ -7,6 +7,7 @@ import unittest
 from pathlib import Path
 
 from macrosignage.config import database_form_from_uri, database_uri_from_parts, validate_database_uri, write_database_uri
+from macrosignage.diagnostics import redacted_database_label
 from macrosignage.app import create_app
 from macrosignage.extensions import db
 from macrosignage.features.auth.models import User
@@ -132,6 +133,13 @@ class AppConfigTestCase(unittest.TestCase):
         self.assertEqual(form["database_name"], "macrosignage")
         self.assertEqual(form["query"], "charset=utf8mb4")
 
+    def test_database_label_redacts_credentials(self):
+        label = redacted_database_label("postgresql+psycopg://macro:secret@db.example.com:5432/macrosignage")
+
+        self.assertEqual(label, "postgresql+psycopg / db.example.com:5432/macrosignage")
+        self.assertNotIn("secret", label)
+        self.assertNotIn("macro:", label)
+
     def test_write_database_uri_updates_dotenv(self):
         env_file = Path(self.tempdir.name) / ".env"
         write_database_uri(env_file, "postgresql+psycopg://user:password@localhost/macrosignage")
@@ -207,6 +215,81 @@ class AppConfigTestCase(unittest.TestCase):
                 "postgresql+psycopg://user:password@localhost:5432/macrosignage?sslmode=require",
                 env_file.read_text(encoding="utf-8"),
             )
+
+            db.session.remove()
+            db.drop_all()
+
+    def test_health_endpoint_reports_readiness_without_auth_or_secrets(self):
+        temp_path = Path(self.tempdir.name)
+        database_uri = "postgresql+psycopg://user:secret-password@db.example.com:5432/macrosignage"
+        app = create_app(
+            {
+                "TESTING": True,
+                "WTF_CSRF_ENABLED": False,
+                "SECRET_KEY": "configured-secret",
+                "SQLALCHEMY_DATABASE_URI": f"sqlite:///{temp_path / 'health.sqlite3'}",
+                "MEDIA_UPLOAD_FOLDER": str(temp_path / "media"),
+                "MACROSIGNAGE_PRODUCTION": True,
+                "SESSION_COOKIE_SECURE": True,
+            }
+        )
+        app.config["SQLALCHEMY_DATABASE_URI_PUBLIC_TEST_VALUE"] = database_uri
+
+        response = app.test_client().get("/api/v1/health")
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.get_json()
+        self.assertTrue(payload["ready"])
+        self.assertEqual(payload["status"], "ok")
+        self.assertEqual(payload["version"], app.config["APP_VERSION"])
+        self.assertEqual(payload["checks"]["database"]["status"], "ok")
+        self.assertTrue(payload["checks"]["mediaStorage"]["writable"])
+        self.assertEqual(payload["playerUpdates"]["contentVersion"], payload["contentVersion"])
+        self.assertNotIn("secret-password", response.get_data(as_text=True))
+
+    def test_admin_settings_show_redacted_operational_diagnostics(self):
+        temp_path = Path(self.tempdir.name)
+        app = create_app(
+            {
+                "TESTING": True,
+                "WTF_CSRF_ENABLED": False,
+                "SECRET_KEY": "configured-secret",
+                "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
+                "MEDIA_UPLOAD_FOLDER": str(temp_path / "media"),
+                "MACROSIGNAGE_PRODUCTION": True,
+                "SESSION_COOKIE_SECURE": True,
+                "MACROSIGNAGE_ENABLE_HSTS": True,
+            }
+        )
+
+        with app.app_context():
+            user = User(
+                username="site-admin",
+                email="admin@example.com",
+                password_hash=hash_password("password123"),
+                role="ADMIN",
+                active=True,
+            )
+            db.session.add(user)
+            db.session.commit()
+
+            client = app.test_client()
+            self.assertEqual(
+                client.post("/auth/login", data={"identifier": "site-admin", "password": "password123"}).status_code,
+                302,
+            )
+            response = client.get("/admin/settings/")
+            body = response.get_data(as_text=True)
+
+            self.assertEqual(response.status_code, 200)
+            self.assertIn("Operational Diagnostics", body)
+            self.assertIn("Database readiness", body)
+            self.assertIn("Media storage", body)
+            self.assertIn("Secret key", body)
+            self.assertIn("Configured", body)
+            self.assertIn("Content version", body)
+            self.assertNotIn("configured-secret", body)
+            self.assertNotIn("password123", body)
 
             db.session.remove()
             db.drop_all()

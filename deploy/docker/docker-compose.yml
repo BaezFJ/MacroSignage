@@ -1,0 +1,18 @@
+services:
+  macrosignage:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      MACROSIGNAGE_DATABASE_URI: sqlite:////data/macrosignage.sqlite3
+      MACROSIGNAGE_MEDIA_UPLOAD_FOLDER: /data/media
+    volumes:
+      - macrosignage-data:/data
+    restart: unless-stopped
+
+volumes:
+  macrosignage-data:

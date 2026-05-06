@@ -1,0 +1,20 @@
+[Unit]
+Description=MacroSignage
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=macrosignage
+Group=macrosignage
+WorkingDirectory=/opt/macrosignage
+EnvironmentFile=/etc/macrosignage/macrosignage.env
+ExecStart=/opt/macrosignage/.venv/bin/macrosignage-prod --host 127.0.0.1 --port 8080 --threads 4
+Restart=on-failure
+RestartSec=5
+RuntimeDirectory=macrosignage
+StateDirectory=macrosignage
+LogsDirectory=macrosignage
+
+[Install]
+WantedBy=multi-user.target

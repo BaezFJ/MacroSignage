@@ -190,12 +190,12 @@ This roadmap tracks the work required to move MacroSignage from pre-alpha toward
 **Description:** Expand health and diagnostics endpoints/pages so operators can verify database, media storage, version, and player update state.
 
 **Acceptance criteria:**
-- [ ] Health endpoint confirms app and database readiness.
-- [ ] Admin settings page shows key production configuration status without exposing secrets.
-- [ ] Diagnostics avoid leaking tokens, passwords, database passwords, or full secret values.
+- [x] Health endpoint confirms app and database readiness.
+- [x] Admin settings page shows key production configuration status without exposing secrets.
+- [x] Diagnostics avoid leaking tokens, passwords, database passwords, or full secret values.
 
 **Verification:**
-- [ ] Tests cover health output and redaction.
+- [x] Tests cover health output and redaction.
 - [ ] Manual check: admin settings remains readable.
 
 **Files likely touched:**
@@ -211,12 +211,12 @@ This roadmap tracks the work required to move MacroSignage from pre-alpha toward
 **Description:** Provide copy-pasteable production deployment examples for common self-hosted setups.
 
 **Acceptance criteria:**
-- [ ] systemd service example covers env file, working directory, user, restart policy, and logs.
-- [ ] Docker guide covers persistent database/media volumes.
-- [ ] Reverse proxy HTTPS notes are included.
+- [x] systemd service example covers env file, working directory, user, restart policy, and logs.
+- [x] Docker guide covers persistent database/media volumes.
+- [x] Reverse proxy HTTPS notes are included.
 
 **Verification:**
-- [ ] Commands match current CLI and config names.
+- [x] Commands match current CLI and config names.
 
 **Files likely touched:**
 - `docs/deployment.md`
@@ -247,7 +247,7 @@ This roadmap tracks the work required to move MacroSignage from pre-alpha toward
 
 ### v1.0 Readiness Checkpoint
 
-- [ ] Tasks 9-10 complete.
+- [x] Tasks 9-10 complete.
 - [ ] Release process tested on a version tag.
 - [ ] README v1.0 roadmap item can be marked complete.
 

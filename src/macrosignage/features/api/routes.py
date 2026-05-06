@@ -5,6 +5,7 @@ from functools import wraps
 
 from flask import Blueprint, g, jsonify, request
 
+from macrosignage.diagnostics import health_payload
 from macrosignage.extensions import csrf, db
 from macrosignage.time_utils import local_datetime_to_stored_utc
 
@@ -60,6 +61,8 @@ def bearer_token() -> str:
 
 @api_bp.before_request
 def authenticate_api_request():
+    if request.endpoint == "api.health":
+        return None
     if request.endpoint in {"api.display_status", "api.display_playlist_view"} and display_access_is_valid():
         g.api_user = None
         return None
@@ -220,7 +223,8 @@ def apply_schedule_json(schedule: Schedule, data: dict[str, object], partial: bo
 
 @api_bp.get("/health")
 def health():
-    return jsonify({"status": "ok", "contentVersion": get_content_version().version})
+    payload = health_payload(get_content_version().version)
+    return jsonify(payload), (200 if payload["ready"] else 503)
 
 
 @api_bp.get("/displays")

@@ -19,6 +19,92 @@ MACROSIGNAGE_ENABLE_HSTS=true \
 uv run macrosignage prod
 ```
 
+## Health and diagnostics
+
+Use the unauthenticated health endpoint for load balancers and uptime checks:
+
+```bash
+curl http://127.0.0.1:8080/api/v1/health
+```
+
+The response reports application version, database readiness, media storage readiness, and the current content version used by display players. It intentionally does not include secrets, bearer tokens, display tokens, or database passwords.
+
+Admins can also review Operational Diagnostics from `/admin/settings/`. That page shows redacted configuration status, including whether the secret key is configured, secure cookies are enabled, HSTS is enabled, the database is reachable, media storage is writable, and the player content version.
+
+## systemd
+
+The repository includes a copy-pasteable unit at `deploy/systemd/macrosignage.service`. A typical host layout is:
+
+```bash
+sudo useradd --system --home /opt/macrosignage --shell /usr/sbin/nologin macrosignage
+sudo mkdir -p /opt/macrosignage /etc/macrosignage /var/lib/macrosignage/media
+sudo chown -R macrosignage:macrosignage /opt/macrosignage /var/lib/macrosignage
+cd /opt/macrosignage
+uv venv
+uv pip install MacroSignage
+```
+
+Create `/etc/macrosignage/macrosignage.env`:
+
+```dotenv
+MACROSIGNAGE_SECRET_KEY=change-this-to-a-long-random-value
+MACROSIGNAGE_DATABASE_URI=sqlite:////var/lib/macrosignage/macrosignage.sqlite3
+MACROSIGNAGE_MEDIA_UPLOAD_FOLDER=/var/lib/macrosignage/media
+MACROSIGNAGE_SESSION_COOKIE_SECURE=true
+MACROSIGNAGE_ENABLE_HSTS=true
+```
+
+Install and start the service:
+
+```bash
+sudo cp deploy/systemd/macrosignage.service /etc/systemd/system/macrosignage.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now macrosignage
+sudo systemctl status macrosignage
+sudo journalctl -u macrosignage -f
+```
+
+The service runs as the `macrosignage` user, reads `/etc/macrosignage/macrosignage.env`, starts `macrosignage-prod --host 127.0.0.1 --port 8080 --threads 4`, restarts on failure, and writes logs to journald.
+
+## Docker
+
+The repository includes `deploy/docker/Dockerfile` and `deploy/docker/docker-compose.yml`.
+
+Create `deploy/docker/.env`:
+
+```dotenv
+MACROSIGNAGE_SECRET_KEY=change-this-to-a-long-random-value
+MACROSIGNAGE_SESSION_COOKIE_SECURE=true
+MACROSIGNAGE_ENABLE_HSTS=true
+```
+
+Run:
+
+```bash
+docker compose -f deploy/docker/docker-compose.yml up -d --build
+docker compose -f deploy/docker/docker-compose.yml logs -f
+```
+
+The compose file publishes port `8080`, stores SQLite and uploads in the `macrosignage-data` volume, and sets:
+
+```dotenv
+MACROSIGNAGE_DATABASE_URI=sqlite:////data/macrosignage.sqlite3
+MACROSIGNAGE_MEDIA_UPLOAD_FOLDER=/data/media
+```
+
+For PostgreSQL or MySQL, replace `MACROSIGNAGE_DATABASE_URI` with the external SQLAlchemy URI and install the matching database driver in a derived image.
+
+## Reverse proxy HTTPS
+
+Terminate HTTPS at a reverse proxy such as Nginx, Caddy, Traefik, or a managed load balancer. Forward traffic to `http://127.0.0.1:8080` for systemd deployments or to the Docker service port.
+
+Minimum proxy requirements:
+
+- Preserve `Host`, `X-Forwarded-Proto`, and client IP headers.
+- Redirect HTTP to HTTPS.
+- Set `MACROSIGNAGE_SESSION_COOKIE_SECURE=true` after HTTPS is enabled.
+- Set `MACROSIGNAGE_ENABLE_HSTS=true` only after HTTPS is stable for the domain.
+
 ## Upgrade order
 
 MacroSignage currently applies additive runtime schema updates on startup for supported v0.x databases. Treat every package upgrade as a data change:

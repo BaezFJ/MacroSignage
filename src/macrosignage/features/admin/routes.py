@@ -1,5 +1,3 @@
-from urllib.parse import urlsplit
-
 from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
 
 from macrosignage.config import (
@@ -9,10 +7,11 @@ from macrosignage.config import (
     default_database_uri,
     write_database_uri,
 )
+from macrosignage.diagnostics import redacted_database_label, settings_diagnostics
 from macrosignage.extensions import db
 
 from .forms import LOGO_POSITIONS, database_settings_form_data, logo_settings_form_data
-from .services import apply_logo_settings, get_signage_settings, recent_dashboard_activities
+from .services import apply_logo_settings, get_content_version, get_signage_settings, recent_dashboard_activities
 from ..displays.forms import DISPLAY_ORIENTATIONS, DISPLAY_STATUSES
 from ..displays.services import count_displays, count_online_displays
 from ..media.forms import IMAGE_EXTENSIONS, MEDIA_TYPES, VIDEO_EXTENSIONS, font_form_data
@@ -47,30 +46,15 @@ def format_bytes(value):
     return f"{int(value)} bytes"
 
 
-def safe_database_label(uri):
-    if not uri:
-        return "Not configured"
-
-    if uri.startswith("sqlite:///"):
-        return f"SQLite / {uri.removeprefix('sqlite:///')}"
-
-    parsed = urlsplit(uri)
-    if parsed.scheme and parsed.hostname:
-        port = f":{parsed.port}" if parsed.port else ""
-        database = parsed.path.strip("/") or "default"
-        return f"{parsed.scheme} / {parsed.hostname}{port}/{database}"
-
-    return uri
-
-
 def settings_context():
     max_upload_bytes = current_app.config.get("MAX_CONTENT_LENGTH")
     media_folder = current_app.config.get("MEDIA_UPLOAD_FOLDER", "Not configured")
     database_uri = current_app.config.get("SQLALCHEMY_DATABASE_URI")
     default_uri = default_database_uri(current_app.instance_path)
     default_sqlite_path = default_uri.removeprefix("sqlite:///")
-    database_label = safe_database_label(database_uri)
+    database_label = redacted_database_label(database_uri)
     logo_settings = get_signage_settings()
+    content_version = get_content_version().version
 
     return {
         "application": [
@@ -80,6 +64,7 @@ def settings_context():
             ("Database", database_label),
         ],
         "production_warnings": current_app.config.get("MACROSIGNAGE_CONFIG_WARNINGS", []),
+        "diagnostics": settings_diagnostics(content_version),
         "database": {
             "uri": database_uri,
             "label": database_label,
