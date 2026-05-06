@@ -1,0 +1,174 @@
+{% extends 'layouts/admin.html' %}
+
+{% block main %}
+    <div class="admin-page-header">
+        <div>
+            <p class="eyebrow">Administration</p>
+            <h1 class="h2 mb-1">Database Settings</h1>
+            <p class="text-secondary mb-0">Choose a database type or enter a SQLAlchemy URI directly.</p>
+        </div>
+        <a class="btn btn-outline-secondary" href="{{ url_for('admin.get_settings') }}">Back to settings</a>
+    </div>
+
+    <section class="card" aria-label="Database settings">
+        <div class="card-body">
+            {% set db_form = database_form if database_form else settings.database.form %}
+            <form method="post" action="{{ url_for('admin.manage_database_settings') }}" novalidate>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div data-database-settings>
+                    <div class="row g-3 align-items-end">
+                        <div class="col-lg-5">
+                            <label class="form-label" for="databaseType">Database type</label>
+                            <select id="databaseType" class="form-select" name="database_type" data-database-type>
+                                {% for value, option in database_options.items() %}
+                                    <option value="{{ value }}"
+                                            data-driver-help="{{ option.driver_help }}"
+                                            data-install-command="{{ option.install_command }}"
+                                            data-default-port="{{ option.default_port }}"
+                                            {% if db_form.database_type == value %}selected{% endif %}>
+                                        {{ option.label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-lg-7">
+                            <div class="alert alert-info mb-0 py-2" role="status">
+                                <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
+                                    <span data-database-driver-message>
+                                        {{ database_options[db_form.database_type].driver_help if db_form.database_type in database_options else database_options.advanced.driver_help }}
+                                    </span>
+                                    <button class="btn btn-sm btn-outline-primary"
+                                            type="button"
+                                            data-database-install-button>
+                                        Copy install command
+                                    </button>
+                                </div>
+                                <code class="d-block mt-2 text-break" data-database-install-command></code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3" data-database-section="sqlite">
+                        <label class="form-label" for="sqlitePath">SQLite database location</label>
+                        <input id="sqlitePath"
+                               class="form-control {% if database_errors and database_errors.get('sqlite_path') %}is-invalid{% endif %}"
+                               type="text"
+                               name="sqlite_path"
+                               value="{{ db_form.sqlite_path }}"
+                               autocomplete="off">
+                        {% if database_errors and database_errors.get('sqlite_path') %}
+                            <div class="invalid-feedback">{{ database_errors.sqlite_path }}</div>
+                        {% endif %}
+                        <p class="form-text mb-0">Use a relative path such as <code>instance/macrosignage.sqlite3</code> or an absolute path.</p>
+                    </div>
+
+                    <div class="row g-3 mt-1" data-database-section="server">
+                        <div class="col-md-5">
+                            <label class="form-label" for="databaseHost">Host</label>
+                            <input id="databaseHost"
+                                   class="form-control {% if database_errors and database_errors.get('host') %}is-invalid{% endif %}"
+                                   type="text"
+                                   name="host"
+                                   value="{{ db_form.host }}"
+                                   autocomplete="off">
+                            {% if database_errors and database_errors.get('host') %}
+                                <div class="invalid-feedback">{{ database_errors.host }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label" for="databasePort">Port</label>
+                            <input id="databasePort"
+                                   class="form-control {% if database_errors and database_errors.get('port') %}is-invalid{% endif %}"
+                                   type="number"
+                                   min="1"
+                                   max="65535"
+                                   name="port"
+                                   value="{{ db_form.port }}">
+                            {% if database_errors and database_errors.get('port') %}
+                                <div class="invalid-feedback">{{ database_errors.port }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label" for="databaseName">Database name</label>
+                            <input id="databaseName"
+                                   class="form-control {% if database_errors and database_errors.get('database_name') %}is-invalid{% endif %}"
+                                   type="text"
+                                   name="database_name"
+                                   value="{{ db_form.database_name }}"
+                                   autocomplete="off">
+                            {% if database_errors and database_errors.get('database_name') %}
+                                <div class="invalid-feedback">{{ database_errors.database_name }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="databaseUsername">Username</label>
+                            <input id="databaseUsername"
+                                   class="form-control"
+                                   type="text"
+                                   name="username"
+                                   value="{{ db_form.username }}"
+                                   autocomplete="off">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="databasePassword">Password</label>
+                            <input id="databasePassword"
+                                   class="form-control"
+                                   type="password"
+                                   name="password"
+                                   value="{{ db_form.password }}"
+                                   autocomplete="new-password">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label" for="databaseQuery">Additional query options</label>
+                            <input id="databaseQuery"
+                                   class="form-control"
+                                   type="text"
+                                   name="query"
+                                   value="{{ db_form.query }}"
+                                   placeholder="sslmode=require">
+                            <p class="form-text mb-0">Optional key/value query string without the leading question mark.</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-3" data-database-section="advanced">
+                        <label class="form-label" for="databaseUri">Database URI</label>
+                        <input id="databaseUri"
+                               class="form-control {% if database_errors and database_errors.get('database_uri') %}is-invalid{% endif %}"
+                               type="text"
+                               name="database_uri"
+                               value="{{ db_form.database_uri }}"
+                               maxlength="1000"
+                               autocomplete="off">
+                        {% if database_errors and database_errors.get('database_uri') %}
+                            <div class="invalid-feedback">{{ database_errors.database_uri }}</div>
+                        {% endif %}
+                        <p class="form-text mb-0">Advanced mode accepts any Flask-SQLAlchemy/SQLAlchemy URI supported by your installed drivers.</p>
+                    </div>
+
+                    {% if database_errors and database_errors.get('database_uri') and db_form.database_type != 'advanced' %}
+                        <div class="alert alert-danger mt-3 mb-0" role="alert">{{ database_errors.database_uri }}</div>
+                    {% endif %}
+
+                    <div class="d-grid d-md-flex justify-content-md-end mt-3">
+                        <button class="btn btn-primary" type="submit">Save database</button>
+                    </div>
+                </div>
+            </form>
+
+            <dl class="settings-list settings-list-wide mt-4 mb-0">
+                <div>
+                    <dt>Environment key</dt>
+                    <dd><code>{{ settings.database.env_key }}</code></dd>
+                </div>
+                <div>
+                    <dt>Environment file</dt>
+                    <dd>{{ settings.database.env_file }}</dd>
+                </div>
+                <div>
+                    <dt>Restart required</dt>
+                    <dd>Yes</dd>
+                </div>
+            </dl>
+        </div>
+    </section>
+{% endblock %}

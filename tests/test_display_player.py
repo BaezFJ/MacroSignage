@@ -220,6 +220,18 @@ class DisplayPlayerTestCase(unittest.TestCase):
         db.session.commit()
         self.authorize_display(display)
 
+        settings_response = self.client.get("/admin/settings/")
+        self.assertEqual(settings_response.status_code, 200)
+        settings_body = settings_response.get_data(as_text=True)
+        self.assertIn("Manage logo", settings_body)
+        self.assertNotIn("logoUpload", settings_body)
+
+        logo_response = self.client.get("/admin/settings/logo")
+        self.assertEqual(logo_response.status_code, 200)
+        logo_body = logo_response.get_data(as_text=True)
+        self.assertIn("Logo Settings", logo_body)
+        self.assertIn("logoUpload", logo_body)
+
         response = self.client.post(
             "/admin/settings/logo",
             data={

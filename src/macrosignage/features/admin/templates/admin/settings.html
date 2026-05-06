@@ -60,13 +60,44 @@
         </div>
     </section>
 
-    <section class="card mt-4" aria-label="Logo settings">
+    <section class="card mt-4" aria-label="Database summary">
+        <div class="card-body">
+            <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+                <div>
+                    <h2 class="h5 mb-1">Database</h2>
+                    <p class="text-secondary mb-0">Current startup database configuration.</p>
+                </div>
+                {% if can_admin() %}
+                    <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('admin.manage_database_settings') }}">Manage database</a>
+                {% endif %}
+            </div>
+            <dl class="settings-list settings-list-wide mb-0">
+                <div>
+                    <dt>Current database</dt>
+                    <dd>{{ settings.database.label }}</dd>
+                </div>
+                <div>
+                    <dt>Environment key</dt>
+                    <dd><code>{{ settings.database.env_key }}</code></dd>
+                </div>
+                <div>
+                    <dt>Environment file</dt>
+                    <dd>{{ settings.database.env_file }}</dd>
+                </div>
+            </dl>
+        </div>
+    </section>
+
+    <section class="card mt-4" aria-label="Logo summary">
         <div class="card-body">
             <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
                 <div>
                     <h2 class="h5 mb-1">Logo</h2>
-                    <p class="text-secondary mb-0">Control the global logo overlay shown on display playback.</p>
+                    <p class="text-secondary mb-0">Current global logo overlay configuration.</p>
                 </div>
+                {% if can_admin() %}
+                    <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('admin.manage_logo_settings') }}">Manage logo</a>
+                {% endif %}
                 {% if logo_settings.has_logo %}
                     <img class="settings-logo-preview"
                          src="{{ url_for('admin_media.uploaded_media', filename=logo_settings.logo_file_path) }}"
@@ -74,65 +105,7 @@
                 {% endif %}
             </div>
 
-            <form method="post"
-                  action="{{ url_for('admin.update_logo_settings') }}"
-                  enctype="multipart/form-data"
-                  novalidate>
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <div class="row g-3 align-items-end">
-                    <div class="col-md-4">
-                        <label class="form-label" for="logoUpload">Logo image</label>
-                        <input id="logoUpload"
-                               class="form-control {% if logo_errors and logo_errors.get('logo') %}is-invalid{% endif %}"
-                               type="file"
-                               name="logo"
-                               accept="image/jpeg,image/png,image/gif,image/webp">
-                        {% if logo_errors and logo_errors.get('logo') %}
-                            <div class="invalid-feedback">{{ logo_errors.logo }}</div>
-                        {% endif %}
-                        {% if logo_settings.has_logo %}
-                            <p class="form-text mb-0">Current logo: {{ logo_settings.logo_original_filename or logo_settings.logo_file_path }}</p>
-                        {% endif %}
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label" for="logoPosition">Position</label>
-                        <select id="logoPosition"
-                                class="form-select {% if logo_errors and logo_errors.get('logo_position') %}is-invalid{% endif %}"
-                                name="logo_position">
-                            {% for value, label in logo_positions.items() %}
-                                <option value="{{ value }}" {% if logo_settings.logo_position == value %}selected{% endif %}>{{ label }}</option>
-                            {% endfor %}
-                        </select>
-                        {% if logo_errors and logo_errors.get('logo_position') %}
-                            <div class="invalid-feedback">{{ logo_errors.logo_position }}</div>
-                        {% endif %}
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-check form-switch">
-                            <input id="logoEnabled"
-                                   class="form-check-input"
-                                   type="checkbox"
-                                   name="logo_enabled"
-                                   {% if logo_settings.logo_enabled %}checked{% endif %}>
-                            <label class="form-check-label" for="logoEnabled">Show logo</label>
-                        </div>
-                        {% if logo_settings.has_logo %}
-                            <div class="form-check mt-2">
-                                <input id="removeLogo"
-                                       class="form-check-input"
-                                       type="checkbox"
-                                       name="remove_logo">
-                                <label class="form-check-label" for="removeLogo">Remove logo</label>
-                            </div>
-                        {% endif %}
-                    </div>
-                    <div class="col-md-2 d-grid">
-                        <button class="btn btn-primary" type="submit">Save logo</button>
-                    </div>
-                </div>
-            </form>
-
-            <dl class="settings-list settings-list-wide mt-4 mb-0">
+            <dl class="settings-list settings-list-wide mb-0">
                 {% for label, value in settings.logo %}
                     <div>
                         <dt>{{ label }}</dt>

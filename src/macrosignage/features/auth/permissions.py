@@ -13,7 +13,8 @@ ROLE_ORDER = {
 }
 
 ADMIN_ONLY_ENDPOINTS = {
-    "admin.update_logo_settings",
+    "admin.manage_logo_settings",
+    "admin.manage_database_settings",
     "admin.list_fonts",
     "admin.create_font",
     "admin.edit_font",

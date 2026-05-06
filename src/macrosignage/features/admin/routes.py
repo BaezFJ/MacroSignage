@@ -2,9 +2,16 @@ from urllib.parse import urlsplit
 
 from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
 
+from macrosignage.config import (
+    DATABASE_ENV_KEY,
+    DATABASE_OPTIONS,
+    database_form_from_uri,
+    default_database_uri,
+    write_database_uri,
+)
 from macrosignage.extensions import db
 
-from .forms import LOGO_POSITIONS, logo_settings_form_data
+from .forms import LOGO_POSITIONS, database_settings_form_data, logo_settings_form_data
 from .services import apply_logo_settings, get_signage_settings
 from ..displays.forms import DISPLAY_ORIENTATIONS, DISPLAY_STATUSES
 from ..displays.services import count_displays, count_online_displays
@@ -60,6 +67,9 @@ def settings_context():
     max_upload_bytes = current_app.config.get("MAX_CONTENT_LENGTH")
     media_folder = current_app.config.get("MEDIA_UPLOAD_FOLDER", "Not configured")
     database_uri = current_app.config.get("SQLALCHEMY_DATABASE_URI")
+    default_uri = default_database_uri(current_app.instance_path)
+    default_sqlite_path = default_uri.removeprefix("sqlite:///")
+    database_label = safe_database_label(database_uri)
     logo_settings = get_signage_settings()
 
     return {
@@ -67,8 +77,17 @@ def settings_context():
             ("Version", current_app.config.get("APP_VERSION", "Unknown")),
             ("Runtime mode", "Debug" if current_app.debug else "Production"),
             ("CSRF protection", "Enabled"),
-            ("Database", safe_database_label(database_uri)),
+            ("Database", database_label),
         ],
+        "database": {
+            "uri": database_uri,
+            "label": database_label,
+            "default_uri": default_uri,
+            "form": database_form_from_uri(database_uri, default_sqlite_path),
+            "env_file": current_app.config.get("MACROSIGNAGE_ENV_FILE", ".env"),
+            "env_key": DATABASE_ENV_KEY,
+            "options": DATABASE_OPTIONS,
+        },
         "storage": [
             ("Media upload folder", media_folder),
             ("Maximum upload size", format_bytes(max_upload_bytes)),
@@ -114,24 +133,50 @@ def get_settings():
     )
 
 
-@admin_bp.post("/settings/logo")
-def update_logo_settings():
-    logo_settings = get_signage_settings()
-    form_data, errors = logo_settings_form_data(request.form, request.files)
-    if errors:
-        return render_template(
-            "admin/settings.html",
-            title="Settings",
-            settings=settings_context(),
-            logo_positions=LOGO_POSITIONS,
-            logo_settings=logo_settings,
-            logo_errors=errors,
-        ), 422
+@admin_bp.route("/settings/database", methods=["GET", "POST"])
+def manage_database_settings():
+    settings = settings_context()
+    form_data = settings["database"]["form"]
+    errors: dict[str, str] = {}
 
-    apply_logo_settings(logo_settings, form_data)
-    db.session.commit()
-    flash("Logo settings were updated.", "success")
-    return redirect(url_for("admin.get_settings"))
+    if request.method == "POST":
+        form_data, errors = database_settings_form_data(request.form)
+        if not errors:
+            write_database_uri(current_app.config["MACROSIGNAGE_ENV_FILE"], str(form_data["database_uri"]))
+            flash("Database configuration saved. Restart MacroSignage for the new database to take effect.", "warning")
+            return redirect(url_for("admin.get_settings"))
+
+    return render_template(
+        "admin/database.html",
+        title="Database Settings",
+        settings=settings,
+        database_options=DATABASE_OPTIONS,
+        database_errors=errors,
+        database_form=form_data,
+    ), (422 if errors else 200)
+
+
+@admin_bp.route("/settings/logo", methods=["GET", "POST"])
+def manage_logo_settings():
+    logo_settings = get_signage_settings()
+    errors: dict[str, str] = {}
+
+    if request.method == "POST":
+        form_data, errors = logo_settings_form_data(request.form, request.files)
+        if not errors:
+            apply_logo_settings(logo_settings, form_data)
+            db.session.commit()
+            flash("Logo settings were updated.", "success")
+            return redirect(url_for("admin.get_settings"))
+
+    return render_template(
+        "admin/logo.html",
+        title="Logo Settings",
+        settings=settings_context(),
+        logo_positions=LOGO_POSITIONS,
+        logo_settings=logo_settings,
+        logo_errors=errors,
+    ), (422 if errors else 200)
 
 
 @admin_bp.get("/settings/fonts/")

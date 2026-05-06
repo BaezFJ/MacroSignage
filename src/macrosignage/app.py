@@ -3,11 +3,11 @@ __version__ = "0.2.0"
 import os
 from os import PathLike
 
-from dotenv import load_dotenv
 from flask import Flask, abort, redirect, request, url_for
 from flask_login import current_user
 from sqlalchemy import inspect, text
 
+from .config import DATABASE_ENV_KEY, default_database_uri, load_environment
 from .extensions import csrf, db, login_manager, migrate
 from .features.auth.permissions import current_user_can, required_admin_role
 from .web.routes import web_bp
@@ -30,10 +30,6 @@ MUTATING_CONTENT_ENDPOINT_PREFIXES = (
     "admin_tokens.",
     "api.",
 )
-
-
-def load_environment(env_file: str | PathLike[str] | None = None) -> None:
-    load_dotenv(env_file, override=False)
 
 
 def ensure_runtime_schema() -> None:
@@ -76,17 +72,18 @@ def ensure_runtime_schema() -> None:
 
 
 def create_app(config: dict | None = None, env_file: str | PathLike[str] | None = None):
-    load_environment(env_file)
+    resolved_env_file = load_environment(env_file)
 
     app = Flask(__name__)
     os.makedirs(app.instance_path, exist_ok=True)
 
     app.config.from_mapping(
         APP_VERSION=__version__,
+        MACROSIGNAGE_ENV_FILE=str(resolved_env_file),
         SECRET_KEY=os.environ.get("MACROSIGNAGE_SECRET_KEY", "dev-secret-key-change-me"),
         SQLALCHEMY_DATABASE_URI=os.environ.get(
-            "MACROSIGNAGE_DATABASE_URI",
-            f"sqlite:///{os.path.join(app.instance_path, 'macrosignage.sqlite3')}",
+            DATABASE_ENV_KEY,
+            default_database_uri(app.instance_path),
         ),
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         MEDIA_UPLOAD_FOLDER=os.environ.get(

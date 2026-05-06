@@ -9,6 +9,7 @@
 
 ```bash
 uv sync
+cp .env.example .env
 uv run macrosignage dev
 ```
 

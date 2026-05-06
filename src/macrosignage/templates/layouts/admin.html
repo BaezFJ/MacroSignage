@@ -35,9 +35,9 @@
                 <span>API Tokens</span>
             </a>
         {% endif %}
-        <a class="admin-nav-link {{ 'active' if active_endpoint in ['admin.get_settings', 'admin.list_fonts', 'admin.create_font', 'admin.edit_font'] else '' }}"
+        <a class="admin-nav-link {{ 'active' if active_endpoint in ['admin.get_settings', 'admin.manage_database_settings', 'admin.manage_logo_settings', 'admin.list_fonts', 'admin.create_font', 'admin.edit_font'] else '' }}"
            href="{{ url_for('admin.get_settings') }}"
-           {% if active_endpoint in ['admin.get_settings', 'admin.list_fonts', 'admin.create_font', 'admin.edit_font'] %}aria-current="page"{% endif %}>
+           {% if active_endpoint in ['admin.get_settings', 'admin.manage_database_settings', 'admin.manage_logo_settings', 'admin.list_fonts', 'admin.create_font', 'admin.edit_font'] %}aria-current="page"{% endif %}>
             <span>Settings</span>
         </a>
     </nav>
