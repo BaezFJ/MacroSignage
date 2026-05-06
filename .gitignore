@@ -55,6 +55,7 @@ coverage.xml
 # Local agent metadata
 .codex/
 .agents/
+.claude/
 
 # IDEs
 .idea/

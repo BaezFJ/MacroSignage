@@ -247,7 +247,7 @@ Expanded documentation is available in [docs/index.md](docs/index.md).
 
 ### v1.0.0 -- Stable Release
 
-- [ ] Production-hardened and fully tested
+- [ ] Production-hardened and fully tested ([roadmap](docs/production-hardening-roadmap.md))
 - [ ] Complete documentation
 - [ ] Deployment guides (Docker, systemd, cloud)
 
