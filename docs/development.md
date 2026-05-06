@@ -150,4 +150,4 @@ Browser media playback for real image, video, YouTube, HTML iframe, and slider t
 - `.github/workflows/client-build.yml`: builds standalone client executables on demand and for `v*` tags.
 - `.github/workflows/client-release.yml`: uploads standalone client executables to the matching GitHub Release.
 
-Before tagging, run the checks above and review [Architecture](architecture.md), [Deployment](deployment.md), and the active roadmaps.
+Before tagging, run the checks above, complete the [Release Documentation Checklist](release-documentation-checklist.md), and review [Architecture](architecture.md), [Deployment](deployment.md), and the active roadmaps.

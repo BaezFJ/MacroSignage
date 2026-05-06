@@ -27,6 +27,7 @@ MacroSignage is a Flask-based digital signage manager with an admin console, dis
 
 - [Development](development.md): run checks, understand project structure, and follow release automation.
 - [Architecture](architecture.md): understand app factory setup, feature blueprints, data model, player auth, SSE, and ADRs.
+- [Release Documentation Checklist](release-documentation-checklist.md): review docs, admin workflows, API guidance, deployment, client setup, and manual playback before tagging.
 
 ## Roadmaps
 

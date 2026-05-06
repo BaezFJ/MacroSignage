@@ -353,13 +353,13 @@ Completed audit findings:
 **Description:** Add automated checks for internal Markdown links and required docs references.
 
 **Acceptance criteria:**
-- [ ] Tests verify all local Markdown links point to existing files or anchors where practical.
-- [ ] Docs index links are covered.
-- [ ] README roadmap links are covered.
+- [x] Tests verify all local Markdown links point to existing files or anchors where practical.
+- [x] Docs index links are covered.
+- [x] README roadmap links are covered.
 
 **Verification:**
-- [ ] `uv run python -m pytest tests/test_docs.py` passes.
-- [ ] Full test suite passes.
+- [x] `uv run python -m pytest tests/test_docs.py` passes.
+- [x] Full test suite passes.
 
 **Files likely touched:**
 - `tests/test_docs.py`
@@ -373,13 +373,13 @@ Completed audit findings:
 **Description:** Add a checklist for release documentation review so manual browser/player checks and operator docs are confirmed before tagging.
 
 **Acceptance criteria:**
-- [ ] Checklist covers README, install, admin workflows, API docs, deployment, troubleshooting, and client docs.
-- [ ] Checklist includes manual media playback and admin settings readability checks.
-- [ ] Checklist is linked from development or deployment docs.
+- [x] Checklist covers README, install, admin workflows, API docs, deployment, troubleshooting, and client docs.
+- [x] Checklist includes manual media playback and admin settings readability checks.
+- [x] Checklist is linked from development or deployment docs.
 
 **Verification:**
-- [ ] Checklist exists and is linked.
-- [ ] Release docs mention it.
+- [x] Checklist exists and is linked.
+- [x] Release docs mention it.
 
 **Files likely touched:**
 - `docs/release-documentation-checklist.md`
@@ -418,11 +418,11 @@ Completed audit findings:
 
 ### v1.0 Documentation Complete Checkpoint
 
-- [ ] Tasks 16-17 complete.
-- [ ] Documentation link checks pass.
-- [ ] Full test suite passes.
-- [ ] Manual documentation review checklist is complete.
-- [ ] README v1.0 "Complete documentation" item can be marked complete.
+- [x] Tasks 16-17 complete.
+- [x] Documentation link checks pass.
+- [x] Full test suite passes.
+- [x] Manual documentation review checklist is complete.
+- [x] README v1.0 "Complete documentation" item can be marked complete.
 
 ## Risks and Mitigations
 

@@ -105,11 +105,12 @@ uv run twine check dist/*
 - CI runs on pull requests and pushes to `main`.
 - PyPI publishing runs when a `v*` tag is pushed.
 - Client executable build and release workflows produce Windows, macOS, and Linux assets.
+- Release documentation review is tracked in [the checklist](docs/release-documentation-checklist.md).
 
 ## v1.0 Remaining Work
 
 - [ ] Production-hardened and fully tested ([roadmap](docs/production-hardening-roadmap.md))
-- [ ] Complete documentation ([roadmap](docs/documentation-roadmap.md))
+- [x] Complete documentation ([roadmap](docs/documentation-roadmap.md))
 - [x] Deployment guides for Docker, systemd, health checks, backups, and rollback
 
 ## License
