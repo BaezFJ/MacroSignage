@@ -7,7 +7,7 @@
 
 MacroSignage is a Flask-based digital signage manager with an admin console, token-secured display players, scheduling, media playback, REST API access, and a standalone pywebview display client.
 
-> **Status:** Pre-alpha v0.2.1. Data models and API contracts can change before v1.0.
+> **Status:** Pre-alpha v0.2.2. Data models and API contracts can change before v1.0.
 
 ## Features
 

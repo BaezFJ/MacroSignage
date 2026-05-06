@@ -41,7 +41,7 @@ Response fields:
 {
   "status": "ok",
   "ready": true,
-  "version": "0.2.1",
+  "version": "0.2.2",
   "contentVersion": 1,
   "playerUpdates": {
     "contentVersion": 1
