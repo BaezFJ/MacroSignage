@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "macrosignage-client"
+version = "0.1.0"
+description = "Standalone MacroSignage display client."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "pywebview[qt]>=5.0",
+]
+
+[project.optional-dependencies]
+build = [
+    "pyinstaller>=6.0",
+]
+
+[project.scripts]
+macrosignage-client = "macrosignage_client.app:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["macrosignage_client*"]
+namespaces = false

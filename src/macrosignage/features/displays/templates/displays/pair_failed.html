@@ -1,0 +1,11 @@
+{% extends 'layouts/_base.html' %}
+
+{% block body %}
+    <main class="display-auth display-player-landscape" aria-label="Display access required">
+        <section class="display-auth-panel">
+            <p class="display-auth-kicker">Access Required</p>
+            <h1>MacroSignage Client</h1>
+            <p>{{ reason }}</p>
+        </section>
+    </main>
+{% endblock %}

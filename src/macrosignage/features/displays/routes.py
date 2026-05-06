@@ -26,6 +26,7 @@ from .models import Display
 from .services import (
     apply_display_data,
     disable_player_token,
+    display_for_player_token,
     display_has_player_access,
     display_playlist,
     enable_player_token,
@@ -216,6 +217,24 @@ def pair_display_player(display_id: int):
     submitted_token = request.form.get("token", "").strip()
     if not player_token_is_valid(display, submitted_token):
         return render_player_unauthorized(display, submitted_token)
+
+    remember_player_token_use(display)
+    db.session.commit()
+    remember_player_access(display)
+    return redirect(url_for("display_player.show_display_player", display_id=display.id))
+
+
+@display_player_bp.post("/pair")
+@csrf.exempt
+def pair_display_player_by_token():
+    submitted_token = request.form.get("token", "").strip()
+    display = display_for_player_token(submitted_token)
+    if display is None:
+        return render_template(
+            "displays/pair_failed.html",
+            title="Display Access Required",
+            reason="Invalid display token",
+        ), 401
 
     remember_player_token_use(display)
     db.session.commit()

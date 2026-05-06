@@ -80,6 +80,22 @@ def player_token_is_valid(display: Display, token: str) -> bool:
     return hmac.compare_digest(display.player_token_hash, hash_player_token(token))
 
 
+def display_for_player_token(token: str) -> Display | None:
+    if not token:
+        return None
+
+    hashed_token = hash_player_token(token)
+    display = db.session.scalar(
+        db.select(Display).where(
+            Display.player_token_hash == hashed_token,
+            Display.player_token_enabled.is_(True),
+        )
+    )
+    if display is None or not hmac.compare_digest(display.player_token_hash or "", hashed_token):
+        return None
+    return display
+
+
 def remember_player_token_use(display: Display) -> None:
     if not display.player_access_key:
         display.player_access_key = secrets.token_urlsafe(24)

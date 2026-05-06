@@ -134,6 +134,35 @@ class DisplayPlayerTestCase(unittest.TestCase):
         self.assertEqual(disabled_response.status_code, 401)
         self.assertIn("Display access disabled", disabled_response.get_data(as_text=True))
 
+    def test_player_can_pair_with_server_and_token_only(self):
+        display = self.create_display()
+        media = self.create_media("Welcome")
+        display.media_assets = [media]
+        token = rotate_player_token(display)
+        db.session.commit()
+
+        response = self.client.post("/displays/pair", data={"token": token}, follow_redirects=False)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(f"/displays/{display.id}/play", response.headers["Location"])
+        player_response = self.client.get(f"/displays/{display.id}/play")
+        self.assertEqual(player_response.status_code, 200)
+        self.assertIn("Welcome body", player_response.get_data(as_text=True))
+
+    def test_token_only_pairing_rejects_disabled_or_invalid_tokens(self):
+        display = self.create_display()
+        token = rotate_player_token(display)
+        display.player_token_enabled = False
+        db.session.commit()
+
+        disabled_response = self.client.post("/displays/pair", data={"token": token})
+        self.assertEqual(disabled_response.status_code, 401)
+        self.assertIn("Invalid display token", disabled_response.get_data(as_text=True))
+
+        invalid_response = self.client.post("/displays/pair", data={"token": "not-a-real-token"})
+        self.assertEqual(invalid_response.status_code, 401)
+        self.assertIn("Invalid display token", invalid_response.get_data(as_text=True))
+
     def test_rotating_player_token_invalidates_existing_pairing_and_old_token(self):
         display = self.create_display()
         media = self.create_media("Welcome")
