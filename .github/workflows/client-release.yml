@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to upload client assets to"
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -20,15 +26,15 @@ jobs:
           - name: Windows
             os: windows-latest
             asset-name: MacroSignageClient-Windows.exe
-            executable-path: client/dist/MacroSignageClient.exe
+            executable-path: dist/MacroSignageClient.exe
           - name: macOS
             os: macos-latest
             asset-name: MacroSignageClient-macOS
-            executable-path: client/dist/MacroSignageClient
+            executable-path: dist/MacroSignageClient
           - name: Linux
             os: ubuntu-latest
             asset-name: MacroSignageClient-Linux
-            executable-path: client/dist/MacroSignageClient
+            executable-path: dist/MacroSignageClient
 
     defaults:
       run:
@@ -81,5 +87,6 @@ jobs:
       - name: Upload release asset
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
           files: client/dist/${{ matrix.asset-name }}
           fail_on_unmatched_files: true
