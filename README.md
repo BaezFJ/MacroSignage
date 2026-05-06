@@ -200,7 +200,7 @@ Contributions are welcome! MacroSignage is in early development and there are ma
 - User authentication system
 - Database models and migrations
 - Admin dashboard UI
-- Test suite setup (pytest)
+- Test coverage expansion
 - CI/CD pipeline (GitHub Actions)
 - Documentation improvements
 
@@ -208,11 +208,11 @@ Contributions are welcome! MacroSignage is in early development and there are ma
 
 ### v0.2.0 -- Foundation
 
-- [ ] Application configuration system (python-dotenv integration)
-- [ ] Database setup with Flask-SQLAlchemy
-- [ ] User model and authentication with Flask-Login
-- [ ] Form infrastructure with Flask-WTF
-- [ ] Basic test suite with pytest
+- [x] Application configuration system (python-dotenv integration)
+- [x] Database setup with Flask-SQLAlchemy
+- [x] User model and authentication with Flask-Login
+- [x] Form infrastructure with Flask-WTF
+- [x] Basic test suite with pytest
 
 ### v0.3.0 -- Core Features
 

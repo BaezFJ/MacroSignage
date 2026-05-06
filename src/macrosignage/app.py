@@ -1,7 +1,9 @@
 __version__ = "0.2.0"
 
 import os
+from os import PathLike
 
+from dotenv import load_dotenv
 from flask import Flask, redirect, request, url_for
 from flask_login import current_user
 from sqlalchemy import inspect, text
@@ -12,6 +14,10 @@ from .features import features_bp
 
 
 ADMIN_ENDPOINT_PREFIXES = ("admin.", "admin_displays.", "admin_media.", "admin_schedules.", "admin_users.")
+
+
+def load_environment(env_file: str | PathLike[str] | None = None) -> None:
+    load_dotenv(env_file, override=False)
 
 
 def ensure_runtime_schema() -> None:
@@ -53,7 +59,9 @@ def ensure_runtime_schema() -> None:
         db.session.commit()
 
 
-def create_app(config: dict | None = None):
+def create_app(config: dict | None = None, env_file: str | PathLike[str] | None = None):
+    load_environment(env_file)
+
     app = Flask(__name__)
     os.makedirs(app.instance_path, exist_ok=True)
 
