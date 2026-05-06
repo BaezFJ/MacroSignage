@@ -34,4 +34,4 @@ MACROSIGNAGE_MEDIA_UPLOAD_FOLDER='/var/lib/macrosignage/media' \
 macrosignage-prod --host 127.0.0.1 --port 8080 --threads 4
 ```
 
-See `docs/deployment.md` for systemd, Docker, health checks, backups, HTTPS, and rollback examples.
+See [Configuration](configuration.md) for all environment variables and [Deployment](deployment.md) for systemd, Docker, health checks, backups, HTTPS, and rollback examples.

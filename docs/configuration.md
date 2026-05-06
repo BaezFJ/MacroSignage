@@ -1,34 +1,48 @@
 # Configuration
 
-MacroSignage loads environment variables from `.env` before the Flask app is configured.
+MacroSignage loads environment variables from `.env` before the Flask app is configured. The default env file is the `.env` file in the current working directory.
 
-## Environment variables
+The admin Settings page shows the loaded env file path, redacted database status, production warnings, and operational diagnostics.
 
-- `MACROSIGNAGE_SECRET_KEY`: Flask secret key. Set this in every non-development environment.
-- `MACROSIGNAGE_DATABASE_URI`: Flask-SQLAlchemy database URI. Defaults to SQLite in the instance directory.
-- `MACROSIGNAGE_MEDIA_UPLOAD_FOLDER`: directory for uploaded media assets.
-- `MACROSIGNAGE_MAX_UPLOAD_BYTES`: maximum upload size in bytes. Defaults to 100 MB.
-- `MACROSIGNAGE_TIMEZONE`: IANA timezone used for schedule forms and playback evaluation. Defaults to the server local timezone.
-- `MACROSIGNAGE_SESSION_COOKIE_SECURE`: set to `true`, `1`, or `yes` when serving over HTTPS.
-- `MACROSIGNAGE_ENABLE_HSTS`: set to `true`, `1`, or `yes` to send HTTP Strict Transport Security headers.
+## Environment Variables
 
-## First run
+| Variable | Default | Restart required | Production guidance |
+| --- | --- | --- | --- |
+| `MACROSIGNAGE_ENV` | unset | yes | Set to `production` or `prod` when running production deployments. The `macrosignage-prod` CLI also enables production mode internally. |
+| `MACROSIGNAGE_SECRET_KEY` | development default | yes | Required in production. Use a long random value from a secret manager. The production CLI refuses the development default. |
+| `MACROSIGNAGE_DATABASE_URI` | SQLite in the Flask instance directory | yes | Use persistent storage. Install the matching database driver for non-SQLite engines. |
+| `MACROSIGNAGE_MEDIA_UPLOAD_FOLDER` | `media` under the Flask instance directory | yes | Use persistent storage and include it in backups. |
+| `MACROSIGNAGE_MAX_UPLOAD_BYTES` | `104857600` | yes | Default is 100 MB. Increase only when the reverse proxy and storage limits are also configured. |
+| `MACROSIGNAGE_TIMEZONE` | server local timezone | yes | Set an IANA timezone, such as `America/Chicago`, before creating production schedules. |
+| `MACROSIGNAGE_SESSION_COOKIE_SECURE` | `false` | yes | Set to `true` when MacroSignage is served over HTTPS. |
+| `MACROSIGNAGE_ENABLE_HSTS` | `false` | yes | Set to `true` only after HTTPS is stable for the production domain. |
+
+Boolean variables accept `true`, `1`, or `yes` for enabled values.
+
+Internal app config keys such as `MACROSIGNAGE_ENV_FILE`, `MACROSIGNAGE_PRODUCTION`, and `MACROSIGNAGE_CONFIG_WARNINGS` are derived by the app. Do not set them directly in `.env`.
+
+## Example `.env`
+
+```dotenv
+MACROSIGNAGE_ENV=production
+MACROSIGNAGE_SECRET_KEY=replace-with-a-long-random-secret
+MACROSIGNAGE_DATABASE_URI=sqlite:////var/lib/macrosignage/macrosignage.sqlite3
+MACROSIGNAGE_MEDIA_UPLOAD_FOLDER=/var/lib/macrosignage/media
+MACROSIGNAGE_MAX_UPLOAD_BYTES=104857600
+MACROSIGNAGE_TIMEZONE=America/Chicago
+MACROSIGNAGE_SESSION_COOKIE_SECURE=true
+MACROSIGNAGE_ENABLE_HSTS=true
+```
+
+Keep `.env` out of version control and restrict file permissions on shared hosts.
+
+## First Run
 
 Open `/auth/setup` to create the first admin account. After setup, users sign in at `/auth/login`.
 
 See [Auth and RBAC](auth-rbac.md) for role behavior, password reset limitations, and user management.
 
-## Schedule timezone
-
-Set `MACROSIGNAGE_TIMEZONE` to an IANA timezone name before creating production schedules:
-
-```text
-MACROSIGNAGE_TIMEZONE=America/Chicago
-```
-
-Schedule start/end inputs are interpreted in this timezone, stored in UTC, and displayed back in the configured local timezone. See [Scheduling and Playback](scheduling.md) for examples.
-
-## Database selection
+## Database Selection
 
 SQLite is the default:
 
@@ -48,13 +62,49 @@ Any SQLAlchemy URI accepted by Flask-SQLAlchemy can be saved, such as:
 sqlite:////absolute/path/macrosignage.sqlite3
 postgresql+psycopg://user:password@localhost/macrosignage
 mysql+pymysql://user:password@localhost/macrosignage
+mariadb+pymysql://user:password@localhost/macrosignage
+mssql+pyodbc://user:password@localhost:1433/macrosignage?driver=ODBC+Driver+18+for+SQL+Server
+oracle+oracledb://user:password@localhost:1521/service_name
 ```
-
-Non-SQLite databases require the matching Python driver to be installed in the environment.
 
 Common driver packages:
 
-- PostgreSQL: `psycopg`
-- MySQL or MariaDB: `pymysql`
-- Microsoft SQL Server: `pyodbc` plus the Microsoft ODBC driver
-- Oracle: `oracledb`
+| Database | Driver package | Install command |
+| --- | --- | --- |
+| SQLite | built in | none |
+| PostgreSQL | `psycopg` | `uv add psycopg` |
+| MySQL | `pymysql` | `uv add pymysql` |
+| MariaDB | `pymysql` | `uv add pymysql` |
+| Microsoft SQL Server | `pyodbc` plus Microsoft ODBC driver | `uv add pyodbc` |
+| Oracle | `oracledb` | `uv add oracledb` |
+| Advanced SQLAlchemy URI | matching dialect driver | depends on the URI |
+
+Do not switch database providers during an application upgrade. Upgrade first, verify the app, then change the database URI in a separate maintenance window.
+
+## Upload Storage
+
+`MACROSIGNAGE_MEDIA_UPLOAD_FOLDER` stores uploaded image, video, slider, and logo files. This directory must exist or be creatable by the app process and must be included in backups with the database.
+
+`MACROSIGNAGE_MAX_UPLOAD_BYTES` sets Flask's maximum request size. If uploads fail behind a reverse proxy, check both MacroSignage and proxy upload limits.
+
+Supported upload extensions are documented in [Media Library](media.md).
+
+## Schedule Timezone
+
+Set `MACROSIGNAGE_TIMEZONE` to an IANA timezone name before creating production schedules:
+
+```text
+MACROSIGNAGE_TIMEZONE=America/Chicago
+```
+
+Schedule start/end inputs are interpreted in this timezone, stored in UTC, and displayed back in the configured local timezone. See [Scheduling and Playback](scheduling.md) for examples.
+
+## Security Settings
+
+`MACROSIGNAGE_SECRET_KEY` signs browser sessions. Changing it signs out existing browser sessions. Set it once during deployment and rotate only as a planned security action.
+
+`MACROSIGNAGE_SESSION_COOKIE_SECURE=true` makes browsers send the session cookie only over HTTPS. Enable it after HTTPS is working through the reverse proxy.
+
+`MACROSIGNAGE_ENABLE_HSTS=true` sends Strict Transport Security headers. Enable HSTS only after the production domain is permanently available over HTTPS.
+
+See [Deployment](deployment.md) for production startup, reverse proxy, backup, and rollback guidance.

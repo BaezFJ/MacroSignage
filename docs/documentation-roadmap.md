@@ -223,13 +223,13 @@ Completed audit findings:
 **Description:** Expand configuration docs with every supported environment variable, defaults, safe production values, examples, and restart requirements.
 
 **Acceptance criteria:**
-- [ ] All `MACROSIGNAGE_*` settings used in code are documented.
-- [ ] Database driver requirements are complete.
-- [ ] Secret, cookie, HSTS, upload, media, and timezone settings are covered.
+- [x] All `MACROSIGNAGE_*` settings used in code are documented.
+- [x] Database driver requirements are complete.
+- [x] Secret, cookie, HSTS, upload, media, and timezone settings are covered.
 
 **Verification:**
-- [ ] `rg -n "MACROSIGNAGE_" src/macrosignage docs` shows no undocumented app setting.
-- [ ] Docs avoid exposing real secret values.
+- [x] `rg -n "MACROSIGNAGE_" src/macrosignage docs` shows no undocumented app setting.
+- [x] Docs avoid exposing real secret values.
 
 **Files likely touched:**
 - `docs/configuration.md`
@@ -242,14 +242,14 @@ Completed audit findings:
 **Description:** Make deployment docs operator-ready with systemd, Docker, reverse proxy, health checks, backups, restore, rollback, and upgrade examples.
 
 **Acceptance criteria:**
-- [ ] systemd and Docker examples are linked and explained.
-- [ ] Reverse proxy notes include HTTPS and forwarded headers.
-- [ ] Backup, restore, upgrade, and rollback steps are easy to follow.
-- [ ] Health check response fields are documented.
+- [x] systemd and Docker examples are linked and explained.
+- [x] Reverse proxy notes include HTTPS and forwarded headers.
+- [x] Backup, restore, upgrade, and rollback steps are easy to follow.
+- [x] Health check response fields are documented.
 
 **Verification:**
-- [ ] Commands match `macrosignage-prod` and current config names.
-- [ ] `tests/test_operational_readiness.py` passes.
+- [x] Commands match `macrosignage-prod` and current config names.
+- [x] `tests/test_operational_readiness.py` passes.
 
 **Files likely touched:**
 - `docs/deployment.md`
@@ -263,18 +263,24 @@ Completed audit findings:
 **Description:** Add symptom-based troubleshooting for login, API auth, display pairing, offline/maintenance pages, no active schedules, media uploads, database drivers, client GUI dependencies, and health check failures.
 
 **Acceptance criteria:**
-- [ ] Troubleshooting entries are organized by symptom.
-- [ ] Each entry includes likely causes and verification commands or UI checks.
-- [ ] Entries avoid telling users to expose secrets or tokens.
+- [x] Troubleshooting entries are organized by symptom.
+- [x] Each entry includes likely causes and verification commands or UI checks.
+- [x] Entries avoid telling users to expose secrets or tokens.
 
 **Verification:**
-- [ ] Troubleshooting links to relevant guides.
-- [ ] Commands use current CLI names.
+- [x] Troubleshooting links to relevant guides.
+- [x] Commands use current CLI names.
 
 **Files likely touched:**
 - `docs/troubleshooting.md`
 
 **Estimated scope:** Medium
+
+### Operator Documentation Checkpoint
+
+- [x] Configuration, deployment, installation, and troubleshooting docs are linked and use current CLI names.
+- [x] Health check fields, backup/restore order, reverse proxy requirements, and database driver requirements are documented.
+- [x] Troubleshooting covers login, API auth, player pairing, offline/maintenance states, no active schedules, uploads, database drivers, client GUI dependencies, health checks, and upgrades.
 
 ## Phase 5: Developer and Maintainer Documentation
 
