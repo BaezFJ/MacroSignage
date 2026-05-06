@@ -94,6 +94,10 @@ def ensure_runtime_schema() -> None:
 
     if "media_slides" in tables:
         columns = {column["name"] for column in inspector.get_columns("media_slides")}
+        if "foreground_file_path" not in columns:
+            statements.append("ALTER TABLE media_slides ADD COLUMN foreground_file_path VARCHAR(260)")
+        if "foreground_original_filename" not in columns:
+            statements.append("ALTER TABLE media_slides ADD COLUMN foreground_original_filename VARCHAR(260)")
         if "text_font_family" not in columns:
             statements.append("ALTER TABLE media_slides ADD COLUMN text_font_family VARCHAR(80) NOT NULL DEFAULT 'Inter'")
         if "text_font_size" not in columns:
@@ -124,6 +128,19 @@ def ensure_runtime_schema() -> None:
         columns = {column["name"] for column in inspector.get_columns("schedules")}
         if "times_are_utc" not in columns:
             statements.append("ALTER TABLE schedules ADD COLUMN times_are_utc BOOLEAN NOT NULL DEFAULT 0")
+
+    if "signage_settings" in tables:
+        columns = {column["name"] for column in inspector.get_columns("signage_settings")}
+        if "logo_enabled" not in columns:
+            statements.append("ALTER TABLE signage_settings ADD COLUMN logo_enabled BOOLEAN NOT NULL DEFAULT 0")
+        if "logo_position" not in columns:
+            statements.append("ALTER TABLE signage_settings ADD COLUMN logo_position VARCHAR(24) NOT NULL DEFAULT 'TOP_RIGHT'")
+        if "logo_file_path" not in columns:
+            statements.append("ALTER TABLE signage_settings ADD COLUMN logo_file_path VARCHAR(260)")
+        if "logo_original_filename" not in columns:
+            statements.append("ALTER TABLE signage_settings ADD COLUMN logo_original_filename VARCHAR(260)")
+        if "logo_mime_type" not in columns:
+            statements.append("ALTER TABLE signage_settings ADD COLUMN logo_mime_type VARCHAR(120)")
 
     for statement in statements:
         db.session.execute(text(statement))

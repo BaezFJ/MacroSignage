@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import sqlite3
 import tempfile
 import unittest
 from pathlib import Path
@@ -209,6 +210,192 @@ class AppConfigTestCase(unittest.TestCase):
 
             db.session.remove()
             db.drop_all()
+
+    def test_existing_sqlite_database_is_upgraded_without_data_loss(self):
+        temp_path = Path(self.tempdir.name)
+        database_path = temp_path / "legacy.sqlite3"
+        created_at = "2026-01-01 12:00:00"
+        with sqlite3.connect(database_path) as connection:
+            connection.executescript(
+                """
+                CREATE TABLE displays (
+                    id INTEGER PRIMARY KEY,
+                    name VARCHAR(120) NOT NULL,
+                    location VARCHAR(160),
+                    status VARCHAR(24) NOT NULL,
+                    orientation VARCHAR(24) NOT NULL,
+                    resolution_width INTEGER NOT NULL,
+                    resolution_height INTEGER NOT NULL,
+                    notes TEXT,
+                    created_at DATETIME NOT NULL,
+                    updated_at DATETIME NOT NULL
+                );
+                CREATE TABLE schedules (
+                    id INTEGER PRIMARY KEY,
+                    name VARCHAR(140) NOT NULL,
+                    status VARCHAR(24) NOT NULL,
+                    starts_at DATETIME,
+                    ends_at DATETIME,
+                    weekdays VARCHAR(32),
+                    default_duration_seconds INTEGER NOT NULL,
+                    notes TEXT,
+                    created_at DATETIME NOT NULL,
+                    updated_at DATETIME NOT NULL
+                );
+                CREATE TABLE media_assets (
+                    id INTEGER PRIMARY KEY,
+                    title VARCHAR(140) NOT NULL,
+                    media_type VARCHAR(24) NOT NULL,
+                    file_path VARCHAR(260),
+                    original_filename VARCHAR(260),
+                    mime_type VARCHAR(120),
+                    body TEXT,
+                    source_url VARCHAR(500),
+                    notes TEXT,
+                    created_at DATETIME NOT NULL,
+                    updated_at DATETIME NOT NULL
+                );
+                CREATE TABLE media_slides (
+                    id INTEGER PRIMARY KEY,
+                    media_asset_id INTEGER NOT NULL,
+                    sort_order INTEGER NOT NULL,
+                    background_file_path VARCHAR(260),
+                    background_original_filename VARCHAR(260),
+                    text TEXT,
+                    text_position VARCHAR(24) NOT NULL,
+                    duration_seconds INTEGER NOT NULL,
+                    created_at DATETIME NOT NULL,
+                    updated_at DATETIME NOT NULL
+                );
+                CREATE TABLE signage_settings (
+                    id INTEGER PRIMARY KEY,
+                    created_at DATETIME NOT NULL,
+                    updated_at DATETIME NOT NULL
+                );
+                """
+            )
+            connection.execute(
+                """
+                INSERT INTO displays (
+                    id, name, location, status, orientation, resolution_width, resolution_height,
+                    notes, created_at, updated_at
+                ) VALUES (1, 'Legacy Lobby', 'Main floor', 'ONLINE', 'LANDSCAPE', 1920, 1080, 'Keep me', ?, ?)
+                """,
+                (created_at, created_at),
+            )
+            connection.execute(
+                """
+                INSERT INTO schedules (
+                    id, name, status, starts_at, ends_at, weekdays, default_duration_seconds,
+                    notes, created_at, updated_at
+                ) VALUES (1, 'Legacy Schedule', 'ACTIVE', '2026-01-01 08:00:00', NULL, 'MON,TUE', 45, 'Keep schedule', ?, ?)
+                """,
+                (created_at, created_at),
+            )
+            connection.execute(
+                """
+                INSERT INTO media_assets (
+                    id, title, media_type, body, notes, created_at, updated_at
+                ) VALUES (1, 'Legacy Slider', 'SLIDER', NULL, 'Keep media', ?, ?)
+                """,
+                (created_at, created_at),
+            )
+            connection.execute(
+                """
+                INSERT INTO media_slides (
+                    id, media_asset_id, sort_order, background_file_path, background_original_filename,
+                    text, text_position, duration_seconds, created_at, updated_at
+                ) VALUES (1, 1, 0, 'legacy-bg.png', 'legacy-bg.png', 'Legacy text', 'CENTER', 12, ?, ?)
+                """,
+                (created_at, created_at),
+            )
+            connection.execute(
+                "INSERT INTO signage_settings (id, created_at, updated_at) VALUES (1, ?, ?)",
+                (created_at, created_at),
+            )
+
+        app = create_app(
+            {
+                "TESTING": True,
+                "WTF_CSRF_ENABLED": False,
+                "SQLALCHEMY_DATABASE_URI": f"sqlite:///{database_path}",
+                "MEDIA_UPLOAD_FOLDER": str(temp_path / "media"),
+            }
+        )
+
+        with app.app_context():
+            inspector = db.inspect(db.engine)
+            display_columns = {column["name"] for column in inspector.get_columns("displays")}
+            schedule_columns = {column["name"] for column in inspector.get_columns("schedules")}
+            slide_columns = {column["name"] for column in inspector.get_columns("media_slides")}
+            settings_columns = {column["name"] for column in inspector.get_columns("signage_settings")}
+
+            self.assertTrue(
+                {
+                    "player_token_hash",
+                    "player_token_enabled",
+                    "player_access_key",
+                    "player_token_created_at",
+                    "player_token_last_used_at",
+                }.issubset(display_columns)
+            )
+            self.assertIn("times_are_utc", schedule_columns)
+            self.assertTrue(
+                {
+                    "foreground_file_path",
+                    "foreground_original_filename",
+                    "foreground_size",
+                    "foreground_position",
+                    "foreground_animation",
+                    "text_font_family",
+                    "text_font_size",
+                    "text_animation",
+                }.issubset(slide_columns)
+            )
+            self.assertTrue(
+                {
+                    "logo_enabled",
+                    "logo_position",
+                    "logo_file_path",
+                    "logo_original_filename",
+                    "logo_mime_type",
+                }.issubset(settings_columns)
+            )
+
+            display_row = db.session.execute(
+                db.text("SELECT name, notes, player_token_enabled FROM displays WHERE id = 1")
+            ).one()
+            schedule_row = db.session.execute(
+                db.text("SELECT name, notes, times_are_utc FROM schedules WHERE id = 1")
+            ).one()
+            slide_row = db.session.execute(
+                db.text(
+                    """
+                    SELECT text, foreground_size, foreground_position, foreground_animation,
+                           text_font_family, text_font_size, text_animation
+                    FROM media_slides WHERE id = 1
+                    """
+                )
+            ).one()
+            settings_row = db.session.execute(
+                db.text("SELECT logo_enabled, logo_position FROM signage_settings WHERE id = 1")
+            ).one()
+
+            self.assertEqual(display_row.name, "Legacy Lobby")
+            self.assertEqual(display_row.notes, "Keep me")
+            self.assertEqual(display_row.player_token_enabled, 0)
+            self.assertEqual(schedule_row.name, "Legacy Schedule")
+            self.assertEqual(schedule_row.notes, "Keep schedule")
+            self.assertEqual(schedule_row.times_are_utc, 0)
+            self.assertEqual(slide_row.text, "Legacy text")
+            self.assertEqual(slide_row.foreground_size, 50)
+            self.assertEqual(slide_row.foreground_position, "CENTER")
+            self.assertEqual(slide_row.foreground_animation, "NONE")
+            self.assertEqual(slide_row.text_font_family, "Inter")
+            self.assertEqual(slide_row.text_font_size, 72)
+            self.assertEqual(slide_row.text_animation, "NONE")
+            self.assertEqual(settings_row.logo_enabled, 0)
+            self.assertEqual(settings_row.logo_position, "TOP_RIGHT")
 
 
 if __name__ == "__main__":

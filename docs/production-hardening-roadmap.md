@@ -82,13 +82,13 @@ This roadmap tracks the work required to move MacroSignage from pre-alpha toward
 **Description:** Move runtime schema patching toward a documented migration workflow and add upgrade tests for existing databases.
 
 **Acceptance criteria:**
-- [ ] Existing SQLite databases are upgraded without data loss.
-- [ ] New columns added by recent features are covered by upgrade tests.
-- [ ] Deployment docs explain backup and migration order.
+- [x] Existing SQLite databases are upgraded without data loss.
+- [x] New columns added by recent features are covered by upgrade tests.
+- [x] Deployment docs explain backup and migration order.
 
 **Verification:**
-- [ ] Tests create an older schema, start the app, and verify required columns/data remain valid.
-- [ ] `uv run python -m pytest tests/test_config.py` passes.
+- [x] Tests create an older schema, start the app, and verify required columns/data remain valid.
+- [x] `uv run python -m pytest tests/test_config.py` passes.
 
 **Files likely touched:**
 - `src/macrosignage/app.py`
@@ -102,13 +102,13 @@ This roadmap tracks the work required to move MacroSignage from pre-alpha toward
 **Description:** Document operational backup procedures for the database, uploaded media, `.env`, and release rollback.
 
 **Acceptance criteria:**
-- [ ] SQLite backup procedure is documented.
-- [ ] External database backup guidance is documented.
-- [ ] Media upload directory backup and restore is documented.
-- [ ] Rollback checklist is documented.
+- [x] SQLite backup procedure is documented.
+- [x] External database backup guidance is documented.
+- [x] Media upload directory backup and restore is documented.
+- [x] Rollback checklist is documented.
 
 **Verification:**
-- [ ] Documentation review against current config keys.
+- [x] Documentation review against current config keys.
 
 **Files likely touched:**
 - `docs/deployment.md`
@@ -235,9 +235,9 @@ This roadmap tracks the work required to move MacroSignage from pre-alpha toward
 
 ### Data Safety Checkpoint
 
-- [ ] Tasks 4-5 complete.
-- [ ] Upgrade tests pass against representative old schemas.
-- [ ] Backup and rollback procedure reviewed.
+- [x] Tasks 4-5 complete.
+- [x] Upgrade tests pass against representative old schemas.
+- [x] Backup and rollback procedure reviewed.
 
 ### Test Completion Checkpoint
 
