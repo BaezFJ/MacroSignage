@@ -1,5 +1,458 @@
 {% extends 'layouts/_base.html' %}
 
+{% set repo_url = 'https://github.com/BaezFJ/MacroSignage' %}
+{% set issues_url = repo_url ~ '/issues' %}
+{% set pypi_url = 'https://pypi.org/project/MacroSignage/' %}
+{% set license_url = repo_url ~ '/blob/master/LICENSE' %}
+
 {% block body %}
-	<h1>Hello, World!</h1>
+<a class="visually-hidden-focusable" href="#content">Skip to content</a>
+
+<header class="landing-nav">
+    <nav class="container navbar navbar-expand-md py-3" aria-label="Primary navigation">
+        <a class="navbar-brand fw-semibold d-flex align-items-center gap-2" href="#">
+            <span class="brand-mark" aria-hidden="true"></span>
+            MacroSignage
+        </a>
+        <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse"
+                data-bs-target="#landing-nav-menu" aria-controls="landing-nav-menu"
+                aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="landing-nav-menu">
+            <ul class="navbar-nav ms-auto align-items-md-center gap-md-2">
+                <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
+                <li class="nav-item"><a class="nav-link" href="#tech">Tech</a></li>
+                <li class="nav-item"><a class="nav-link" href="#install">Install</a></li>
+                <li class="nav-item"><a class="nav-link" href="#roadmap">Roadmap</a></li>
+                <li class="nav-item">
+                    <a class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-2"
+                       href="{{ repo_url }}" target="_blank" rel="noopener">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                            <path d="M8 0C3.58 0 0 3.58 0 8a8 8 0 0 0 5.47 7.59c.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.42 7.42 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/>
+                        </svg>
+                        GitHub
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="btn btn-primary btn-sm" href="{{ url_for('auth.get_login') }}">Sign in</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</header>
+
+<main id="content" class="landing">
+
+    <section class="landing-hero">
+        <div class="container position-relative">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-6 animate__animated animate__fadeInUp">
+                    <p class="eyebrow d-inline-flex align-items-center gap-2">
+                        <span class="badge-dot" aria-hidden="true"></span>
+                        Open Source · MIT Licensed
+                    </p>
+                    <h1 class="display-4 fw-bold lh-sm">
+                        Self-hosted digital signage,
+                        <span class="text-gradient">controlled from your browser.</span>
+                    </h1>
+                    <p class="lead hero-copy">
+                        MacroSignage is a Flask-based platform for managing screens, scheduling
+                        playlists, and serving signage content across any number of displays — all
+                        from a single web console you run on your own hardware.
+                    </p>
+                    <div class="hero-actions d-flex flex-wrap gap-3">
+                        <a href="#install" class="btn btn-primary btn-lg px-4">Get started</a>
+                        <a href="{{ repo_url }}" target="_blank" rel="noopener"
+                           class="btn btn-outline-secondary btn-lg px-4 d-inline-flex align-items-center gap-2">
+                            <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                                <path d="M8 0C3.58 0 0 3.58 0 8a8 8 0 0 0 5.47 7.59c.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.42 7.42 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/>
+                            </svg>
+                            View on GitHub
+                        </a>
+                    </div>
+
+                    <ul class="badge-row list-unstyled d-flex flex-wrap gap-2">
+                        <li>
+                            <a href="{{ repo_url }}/stargazers" target="_blank" rel="noopener" aria-label="GitHub stars">
+                                <img src="https://img.shields.io/github/stars/BaezFJ/MacroSignage?style=flat-square&logo=github&label=Stars&color=2d6cdf"
+                                     alt="GitHub stars" loading="lazy">
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ issues_url }}" target="_blank" rel="noopener" aria-label="Open issues">
+                                <img src="https://img.shields.io/github/issues/BaezFJ/MacroSignage?style=flat-square&logo=github&label=Issues"
+                                     alt="Open issues" loading="lazy">
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ pypi_url }}" target="_blank" rel="noopener" aria-label="PyPI version">
+                                <img src="https://img.shields.io/pypi/v/MacroSignage?style=flat-square&logo=pypi&logoColor=white&label=PyPI"
+                                     alt="PyPI version" loading="lazy">
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ license_url }}" target="_blank" rel="noopener" aria-label="MIT license">
+                                <img src="https://img.shields.io/github/license/BaezFJ/MacroSignage?style=flat-square&label=License&color=22c55e"
+                                     alt="MIT license" loading="lazy">
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-6 animate__animated animate__fadeIn animate__delay-1s">
+                    <div class="hero-preview" role="img" aria-label="Admin dashboard preview">
+                        <div class="hero-preview-bar">
+                            <span class="hero-preview-dot"></span>
+                            <span class="hero-preview-dot"></span>
+                            <span class="hero-preview-dot"></span>
+                            <span class="hero-preview-url">macrosignage.local/admin</span>
+                        </div>
+                        <div class="hero-preview-body">
+                            <div class="hero-preview-side">
+                                <span class="hero-preview-side-item active">Displays</span>
+                                <span class="hero-preview-side-item">Media</span>
+                                <span class="hero-preview-side-item">Schedules</span>
+                                <span class="hero-preview-side-item">Settings</span>
+                            </div>
+                            <div class="hero-preview-main">
+                                <div class="hero-preview-stats">
+                                    <div class="hero-preview-stat">
+                                        <span class="hero-preview-stat-label">Online</span>
+                                        <span class="hero-preview-stat-value">12</span>
+                                    </div>
+                                    <div class="hero-preview-stat">
+                                        <span class="hero-preview-stat-label">Scheduled</span>
+                                        <span class="hero-preview-stat-value">7</span>
+                                    </div>
+                                    <div class="hero-preview-stat">
+                                        <span class="hero-preview-stat-label">Media</span>
+                                        <span class="hero-preview-stat-value">48</span>
+                                    </div>
+                                </div>
+                                <div class="hero-preview-rows">
+                                    <div class="hero-preview-row">
+                                        <span class="hero-preview-pill hero-preview-pill-online">Online</span>
+                                        <span>Lobby Screen</span>
+                                    </div>
+                                    <div class="hero-preview-row">
+                                        <span class="hero-preview-pill hero-preview-pill-online">Online</span>
+                                        <span>Cafeteria 1</span>
+                                    </div>
+                                    <div class="hero-preview-row">
+                                        <span class="hero-preview-pill hero-preview-pill-warn">Maint.</span>
+                                        <span>Hallway North</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="oss-banner">
+        <div class="container">
+            <div class="oss-banner-inner">
+                <div class="oss-banner-icon" aria-hidden="true">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 12h6"/><path d="M12 9v6"/>
+                        <circle cx="12" cy="12" r="9"/>
+                    </svg>
+                </div>
+                <div class="oss-banner-text">
+                    <h2 class="h4 mb-1">100% Open Source — server and client.</h2>
+                    <p class="mb-0">
+                        Both packages are released under the <strong>MIT License</strong>. Self-host
+                        on a Raspberry Pi, a NAS, or a fleet of cloud VMs. No telemetry,
+                        no lock-in, no per-screen pricing.
+                    </p>
+                </div>
+                <a class="btn btn-outline-primary" href="{{ license_url }}" target="_blank" rel="noopener">
+                    Read the license
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="landing-section">
+        <div class="container">
+            <header class="section-header text-center">
+                <p class="eyebrow">Features</p>
+                <h2 class="display-6 fw-semibold">Everything you need to run signage at scale.</h2>
+                <p class="section-lead">
+                    A focused toolkit for the everyday operator — register a display, drop in
+                    media, build a schedule, walk away.
+                </p>
+            </header>
+
+            <div class="row g-4 feature-grid">
+                <div class="col-md-6 col-lg-4">
+                    <article class="feature-card">
+                        <div class="feature-icon" aria-hidden="true">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="4" width="20" height="14" rx="2"/>
+                                <path d="M8 21h8M12 18v3"/>
+                            </svg>
+                        </div>
+                        <h3 class="h5">Display Management</h3>
+                        <p>Register screens, group them by location or zone, and monitor health
+                            (online · offline · maintenance) at a glance.</p>
+                    </article>
+                </div>
+
+                <div class="col-md-6 col-lg-4">
+                    <article class="feature-card">
+                        <div class="feature-icon" aria-hidden="true">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                <circle cx="9" cy="9" r="1.5"/>
+                                <path d="m21 15-5-5L5 21"/>
+                            </svg>
+                        </div>
+                        <h3 class="h5">Rich Media Library</h3>
+                        <p>Mix images, video, plain text, raw HTML, and YouTube embeds.
+                            One library, every common signage format.</p>
+                    </article>
+                </div>
+
+                <div class="col-md-6 col-lg-4">
+                    <article class="feature-card">
+                        <div class="feature-icon" aria-hidden="true">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2"/>
+                                <path d="M16 2v4M8 2v4M3 10h18"/>
+                                <path d="m9 16 2 2 4-4"/>
+                            </svg>
+                        </div>
+                        <h3 class="h5">Schedules & Playlists</h3>
+                        <p>Build active windows with weekday rules, target specific displays,
+                            and rotate playlists automatically.</p>
+                    </article>
+                </div>
+
+                <div class="col-md-6 col-lg-4">
+                    <article class="feature-card">
+                        <div class="feature-icon" aria-hidden="true">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 7h7v7H3zM14 7h7v4h-7zM14 14h7v3h-7zM3 17h7v3H3z"/>
+                            </svg>
+                        </div>
+                        <h3 class="h5">Multi-screen Targeting</h3>
+                        <p>Many-to-many assignment between media and displays. Push the right
+                            content to the right wall — never both.</p>
+                    </article>
+                </div>
+
+                <div class="col-md-6 col-lg-4">
+                    <article class="feature-card">
+                        <div class="feature-icon" aria-hidden="true">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="11" width="18" height="11" rx="2"/>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            </svg>
+                        </div>
+                        <h3 class="h5">Self-hosted & Private</h3>
+                        <p>Runs on your network. Your media, your schedules, your audit trail —
+                            CSRF-protected forms and login sessions out of the box.</p>
+                    </article>
+                </div>
+
+                <div class="col-md-6 col-lg-4">
+                    <article class="feature-card">
+                        <div class="feature-icon" aria-hidden="true">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="m8 6-6 6 6 6M16 6l6 6-6 6M14 4l-4 16"/>
+                            </svg>
+                        </div>
+                        <h3 class="h5">Modern Stack</h3>
+                        <p>Flask 3 + SQLAlchemy on the server, Bootstrap 5.3 on the client.
+                            Familiar, batteries-included, easy to extend.</p>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="tech" class="landing-section landing-section-tight">
+        <div class="container">
+            <header class="section-header text-center">
+                <p class="eyebrow">Built on</p>
+                <h2 class="h3 fw-semibold">A familiar, boring-on-purpose stack.</h2>
+            </header>
+            <ul class="tech-chips list-unstyled">
+                <li>Flask 3.1+</li>
+                <li>SQLAlchemy</li>
+                <li>Flask-Login</li>
+                <li>Flask-WTF</li>
+                <li>Bootstrap 5.3</li>
+                <li>Animate.css</li>
+                <li>Waitress</li>
+                <li>SQLite</li>
+                <li>Python 3.10+</li>
+            </ul>
+        </div>
+    </section>
+
+    <section id="install" class="landing-section">
+        <div class="container">
+            <header class="section-header text-center">
+                <p class="eyebrow">Quick start</p>
+                <h2 class="display-6 fw-semibold">Up and running in under a minute.</h2>
+                <p class="section-lead">Install from PyPI, or clone the repo for development.</p>
+            </header>
+
+            <div class="row g-4 install-grid">
+                <div class="col-lg-6">
+                    <div class="install-card">
+                        <h3 class="h6 install-card-title">From PyPI</h3>
+<pre class="install-code"><code>pip install MacroSignage
+macrosignage dev</code></pre>
+                        <p class="install-card-foot">
+                            Then open <code>http://127.0.0.1:5000</code> in your browser.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="install-card">
+                        <h3 class="h6 install-card-title">From source</h3>
+<pre class="install-code"><code>git clone https://github.com/BaezFJ/MacroSignage.git
+cd MacroSignage
+uv venv && source .venv/bin/activate
+uv sync --all-groups
+macrosignage dev</code></pre>
+                        <p class="install-card-foot">
+                            Production: <code>macrosignage prod --host 0.0.0.0 --port 8080</code>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="roadmap" class="landing-section landing-section-muted">
+        <div class="container">
+            <header class="section-header text-center">
+                <p class="eyebrow">Roadmap</p>
+                <h2 class="display-6 fw-semibold">Where MacroSignage is heading.</h2>
+                <p class="section-lead">
+                    Pre-Alpha today (v0.2.0). Tracking toward a stable v1.0.
+                </p>
+            </header>
+
+            <ol class="roadmap-timeline">
+                <li class="roadmap-step done">
+                    <span class="roadmap-version">v0.2</span>
+                    <h3 class="h6">Foundation</h3>
+                    <p>App factory, configuration system, DB, auth scaffolding, test suite.</p>
+                </li>
+                <li class="roadmap-step active">
+                    <span class="roadmap-version">v0.3</span>
+                    <h3 class="h6">Core Features</h3>
+                    <p>Admin dashboard, media management, display registration & assignment.</p>
+                </li>
+                <li class="roadmap-step">
+                    <span class="roadmap-version">v0.4</span>
+                    <h3 class="h6">Scheduling & Playback</h3>
+                    <p>Time-based rotation, fullscreen player view, playlist management.</p>
+                </li>
+                <li class="roadmap-step">
+                    <span class="roadmap-version">v0.5</span>
+                    <h3 class="h6">Polish & Scale</h3>
+                    <p>REST API, real-time updates, multi-user roles, GitHub Actions CI.</p>
+                </li>
+                <li class="roadmap-step">
+                    <span class="roadmap-version">v1.0</span>
+                    <h3 class="h6">Stable Release</h3>
+                    <p>Production-hardened, full docs, deployment guides for Docker & systemd.</p>
+                </li>
+            </ol>
+        </div>
+    </section>
+
+    <section id="community" class="landing-section">
+        <div class="container">
+            <header class="section-header text-center">
+                <p class="eyebrow">Community</p>
+                <h2 class="display-6 fw-semibold">Built in the open. Help shape it.</h2>
+            </header>
+
+            <div class="row g-4 community-grid">
+                <div class="col-md-4">
+                    <a class="community-card" href="{{ repo_url }}" target="_blank" rel="noopener">
+                        <div class="community-icon" aria-hidden="true">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12 2 15 9 22 9.5 16.5 14 18 21 12 17.5 6 21 7.5 14 2 9.5 9 9 12 2"/>
+                            </svg>
+                        </div>
+                        <h3 class="h5">Star on GitHub</h3>
+                        <p>If MacroSignage helps you, drop a star — it keeps the project visible.</p>
+                        <span class="community-cta">Open repository →</span>
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a class="community-card" href="{{ issues_url }}" target="_blank" rel="noopener">
+                        <div class="community-icon" aria-hidden="true">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="9"/>
+                                <path d="M12 8v5M12 16h.01"/>
+                            </svg>
+                        </div>
+                        <h3 class="h5">Report an issue</h3>
+                        <p>Found a bug or have a feature idea? File it in the issue tracker.</p>
+                        <span class="community-cta">Open issues →</span>
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a class="community-card" href="{{ repo_url }}/pulls" target="_blank" rel="noopener">
+                        <div class="community-icon" aria-hidden="true">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="6" cy="6" r="2.5"/>
+                                <circle cx="6" cy="18" r="2.5"/>
+                                <circle cx="18" cy="18" r="2.5"/>
+                                <path d="M6 8.5v7M18 8.5V14a3 3 0 0 1-3 3H9"/>
+                                <path d="m12 14 3 3-3 3"/>
+                            </svg>
+                        </div>
+                        <h3 class="h5">Send a pull request</h3>
+                        <p>Contributions welcome — auth, dashboard polish, tests, and docs all need hands.</p>
+                        <span class="community-cta">View pull requests →</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer class="landing-footer">
+    <div class="container">
+        <div class="row gy-3 align-items-center">
+            <div class="col-md-6">
+                <p class="mb-1 fw-semibold">MacroSignage</p>
+                <p class="mb-0 text-secondary small">
+                    MIT Licensed · Copyright © 2022–2026 Javier Baez
+                </p>
+            </div>
+            <div class="col-md-6">
+                <ul class="footer-links list-unstyled d-flex flex-wrap gap-3 justify-content-md-end mb-0">
+                    <li><a href="{{ repo_url }}" target="_blank" rel="noopener">GitHub</a></li>
+                    <li><a href="{{ pypi_url }}" target="_blank" rel="noopener">PyPI</a></li>
+                    <li><a href="{{ issues_url }}" target="_blank" rel="noopener">Issues</a></li>
+                    <li><a href="{{ license_url }}" target="_blank" rel="noopener">License</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</footer>
 {% endblock %}
