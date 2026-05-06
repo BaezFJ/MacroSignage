@@ -98,6 +98,49 @@ class AuthFlowTestCase(unittest.TestCase):
         self.assertEqual(good_login.status_code, 302)
         self.assertIn("/admin/", good_login.headers["Location"])
 
+    def test_authenticated_navigation_links(self):
+        self.create_user()
+
+        anonymous_home = self.client.get("/")
+        self.assertEqual(anonymous_home.status_code, 200)
+        anonymous_html = anonymous_home.get_data(as_text=True)
+        self.assertIn('href="/auth/login"', anonymous_html)
+        self.assertIn(">Sign in<", anonymous_html)
+
+        self.assertEqual(self.login().status_code, 302)
+
+        authenticated_home = self.client.get("/")
+        self.assertEqual(authenticated_home.status_code, 200)
+        authenticated_html = authenticated_home.get_data(as_text=True)
+        self.assertIn('href="/admin/"', authenticated_html)
+        self.assertIn(">Dashboard<", authenticated_html)
+        self.assertNotIn(">Sign in<", authenticated_html)
+
+        admin_response = self.client.get("/admin/")
+        self.assertEqual(admin_response.status_code, 200)
+        admin_html = admin_response.get_data(as_text=True)
+        self.assertNotIn('href="/auth/login"', admin_html)
+        self.assertNotIn(">Login<", admin_html)
+        self.assertIn(">Sign out<", admin_html)
+
+    def test_flash_alerts_are_marked_for_scripted_dismissal(self):
+        with self.client.session_transaction() as session:
+            session["_flashes"] = [
+                ("success", "Short success message."),
+                ("warning", "Longer warning message."),
+                ("error", "Error alias message."),
+            ]
+
+        response = self.client.get("/auth/login")
+        self.assertEqual(response.status_code, 200)
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(html.count("data-flash-alert"), 3)
+        self.assertIn('data-flash-category="success"', html)
+        self.assertIn('data-flash-category="warning"', html)
+        self.assertIn('data-flash-category="danger"', html)
+        self.assertIn("alert-dismissible fade show", html)
+
     def test_user_crud_and_final_admin_protection(self):
         admin = self.create_user()
         self.assertEqual(self.login().status_code, 302)

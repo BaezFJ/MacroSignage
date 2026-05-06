@@ -65,6 +65,11 @@ def ensure_runtime_schema() -> None:
         if "player_token_last_used_at" not in columns:
             statements.append("ALTER TABLE displays ADD COLUMN player_token_last_used_at DATETIME")
 
+    if "schedules" in tables:
+        columns = {column["name"] for column in inspector.get_columns("schedules")}
+        if "times_are_utc" not in columns:
+            statements.append("ALTER TABLE schedules ADD COLUMN times_are_utc BOOLEAN NOT NULL DEFAULT 0")
+
     for statement in statements:
         db.session.execute(text(statement))
     if statements:
@@ -80,6 +85,7 @@ def create_app(config: dict | None = None, env_file: str | PathLike[str] | None 
     app.config.from_mapping(
         APP_VERSION=__version__,
         MACROSIGNAGE_ENV_FILE=str(resolved_env_file),
+        MACROSIGNAGE_TIMEZONE=os.environ.get("MACROSIGNAGE_TIMEZONE", ""),
         SECRET_KEY=os.environ.get("MACROSIGNAGE_SECRET_KEY", "dev-secret-key-change-me"),
         SQLALCHEMY_DATABASE_URI=os.environ.get(
             DATABASE_ENV_KEY,

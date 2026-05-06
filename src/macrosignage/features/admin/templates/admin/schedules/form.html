@@ -51,7 +51,7 @@
                                        class="form-control {% if errors.get('starts_at') %}is-invalid{% endif %}"
                                        type="datetime-local"
                                        name="starts_at"
-                                       value="{{ format_datetime_local(schedule.starts_at) }}">
+                                       value="{{ format_datetime_local(schedule.starts_at, schedule.times_are_utc) }}">
                                 {% if errors.get('starts_at') %}
                                     <div class="invalid-feedback">{{ errors.starts_at }}</div>
                                 {% endif %}
@@ -62,7 +62,7 @@
                                        class="form-control {% if errors.get('ends_at') %}is-invalid{% endif %}"
                                        type="datetime-local"
                                        name="ends_at"
-                                       value="{{ format_datetime_local(schedule.ends_at) }}">
+                                       value="{{ format_datetime_local(schedule.ends_at, schedule.times_are_utc) }}">
                                 {% if errors.get('ends_at') %}
                                     <div class="invalid-feedback">{{ errors.ends_at }}</div>
                                 {% endif %}

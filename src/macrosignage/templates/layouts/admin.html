@@ -79,8 +79,6 @@
                         Admin
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="{{ url_for('auth.get_login') }}">Login</a></li>
-                        <li><hr class="dropdown-divider"></li>
                         <li>
                             <form method="post" action="{{ url_for('auth.logout') }}">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -118,7 +116,11 @@
                     {% if messages %}
                         <div class="admin-flashes" aria-live="polite">
                             {% for category, message in messages %}
-                                <div class="alert alert-{{ category if category in ['success', 'info', 'warning', 'danger'] else 'info' }} alert-dismissible fade show" role="alert">
+                                {% set alert_category = category if category in ['success', 'info', 'warning', 'danger'] else 'danger' if category == 'error' else 'info' %}
+                                <div class="alert alert-{{ alert_category }} alert-dismissible fade show"
+                                     role="alert"
+                                     data-flash-alert
+                                     data-flash-category="{{ alert_category }}">
                                     {{ message }}
                                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                 </div>

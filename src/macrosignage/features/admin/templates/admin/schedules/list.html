@@ -65,9 +65,9 @@
                             </td>
                             <td>
                                 {% if schedule.starts_at or schedule.ends_at %}
-                                    {{ schedule.starts_at.strftime('%b %d, %Y %H:%M') if schedule.starts_at else 'Any start' }}
+                                    {{ format_datetime_display(schedule.starts_at, 'Any start', schedule.times_are_utc) }}
                                     to
-                                    {{ schedule.ends_at.strftime('%b %d, %Y %H:%M') if schedule.ends_at else 'No end' }}
+                                    {{ format_datetime_display(schedule.ends_at, 'No end', schedule.times_are_utc) }}
                                 {% else %}
                                     Always available
                                 {% endif %}

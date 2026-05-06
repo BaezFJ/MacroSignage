@@ -30,11 +30,11 @@
                     <dl class="display-detail-grid">
                         <div>
                             <dt>Starts</dt>
-                            <dd>{{ schedule.starts_at.strftime('%b %d, %Y %H:%M') if schedule.starts_at else 'Any time' }}</dd>
+                            <dd>{{ format_datetime_display(schedule.starts_at, 'Any time', schedule.times_are_utc) }}</dd>
                         </div>
                         <div>
                             <dt>Ends</dt>
-                            <dd>{{ schedule.ends_at.strftime('%b %d, %Y %H:%M') if schedule.ends_at else 'No end date' }}</dd>
+                            <dd>{{ format_datetime_display(schedule.ends_at, 'No end date', schedule.times_are_utc) }}</dd>
                         </div>
                         <div>
                             <dt>Run days</dt>

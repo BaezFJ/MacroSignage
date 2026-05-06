@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import re
 import tempfile
 import unittest
-import re
 from datetime import datetime, timedelta, timezone
 from io import BytesIO
 from pathlib import Path
+
+from werkzeug.datastructures import MultiDict
 
 from macrosignage.app import create_app
 from macrosignage.extensions import db
@@ -13,8 +15,14 @@ from macrosignage.features.admin.models import SignageSettings
 from macrosignage.features.auth.models import User
 from macrosignage.features.auth.services import hash_password
 from macrosignage.features.displays.models import Display
-from macrosignage.features.displays.services import display_playlist, rotate_player_token, schedule_is_playable
+from macrosignage.features.displays.services import (
+    display_playlist,
+    rotate_player_token,
+    schedule_is_playable,
+    schedule_next_refresh_at,
+)
 from macrosignage.features.media.models import MediaAsset
+from macrosignage.features.schedules.forms import format_datetime_local, schedule_form_data
 from macrosignage.features.schedules.models import Schedule
 
 
@@ -64,6 +72,20 @@ class DisplayPlayerTestCase(unittest.TestCase):
         db.session.commit()
         return media
 
+    def create_active_schedule(self, display, media_assets, *, now=None, status="ACTIVE"):
+        now = now or datetime.now(timezone.utc)
+        schedule = Schedule(
+            name="Playback Schedule",
+            status=status,
+            starts_at=now - timedelta(hours=1),
+            ends_at=now + timedelta(hours=1),
+            displays=[display],
+            media_assets=list(media_assets),
+        )
+        db.session.add(schedule)
+        db.session.commit()
+        return schedule
+
     def create_admin_user(self):
         user = User(
             username="site-admin",
@@ -93,9 +115,6 @@ class DisplayPlayerTestCase(unittest.TestCase):
     def test_player_route_requires_token_then_remembers_client_and_can_be_disabled(self):
         self.create_admin_user()
         display = self.create_display()
-        media = self.create_media("Welcome")
-        display.media_assets = [media]
-        db.session.commit()
 
         response = self.client.get(f"/displays/{display.id}/play")
         self.assertEqual(response.status_code, 401)
@@ -120,12 +139,12 @@ class DisplayPlayerTestCase(unittest.TestCase):
         response = self.client.get(f"/displays/{display.id}/play")
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)
-        self.assertIn("Welcome body", body)
+        self.assertIn("No active schedules for display", body)
         self.assertIn("display-player", body)
 
         remembered_response = self.client.get(f"/displays/{display.id}/play")
         self.assertEqual(remembered_response.status_code, 200)
-        self.assertIn("Welcome body", remembered_response.get_data(as_text=True))
+        self.assertIn("No active schedules for display", remembered_response.get_data(as_text=True))
 
         response = self.client.post(f"/admin/displays/{display.id}/player-token/disable")
         self.assertEqual(response.status_code, 302)
@@ -136,8 +155,6 @@ class DisplayPlayerTestCase(unittest.TestCase):
 
     def test_player_can_pair_with_server_and_token_only(self):
         display = self.create_display()
-        media = self.create_media("Welcome")
-        display.media_assets = [media]
         token = rotate_player_token(display)
         db.session.commit()
 
@@ -147,7 +164,7 @@ class DisplayPlayerTestCase(unittest.TestCase):
         self.assertIn(f"/displays/{display.id}/play", response.headers["Location"])
         player_response = self.client.get(f"/displays/{display.id}/play")
         self.assertEqual(player_response.status_code, 200)
-        self.assertIn("Welcome body", player_response.get_data(as_text=True))
+        self.assertIn("No active schedules for display", player_response.get_data(as_text=True))
 
     def test_token_only_pairing_rejects_disabled_or_invalid_tokens(self):
         display = self.create_display()
@@ -166,7 +183,7 @@ class DisplayPlayerTestCase(unittest.TestCase):
     def test_rotating_player_token_invalidates_existing_pairing_and_old_token(self):
         display = self.create_display()
         media = self.create_media("Welcome")
-        display.media_assets = [media]
+        self.create_active_schedule(display, [media])
         first_token = rotate_player_token(display)
         db.session.commit()
 
@@ -193,7 +210,7 @@ class DisplayPlayerTestCase(unittest.TestCase):
         display = self.create_display()
         display.status = "MAINTENANCE"
         media = self.create_media("Welcome")
-        display.media_assets = [media]
+        self.create_active_schedule(display, [media])
         db.session.commit()
         self.authorize_display(display)
 
@@ -209,7 +226,7 @@ class DisplayPlayerTestCase(unittest.TestCase):
         display = self.create_display()
         display.status = "OFFLINE"
         media = self.create_media("Welcome")
-        display.media_assets = [media]
+        self.create_active_schedule(display, [media])
         db.session.commit()
         self.authorize_display(display)
 
@@ -228,7 +245,7 @@ class DisplayPlayerTestCase(unittest.TestCase):
             media_type="YOUTUBE",
             source_url="https://www.youtube.com/watch?v=dQw4w9WgXcQ",
         )
-        display.media_assets = [media]
+        self.create_active_schedule(display, [media])
         db.session.commit()
         self.authorize_display(display)
 
@@ -245,7 +262,7 @@ class DisplayPlayerTestCase(unittest.TestCase):
         self.create_admin_user()
         display = self.create_display()
         media = self.create_media("Welcome")
-        display.media_assets = [media]
+        self.create_active_schedule(display, [media])
         db.session.commit()
         self.authorize_display(display)
 
@@ -295,7 +312,7 @@ class DisplayPlayerTestCase(unittest.TestCase):
         player = self.client.get(f"/displays/{display.id}/play")
         self.assertNotIn("display-logo-bottom-left", player.get_data(as_text=True))
 
-    def test_playlist_prefers_active_schedule_then_direct_media(self):
+    def test_playlist_uses_active_schedule_media_instead_of_direct_media(self):
         now = datetime.now(timezone.utc)
         display = self.create_display()
         scheduled_media = self.create_media("Scheduled")
@@ -324,10 +341,94 @@ class DisplayPlayerTestCase(unittest.TestCase):
         db.session.commit()
 
         playlist, default_duration = display_playlist(display, now)
-        self.assertEqual([media.title for media in playlist], ["Scheduled", "Direct"])
+        self.assertEqual([media.title for media in playlist], ["Scheduled"])
         self.assertEqual(default_duration, 45)
         self.assertTrue(schedule_is_playable(active_schedule, now))
         self.assertFalse(schedule_is_playable(inactive_schedule, now))
+
+        playlist, default_duration = display_playlist(display, now + timedelta(hours=2))
+        self.assertEqual(playlist, [])
+        self.assertEqual(default_duration, 30)
+
+    def test_player_requires_active_schedule_even_with_direct_media(self):
+        display = self.create_display()
+        direct_media = self.create_media("Direct")
+        display.media_assets = [direct_media]
+        self.create_active_schedule(display, [direct_media], status="PAUSED")
+        db.session.commit()
+        self.authorize_display(display)
+
+        response = self.client.get(f"/displays/{display.id}/play")
+        self.assertEqual(response.status_code, 200)
+        body = response.get_data(as_text=True)
+        self.assertIn("No active schedules for display", body)
+        self.assertNotIn("Direct body", body)
+
+    def test_schedule_naive_times_use_configured_local_timezone(self):
+        self.app.config["MACROSIGNAGE_TIMEZONE"] = "America/Chicago"
+        schedule = Schedule(
+            name="Business Hours",
+            status="ACTIVE",
+            starts_at=datetime(2026, 5, 6, 10, 0),
+            ends_at=datetime(2026, 5, 6, 17, 0),
+            times_are_utc=False,
+        )
+
+        before_local_start = datetime(2026, 5, 6, 14, 30, tzinfo=timezone.utc)
+        during_local_window = datetime(2026, 5, 6, 21, 30, tzinfo=timezone.utc)
+        at_local_end = datetime(2026, 5, 6, 22, 0, tzinfo=timezone.utc)
+
+        self.assertFalse(schedule_is_playable(schedule, before_local_start))
+        self.assertTrue(schedule_is_playable(schedule, during_local_window))
+        self.assertFalse(schedule_is_playable(schedule, at_local_end))
+
+    def test_schedule_form_converts_local_times_to_stored_utc(self):
+        self.app.config["MACROSIGNAGE_TIMEZONE"] = "America/Chicago"
+
+        form_data, errors = schedule_form_data(
+            MultiDict(
+                {
+                    "name": "Business Hours",
+                    "status": "ACTIVE",
+                    "starts_at": "2026-05-06T10:00",
+                    "ends_at": "2026-05-06T17:00",
+                    "default_duration_seconds": "30",
+                }
+            )
+        )
+
+        self.assertEqual(errors, {})
+        self.assertEqual(form_data["starts_at"], datetime(2026, 5, 6, 15, 0))
+        self.assertEqual(form_data["ends_at"], datetime(2026, 5, 6, 22, 0))
+        self.assertEqual(format_datetime_local(form_data["starts_at"]), "2026-05-06T10:00")
+
+    def test_schedule_next_refresh_tracks_start_and_end_boundaries(self):
+        self.app.config["MACROSIGNAGE_TIMEZONE"] = "America/Chicago"
+        display = self.create_display()
+        media = self.create_media("Scheduled")
+        schedule = Schedule(
+            name="Business Hours",
+            status="ACTIVE",
+            starts_at=datetime(2026, 5, 6, 15, 0),
+            ends_at=datetime(2026, 5, 6, 22, 0),
+            times_are_utc=True,
+            displays=[display],
+            media_assets=[media],
+        )
+        db.session.add(schedule)
+        db.session.commit()
+
+        before_local_start = datetime(2026, 5, 6, 14, 30, tzinfo=timezone.utc)
+        during_local_window = datetime(2026, 5, 6, 21, 30, tzinfo=timezone.utc)
+
+        self.assertEqual(
+            schedule_next_refresh_at(display, before_local_start),
+            datetime(2026, 5, 6, 15, 0, tzinfo=timezone.utc),
+        )
+        self.assertEqual(
+            schedule_next_refresh_at(display, during_local_window),
+            datetime(2026, 5, 6, 22, 0, tzinfo=timezone.utc),
+        )
 
 
 if __name__ == "__main__":

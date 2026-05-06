@@ -8,8 +8,13 @@
                 {% if messages %}
                     <div class="mb-3" aria-live="polite">
                         {% for category, message in messages %}
-                            <div class="alert alert-{{ category if category in ['success', 'info', 'warning', 'danger'] else 'info' }} mb-2" role="alert">
+                            {% set alert_category = category if category in ['success', 'info', 'warning', 'danger'] else 'danger' if category == 'error' else 'info' %}
+                            <div class="alert alert-{{ alert_category }} alert-dismissible fade show mb-2"
+                                 role="alert"
+                                 data-flash-alert
+                                 data-flash-category="{{ alert_category }}">
                                 {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
                         {% endfor %}
                     </div>

@@ -10,6 +10,7 @@
     <main class="display-player display-player-{{ display.orientation | lower }}"
           data-display-player
           data-events-url="{{ url_for('display_player.display_events', display_id=display.id) }}"
+          data-schedule-refresh-at="{{ next_schedule_refresh_at.isoformat() if next_schedule_refresh_at else '' }}"
           aria-label="{{ display.name }} playback">
         {% if playlist %}
             <div class="display-player-stage">
@@ -86,7 +87,7 @@
         {% else %}
             <section class="display-player-empty">
                 <p>{{ display.name }}</p>
-                <span>No media scheduled</span>
+                <span>No active schedules for display</span>
             </section>
         {% endif %}
         {% if logo_settings.logo_enabled and logo_settings.has_logo %}

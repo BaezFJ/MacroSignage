@@ -15,6 +15,7 @@ class Schedule(db.Model):
     status = db.Column(db.String(24), nullable=False, default="DRAFT")
     starts_at = db.Column(db.DateTime(timezone=True), nullable=True)
     ends_at = db.Column(db.DateTime(timezone=True), nullable=True)
+    times_are_utc = db.Column(db.Boolean, nullable=False, default=True, server_default="1")
     weekdays = db.Column(db.String(32), nullable=True)
     default_duration_seconds = db.Column(db.Integer, nullable=False, default=30)
     notes = db.Column(db.Text, nullable=True)

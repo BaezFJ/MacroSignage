@@ -9,6 +9,62 @@
   setTheme();
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", setTheme);
 
+  const flashAlerts = Array.from(document.querySelectorAll("[data-flash-alert]"));
+  const dismissibleFlashCategories = new Set(["success", "info", "warning"]);
+
+  const getFlashAlertDelay = (alert) => {
+    const category = alert.dataset.flashCategory || "info";
+    const textLength = alert.textContent.trim().length;
+    const baseDelay = category === "warning" ? 7000 : 4500;
+    const maxDelay = category === "warning" ? 22000 : 16000;
+    const readingDelay = textLength * 45;
+
+    return Math.min(maxDelay, baseDelay + readingDelay);
+  };
+
+  flashAlerts.forEach((alert) => {
+    const category = alert.dataset.flashCategory || "info";
+    if (!dismissibleFlashCategories.has(category)) return;
+
+    let remainingDelay = getFlashAlertDelay(alert);
+    let startedAt = 0;
+    let timeoutId = null;
+
+    const dismiss = () => {
+      if (!alert.isConnected) return;
+      window.bootstrap.Alert.getOrCreateInstance(alert).close();
+    };
+
+    const startTimer = () => {
+      startedAt = Date.now();
+      timeoutId = window.setTimeout(dismiss, remainingDelay);
+    };
+
+    const pauseTimer = () => {
+      if (!timeoutId) return;
+
+      window.clearTimeout(timeoutId);
+      timeoutId = null;
+      remainingDelay -= Date.now() - startedAt;
+    };
+
+    const resumeTimer = () => {
+      if (timeoutId) return;
+      if (remainingDelay <= 0) {
+        dismiss();
+        return;
+      }
+
+      startTimer();
+    };
+
+    alert.addEventListener("mouseenter", pauseTimer);
+    alert.addEventListener("mouseleave", resumeTimer);
+    alert.addEventListener("focusin", pauseTimer);
+    alert.addEventListener("focusout", resumeTimer);
+    startTimer();
+  });
+
   const databaseSettings = document.querySelector("[data-database-settings]");
   if (databaseSettings) {
     const typeSelect = databaseSettings.querySelector("[data-database-type]");

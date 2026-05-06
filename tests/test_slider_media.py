@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import tempfile
 import unittest
+from datetime import datetime, timedelta, timezone
 from io import BytesIO
 from pathlib import Path
 
@@ -12,6 +13,7 @@ from macrosignage.features.auth.services import hash_password
 from macrosignage.features.displays.models import Display
 from macrosignage.features.displays.services import rotate_player_token
 from macrosignage.features.media.models import MediaAsset, MediaFont
+from macrosignage.features.schedules.models import Schedule
 
 
 class SliderMediaTestCase(unittest.TestCase):
@@ -66,6 +68,20 @@ class SliderMediaTestCase(unittest.TestCase):
 
     def image_file(self, name: str):
         return BytesIO(b"image-bytes"), name, "image/png"
+
+    def create_active_schedule(self, display, media):
+        now = datetime.now(timezone.utc)
+        schedule = Schedule(
+            name="Slider Playback",
+            status="ACTIVE",
+            starts_at=now - timedelta(hours=1),
+            ends_at=now + timedelta(hours=1),
+            displays=[display],
+            media_assets=[media],
+        )
+        db.session.add(schedule)
+        db.session.commit()
+        return schedule
 
     def authorize_display(self, display):
         token = rotate_player_token(display)
@@ -123,6 +139,7 @@ class SliderMediaTestCase(unittest.TestCase):
         self.assertEqual(media.slider_slides[1].text_font_family, "Playfair Display")
         self.assertTrue((self.upload_path / media.slider_slides[0].background_file_path).exists())
         self.assertTrue((self.upload_path / media.slider_slides[0].foreground_file_path).exists())
+        self.create_active_schedule(display, media)
         self.authorize_display(display)
 
         player = self.client.get(f"/displays/{display.id}/play")
@@ -184,6 +201,7 @@ class SliderMediaTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 302)
         media = MediaAsset.query.filter_by(title="Custom Font Slider").one()
         self.assertEqual(media.slider_slides[0].text_font_family, "Roboto Condensed")
+        self.create_active_schedule(display, media)
         self.authorize_display(display)
 
         player = self.client.get(f"/displays/{display.id}/play")

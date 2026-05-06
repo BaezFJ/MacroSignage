@@ -4,7 +4,7 @@ from macrosignage.extensions import db
 
 from ..displays.services import list_all_displays, selected_displays
 from ..media.services import list_all_media, selected_media
-from .forms import SCHEDULE_STATUSES, WEEKDAYS, format_datetime_local, schedule_form_data
+from .forms import SCHEDULE_STATUSES, WEEKDAYS, format_datetime_display, format_datetime_local, schedule_form_data
 from .models import Schedule
 from .services import apply_schedule_data, get_schedule, list_schedules as query_schedules
 
@@ -22,6 +22,7 @@ def list_schedules():
         title="Schedules",
         schedules=query_schedules(search_query, status_filter),
         schedule_statuses=SCHEDULE_STATUSES,
+        format_datetime_display=format_datetime_display,
         search_query=search_query,
         selected_status=selected_status,
     )
@@ -68,6 +69,7 @@ def get_schedule_view(schedule_id: int):
         schedule=schedule,
         schedule_statuses=SCHEDULE_STATUSES,
         weekdays=WEEKDAYS,
+        format_datetime_display=format_datetime_display,
     )
 
 

@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from sqlalchemy import func, or_
 
 from macrosignage.extensions import db
+from macrosignage.time_utils import configured_timezone, datetime_as_utc, stored_datetime_as_utc
 
 from .models import Display
 
@@ -131,24 +132,47 @@ def apply_display_data(display: Display, form_data: dict[str, object]) -> None:
 
 
 def schedule_is_playable(schedule, now: datetime | None = None) -> bool:
-    now = now or datetime.now(timezone.utc)
-    local_weekday = now.strftime("%a").upper()
+    local_timezone = configured_timezone()
+    now_utc = datetime_as_utc(now or datetime.now(timezone.utc), local_timezone)
+    local_weekday = now_utc.astimezone(local_timezone).strftime("%a").upper()
     weekday_values = schedule.weekday_values
 
-    starts_at = schedule.starts_at
-    if starts_at and starts_at.tzinfo is None:
-        starts_at = starts_at.replace(tzinfo=timezone.utc)
-
-    ends_at = schedule.ends_at
-    if ends_at and ends_at.tzinfo is None:
-        ends_at = ends_at.replace(tzinfo=timezone.utc)
+    starts_at = schedule_boundary_as_utc(schedule, schedule.starts_at, local_timezone)
+    ends_at = schedule_boundary_as_utc(schedule, schedule.ends_at, local_timezone)
 
     return (
         schedule.status == "ACTIVE"
-        and (starts_at is None or starts_at <= now)
-        and (ends_at is None or ends_at >= now)
+        and (starts_at is None or starts_at <= now_utc)
+        and (ends_at is None or ends_at > now_utc)
         and (not weekday_values or local_weekday in weekday_values)
     )
+
+
+def schedule_boundary_as_utc(schedule, value: datetime | None, local_timezone) -> datetime | None:
+    if value is None:
+        return None
+    if not getattr(schedule, "times_are_utc", True) and (value.tzinfo is None or value.utcoffset() is None):
+        return datetime_as_utc(value, local_timezone)
+    return stored_datetime_as_utc(value)
+
+
+def schedule_next_refresh_at(display: Display, now: datetime | None = None) -> datetime | None:
+    local_timezone = configured_timezone()
+    now_utc = datetime_as_utc(now or datetime.now(timezone.utc), local_timezone)
+    candidates = []
+
+    for schedule in display.schedules:
+        if schedule.status != "ACTIVE":
+            continue
+
+        starts_at = schedule_boundary_as_utc(schedule, schedule.starts_at, local_timezone)
+        ends_at = schedule_boundary_as_utc(schedule, schedule.ends_at, local_timezone)
+        if starts_at and starts_at > now_utc:
+            candidates.append(starts_at)
+        if ends_at and ends_at > now_utc:
+            candidates.append(ends_at)
+
+    return min(candidates) if candidates else None
 
 
 def display_playlist(display: Display, now: datetime | None = None) -> tuple[list, int]:
@@ -167,10 +191,5 @@ def display_playlist(display: Display, now: datetime | None = None) -> tuple[lis
             if media.id not in seen_media_ids:
                 playlist.append(media)
                 seen_media_ids.add(media.id)
-
-    for media in display.media_assets:
-        if media.id not in seen_media_ids:
-            playlist.append(media)
-            seen_media_ids.add(media.id)
 
     return playlist, default_duration

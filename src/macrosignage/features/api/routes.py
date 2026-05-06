@@ -6,6 +6,7 @@ from functools import wraps
 from flask import Blueprint, g, jsonify, request
 
 from macrosignage.extensions import csrf, db
+from macrosignage.time_utils import local_datetime_to_stored_utc
 
 from ..admin.services import get_content_version, get_signage_settings
 from ..auth.forms import USER_ROLES
@@ -95,7 +96,7 @@ def parse_datetime(value) -> datetime | None:
         return None
     if not isinstance(value, str):
         raise ValueError
-    return datetime.fromisoformat(value)
+    return local_datetime_to_stored_utc(datetime.fromisoformat(value))
 
 
 def related_displays(ids) -> list[Display]:
@@ -190,6 +191,8 @@ def apply_schedule_json(schedule: Schedule, data: dict[str, object], partial: bo
             schedule.starts_at = parse_datetime(data.get("startsAt"))
         if "endsAt" in data or not partial:
             schedule.ends_at = parse_datetime(data.get("endsAt"))
+        if "startsAt" in data or "endsAt" in data or not partial:
+            schedule.times_are_utc = True
     except ValueError:
         errors["datetime"] = "Date fields must be ISO 8601 strings."
     weekdays = data.get("weekdays")

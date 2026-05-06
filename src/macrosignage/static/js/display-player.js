@@ -3,8 +3,6 @@
   if (!player) return;
 
   const slides = Array.from(player.querySelectorAll("[data-player-slide]"));
-  if (slides.length === 0) return;
-
   let activeIndex = 0;
   let timerId = null;
   let sliderTimerId = null;
@@ -28,6 +26,18 @@
     const events = new EventSource(player.dataset.eventsUrl);
     events.addEventListener("content.updated", reloadForContentUpdate);
   }
+
+  const scheduleRefreshAt = Date.parse(player.dataset.scheduleRefreshAt || "");
+  if (Number.isFinite(scheduleRefreshAt)) {
+    const refreshDelay = scheduleRefreshAt - Date.now() + 1000;
+    if (refreshDelay > 0) {
+      window.setTimeout(() => {
+        window.location.reload();
+      }, Math.min(refreshDelay, 2147483647));
+    }
+  }
+
+  if (slides.length === 0) return;
 
   const stopVideo = (slide) => {
     const video = slide.querySelector("video");

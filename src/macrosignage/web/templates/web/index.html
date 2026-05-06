@@ -35,7 +35,11 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="btn btn-primary btn-sm" href="{{ url_for('auth.get_login') }}">Sign in</a>
+                    {% if current_user.is_authenticated %}
+                        <a class="btn btn-primary btn-sm" href="{{ url_for('admin.get_dashboard') }}">Dashboard</a>
+                    {% else %}
+                        <a class="btn btn-primary btn-sm" href="{{ url_for('auth.get_login') }}">Sign in</a>
+                    {% endif %}
                 </li>
             </ul>
         </div>

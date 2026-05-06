@@ -36,6 +36,7 @@ from .services import (
     player_token_is_valid,
     remember_player_token_use,
     rotate_player_token,
+    schedule_next_refresh_at,
 )
 
 displays_bp = Blueprint("admin_displays", __name__, url_prefix="/admin/displays")
@@ -264,6 +265,7 @@ def show_display_player(display_id: int):
         )
 
     playlist, default_duration = display_playlist(display)
+    next_schedule_refresh_at = schedule_next_refresh_at(display)
     font_choices = font_choice_map(list_active_fonts())
     for media in playlist:
         if media.media_type != "SLIDER":
@@ -277,6 +279,7 @@ def show_display_player(display_id: int):
         logo_settings=get_signage_settings(),
         playlist=playlist,
         default_duration=default_duration,
+        next_schedule_refresh_at=next_schedule_refresh_at,
         google_font_families=font_choices,
         google_fonts_url=google_fonts_stylesheet_url(font_choices),
         media_types=MEDIA_TYPES,

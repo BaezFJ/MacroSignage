@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from datetime import datetime
 
+from macrosignage.time_utils import local_datetime_to_stored_utc, stored_datetime_to_local
+
 from ..displays.forms import positive_int
 
 SCHEDULE_STATUSES = {
@@ -26,15 +28,31 @@ def parse_datetime(value: str, field_label: str) -> tuple[datetime | None, str |
         return None, None
 
     try:
-        return datetime.fromisoformat(value), None
+        return local_datetime_to_stored_utc(datetime.fromisoformat(value)), None
     except ValueError:
         return None, f"{field_label} must be a valid date and time."
 
 
-def format_datetime_local(value: datetime | None) -> str:
+def stored_or_local_datetime_to_local(value: datetime | None, times_are_utc: bool = True) -> datetime | None:
+    if value is None:
+        return None
+    if not times_are_utc and (value.tzinfo is None or value.utcoffset() is None):
+        return value
+    return stored_datetime_to_local(value)
+
+
+def format_datetime_local(value: datetime | None, times_are_utc: bool = True) -> str:
     if value is None:
         return ""
-    return value.strftime("%Y-%m-%dT%H:%M")
+    local_value = stored_or_local_datetime_to_local(value, times_are_utc)
+    return local_value.strftime("%Y-%m-%dT%H:%M") if local_value else ""
+
+
+def format_datetime_display(value: datetime | None, fallback: str, times_are_utc: bool = True) -> str:
+    if value is None:
+        return fallback
+    local_value = stored_or_local_datetime_to_local(value, times_are_utc)
+    return local_value.strftime("%b %d, %Y %H:%M") if local_value else fallback
 
 
 def schedule_form_data(form) -> tuple[dict[str, object], dict[str, str]]:
@@ -70,6 +88,7 @@ def schedule_form_data(form) -> tuple[dict[str, object], dict[str, str]]:
             "status": status,
             "starts_at": starts_at,
             "ends_at": ends_at,
+            "times_are_utc": True,
             "weekdays": ",".join(selected_weekdays) or None,
             "default_duration_seconds": default_duration_seconds,
             "notes": notes or None,
