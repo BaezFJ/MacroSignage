@@ -51,6 +51,13 @@ uv run pyinstaller --onefile --windowed --name MacroSignageClient macrosignage_c
 Platform webview runtimes still need to be available on the target system.
 Linux builds usually require GTK/WebKitGTK packages from the OS.
 
+## GitHub Actions builds
+
+The repository includes a `Build Client` workflow that compiles the client on
+Windows, macOS, and Linux. Run it manually from the GitHub Actions tab, or push
+a version tag such as `v0.2.1`. The workflow uploads each platform build as a
+downloadable artifact.
+
 ## Setup controls
 
 - `--setup`: always show the setup form.
