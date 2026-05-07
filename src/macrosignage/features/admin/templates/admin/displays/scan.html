@@ -1,0 +1,145 @@
+{% extends 'layouts/admin.html' %}
+
+{% block main %}
+    <div class="admin-page-header">
+        <div>
+            <p class="eyebrow">Display Management</p>
+            <h1 class="h2 mb-1">{{ title }}</h1>
+            <p class="text-secondary mb-0">Use this device camera to scan a display registration QR code.</p>
+        </div>
+        <a class="btn btn-outline-secondary" href="{{ url_for('admin_displays.list_displays') }}">Back to displays</a>
+    </div>
+
+    <section class="card">
+        <div class="card-body">
+            <div class="qr-scanner" data-qr-scanner data-claim-prefix="{{ url_for('admin_displays.claim_display_by_qr', claim_code='') }}">
+                <div class="qr-scanner-stage">
+                    <video class="qr-scanner-video" data-qr-video muted playsinline></video>
+                    <div class="qr-scanner-frame" aria-hidden="true"></div>
+                </div>
+                <div class="qr-scanner-panel">
+                    <h2 class="h5 mb-2">Camera Scanner</h2>
+                    <p class="text-secondary">Point the camera at the QR code shown on the display client.</p>
+                    <div class="alert alert-info" data-qr-status role="status">
+                        Press Start camera to begin scanning.
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary" type="button" data-qr-start>Start camera</button>
+                        <button class="btn btn-outline-secondary" type="button" data-qr-stop disabled>Stop camera</button>
+                    </div>
+                    <p class="form-text mb-0 mt-3">Camera scanning requires a supported mobile browser and HTTPS, except on localhost.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        (() => {
+            const scanner = document.querySelector("[data-qr-scanner]");
+            if (!scanner) return;
+
+            const video = scanner.querySelector("[data-qr-video]");
+            const status = scanner.querySelector("[data-qr-status]");
+            const startButton = scanner.querySelector("[data-qr-start]");
+            const stopButton = scanner.querySelector("[data-qr-stop]");
+            const claimPrefix = scanner.dataset.claimPrefix || "/admin/displays/claim/";
+            let stream = null;
+            let detector = null;
+            let scanTimer = null;
+            let redirecting = false;
+
+            const setStatus = (message, category = "info") => {
+                status.className = `alert alert-${category}`;
+                status.textContent = message;
+            };
+
+            const stopCamera = () => {
+                window.clearTimeout(scanTimer);
+                scanTimer = null;
+                if (stream) {
+                    stream.getTracks().forEach((track) => track.stop());
+                    stream = null;
+                }
+                video.removeAttribute("srcObject");
+                startButton.disabled = false;
+                stopButton.disabled = true;
+            };
+
+            const claimUrlFromScan = (rawValue) => {
+                let url;
+                try {
+                    url = new URL(rawValue, window.location.origin);
+                } catch (_error) {
+                    return null;
+                }
+
+                if (url.origin !== window.location.origin) {
+                    return null;
+                }
+                if (!url.pathname.startsWith(claimPrefix)) {
+                    return null;
+                }
+                return url;
+            };
+
+            const scanFrame = async () => {
+                if (!detector || !stream || redirecting) return;
+
+                try {
+                    const codes = await detector.detect(video);
+                    for (const code of codes) {
+                        const claimUrl = claimUrlFromScan(code.rawValue || "");
+                        if (claimUrl) {
+                            redirecting = true;
+                            setStatus("QR code found. Opening display claim form...", "success");
+                            stopCamera();
+                            window.location.assign(claimUrl.href);
+                            return;
+                        }
+                    }
+                } catch (_error) {
+                    setStatus("Unable to read from the camera. Try stopping and starting the scanner.", "warning");
+                }
+
+                scanTimer = window.setTimeout(scanFrame, 350);
+            };
+
+            const startCamera = async () => {
+                if (!("BarcodeDetector" in window)) {
+                    setStatus("This browser does not support QR camera scanning. Use the phone camera app to open the QR code instead.", "warning");
+                    return;
+                }
+                if (!navigator.mediaDevices?.getUserMedia) {
+                    setStatus("Camera access is not available in this browser.", "warning");
+                    return;
+                }
+
+                try {
+                    detector = new BarcodeDetector({formats: ["qr_code"]});
+                    stream = await navigator.mediaDevices.getUserMedia({
+                        video: {facingMode: {ideal: "environment"}},
+                        audio: false,
+                    });
+                    video.srcObject = stream;
+                    await video.play();
+                    startButton.disabled = true;
+                    stopButton.disabled = false;
+                    setStatus("Scanning for a display QR code...", "info");
+                    scanFrame();
+                } catch (_error) {
+                    stopCamera();
+                    setStatus("Camera permission was denied or no camera is available.", "danger");
+                }
+            };
+
+            startButton.addEventListener("click", startCamera);
+            stopButton.addEventListener("click", () => {
+                stopCamera();
+                setStatus("Scanner stopped.", "info");
+            });
+            window.addEventListener("pagehide", stopCamera);
+        })();
+    </script>
+{% endblock %}

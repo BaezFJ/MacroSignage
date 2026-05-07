@@ -1,0 +1,134 @@
+{% extends 'layouts/admin.html' %}
+
+{% block main %}
+    <div class="admin-page-header">
+        <div>
+            <p class="eyebrow">Display Management</p>
+            <h1 class="h2 mb-1">{{ title }}</h1>
+            <p class="text-secondary mb-0">Create a display record for the screen waiting on the QR registration page.</p>
+        </div>
+        <a class="btn btn-outline-secondary" href="{{ url_for('admin_displays.list_displays') }}">Back to displays</a>
+    </div>
+
+    <form method="post" action="{{ form_action }}" novalidate>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="row g-3">
+            <div class="col-lg-8">
+                <section class="card">
+                    <div class="card-body">
+                        <h2 class="h5 mb-3">Display Details</h2>
+                        <div class="mb-3">
+                            <label class="form-label" for="displayName">Name</label>
+                            <input id="displayName"
+                                   class="form-control {% if errors.get('name') %}is-invalid{% endif %}"
+                                   type="text"
+                                   name="name"
+                                   value="{{ display.name or '' }}"
+                                   required
+                                   autocomplete="off"
+                                   autofocus>
+                            {% if errors.get('name') %}
+                                <div class="invalid-feedback">{{ errors.name }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" for="displayLocation">Location</label>
+                            <input id="displayLocation"
+                                   class="form-control"
+                                   type="text"
+                                   name="location"
+                                   value="{{ display.location or '' }}"
+                                   placeholder="Lobby, front window, conference room">
+                        </div>
+
+                        <div>
+                            <label class="form-label" for="displayNotes">Notes</label>
+                            <textarea id="displayNotes"
+                                      class="form-control"
+                                      name="notes"
+                                      rows="5"
+                                      placeholder="Installation notes, device details, or maintenance context">{{ display.notes or '' }}</textarea>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="col-lg-4">
+                <section class="card mb-3">
+                    <div class="card-body">
+                        <h2 class="h5 mb-3">Playback Profile</h2>
+                        <div class="mb-3">
+                            <label class="form-label" for="displayStatusForm">Status</label>
+                            <select id="displayStatusForm"
+                                    class="form-select {% if errors.get('status') %}is-invalid{% endif %}"
+                                    name="status">
+                                {% for value, label in display_statuses.items() %}
+                                    <option value="{{ value }}" {% if display.status == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                            {% if errors.get('status') %}
+                                <div class="invalid-feedback">{{ errors.status }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" for="displayOrientation">Orientation</label>
+                            <select id="displayOrientation"
+                                    class="form-select {% if errors.get('orientation') %}is-invalid{% endif %}"
+                                    name="orientation">
+                                {% for value, label in display_orientations.items() %}
+                                    <option value="{{ value }}" {% if display.orientation == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                            {% if errors.get('orientation') %}
+                                <div class="invalid-feedback">{{ errors.orientation }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <label class="form-label" for="resolutionWidth">Width</label>
+                                <input id="resolutionWidth"
+                                       class="form-control {% if errors.get('resolution_width') %}is-invalid{% endif %}"
+                                       type="number"
+                                       min="1"
+                                       step="1"
+                                       name="resolution_width"
+                                       value="{{ display.resolution_width }}">
+                                {% if errors.get('resolution_width') %}
+                                    <div class="invalid-feedback">{{ errors.resolution_width }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label" for="resolutionHeight">Height</label>
+                                <input id="resolutionHeight"
+                                       class="form-control {% if errors.get('resolution_height') %}is-invalid{% endif %}"
+                                       type="number"
+                                       min="1"
+                                       step="1"
+                                       name="resolution_height"
+                                       value="{{ display.resolution_height }}">
+                                {% if errors.get('resolution_height') %}
+                                    <div class="invalid-feedback">{{ errors.resolution_height }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="card mb-3">
+                    <div class="card-body">
+                        <h2 class="h5 mb-2">QR Claim</h2>
+                        <p class="text-secondary mb-0">Expires {{ registration.expires_at.strftime('%b %d, %Y %I:%M %p') }}.</p>
+                    </div>
+                </section>
+
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary" type="submit">{{ submit_label }}</button>
+                    <a class="btn btn-outline-secondary" href="{{ url_for('admin_displays.list_displays') }}">Cancel</a>
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock %}

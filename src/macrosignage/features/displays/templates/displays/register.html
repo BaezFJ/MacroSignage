@@ -1,0 +1,47 @@
+{% extends 'layouts/_base.html' %}
+
+{% block body %}
+    <main class="display-register" aria-label="Register display">
+        <section class="display-register-panel">
+            <div class="display-register-copy">
+                <p class="display-register-kicker">Display Registration</p>
+                <h1>Add this screen</h1>
+                <p id="registration-status">Waiting for an admin to scan the QR code.</p>
+            </div>
+            <div class="display-register-qr" aria-label="Registration QR code">
+                {{ claim_qr_svg | safe }}
+            </div>
+            <p class="display-register-url">{{ claim_url }}</p>
+        </section>
+    </main>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        (() => {
+            const statusUrl = "{{ status_url }}";
+            const status = document.getElementById("registration-status");
+
+            const poll = async () => {
+                try {
+                    const response = await fetch(statusUrl, {headers: {"Accept": "application/json"}});
+                    const payload = await response.json();
+                    if (payload.status === "claimed" && payload.playUrl) {
+                        status.textContent = "Display added. Opening player...";
+                        window.location.assign(payload.playUrl);
+                        return;
+                    }
+                    if (payload.status === "expired") {
+                        status.textContent = "Registration expired. Refresh this page to generate a new QR code.";
+                        return;
+                    }
+                    window.setTimeout(poll, 2000);
+                } catch (_error) {
+                    window.setTimeout(poll, 4000);
+                }
+            };
+
+            window.setTimeout(poll, 1200);
+        })();
+    </script>
+{% endblock %}

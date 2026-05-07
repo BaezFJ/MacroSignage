@@ -23,10 +23,14 @@ uv run macrosignage-client --setup --windowed
 The setup screen asks for:
 
 - Server or host: the MacroSignage base URL, such as `https://signage.example.invalid` or `signage.local:5000`.
-- Display token: the token generated from the admin display detail page.
-- Remember setup on this device: saves server URL and token for future auto-pairing.
+- Remember server on this device: saves the server URL so the client can reopen QR setup automatically.
+- Display token: an optional fallback token generated from the admin display detail page.
 
 If the host has no scheme, the client assumes `http://`.
+
+The normal setup path is QR registration. After the server URL is entered, the client opens `/displays/register` in the webview. An authenticated admin scans the QR code from their phone, submits the display details form, and the client opens the paired display player.
+
+For browser-only devices, open `/displays/register` directly on the display device.
 
 ## CLI Flags
 
@@ -51,7 +55,7 @@ The client saves configuration as `client.json` under the platform config direct
 
 On non-Windows systems, the file is written with `0600` permissions.
 
-The display token is saved only when "Remember setup on this device" is enabled. Use `--reset` or the setup screen's clear action before reassigning a device.
+The display token is saved only when token auto-pairing is enabled. Use `--reset` or the setup screen's clear action before reassigning a device.
 
 ## Pairing Flow
 

@@ -102,6 +102,7 @@ def setup_html(*, force_setup: bool = False) -> str:
     server_url = html.escape(str(config.get("server_url", "")), quote=True)
     display_token = "" if force_setup else html.escape(str(config.get("display_token", "")), quote=True)
     auto_pair = "true" if config.get("auto_pair") and not force_setup else "false"
+    auto_register = "true" if config.get("server_url") and not config.get("auto_pair") and not force_setup else "false"
 
     return f"""<!doctype html>
 <html lang="en">
@@ -120,6 +121,7 @@ def setup_html(*, force_setup: bool = False) -> str:
       --primary: #60a5fa;
       --primary-strong: #2563eb;
       --danger: #f87171;
+      --success: #34d399;
     }}
     * {{ box-sizing: border-box; }}
     body {{
@@ -154,7 +156,7 @@ def setup_html(*, force_setup: bool = False) -> str:
       gap: 0.375rem;
       font-weight: 700;
     }}
-    input[type="url"],
+    input[type="text"],
     input[type="password"] {{
       width: 100%;
       min-height: 2.75rem;
@@ -176,6 +178,12 @@ def setup_html(*, force_setup: bool = False) -> str:
       flex-wrap: wrap;
       gap: 0.75rem;
     }}
+    .token-panel {{
+      display: grid;
+      gap: 0.75rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }}
     button {{
       min-height: 2.5rem;
       padding: 0.5rem 0.875rem;
@@ -187,6 +195,10 @@ def setup_html(*, force_setup: bool = False) -> str:
     .primary {{
       color: white;
       background: var(--primary-strong);
+    }}
+    .success {{
+      color: #052e1d;
+      background: var(--success);
     }}
     .secondary {{
       color: var(--text);
@@ -203,34 +215,41 @@ def setup_html(*, force_setup: bool = False) -> str:
 <body>
   <main>
     <h1>MacroSignage Client</h1>
-    <p>Enter the server URL and display token from the admin display page.</p>
+    <p>Enter the MacroSignage server URL. The client will show a QR code an admin can scan to add and pair this display.</p>
     <form id="setup-form">
       <label>
         Server or host
         <input id="server-url" name="server_url" type="text" value="{server_url}" placeholder="http://signage.local:5000" required>
       </label>
-      <label>
-        Display token
-        <input id="display-token" name="token" type="password" value="{display_token}" autocomplete="off" required>
-      </label>
       <label class="check-row">
         <input id="remember-setup" type="checkbox" checked>
-        Remember setup on this device
+        Remember server on this device
       </label>
       <div class="actions">
-        <button class="primary" type="submit">Pair display</button>
+        <button class="success" type="submit">Show QR setup</button>
         <button class="secondary" id="clear-setup" type="button">Clear saved setup</button>
+      </div>
+      <div class="token-panel">
+        <label>
+          Display token
+          <input id="display-token" name="token" type="password" value="{display_token}" autocomplete="off" placeholder="Optional fallback token">
+        </label>
+        <div class="actions">
+          <button class="primary" id="token-pair" type="button">Pair with token</button>
+        </div>
       </div>
       <div class="status" id="status" role="status"></div>
     </form>
   </main>
   <script>
     const autoPair = {auto_pair};
+    const autoRegister = {auto_register};
     const form = document.getElementById("setup-form");
     const serverInput = document.getElementById("server-url");
     const tokenInput = document.getElementById("display-token");
     const rememberInput = document.getElementById("remember-setup");
     const clearButton = document.getElementById("clear-setup");
+    const tokenPairButton = document.getElementById("token-pair");
     const statusBox = document.getElementById("status");
 
     function normalizeServer(value) {{
@@ -246,6 +265,30 @@ def setup_html(*, force_setup: bool = False) -> str:
       }}
     }}
 
+    async function openQrSetup() {{
+      const server = normalizeServer(serverInput.value);
+      if (!server) {{
+        statusBox.textContent = "Enter a valid server URL.";
+        statusBox.classList.add("error");
+        return;
+      }}
+
+      statusBox.classList.remove("error");
+      statusBox.textContent = "Opening QR setup...";
+      if (window.pywebview?.api) {{
+        if (rememberInput.checked) {{
+          await window.pywebview.api.save_config({{
+            server_url: server,
+            display_token: "",
+            auto_pair: false,
+          }});
+        }} else {{
+          await window.pywebview.api.clear_config();
+        }}
+      }}
+      window.location.assign(`${{server}}/displays/register`);
+    }}
+
     async function pairDisplay() {{
       const server = normalizeServer(serverInput.value);
       const token = tokenInput.value.trim();
@@ -258,11 +301,15 @@ def setup_html(*, force_setup: bool = False) -> str:
       statusBox.classList.remove("error");
       statusBox.textContent = "Pairing display...";
       if (window.pywebview?.api) {{
-        await window.pywebview.api.save_config({{
-          server_url: server,
-          display_token: token,
-          auto_pair: rememberInput.checked,
-        }});
+        if (rememberInput.checked) {{
+          await window.pywebview.api.save_config({{
+            server_url: server,
+            display_token: token,
+            auto_pair: true,
+          }});
+        }} else {{
+          await window.pywebview.api.clear_config();
+        }}
       }}
 
       const postForm = document.createElement("form");
@@ -279,6 +326,10 @@ def setup_html(*, force_setup: bool = False) -> str:
 
     form.addEventListener("submit", (event) => {{
       event.preventDefault();
+      openQrSetup();
+    }});
+
+    tokenPairButton.addEventListener("click", () => {{
       pairDisplay();
     }});
 
@@ -293,6 +344,9 @@ def setup_html(*, force_setup: bool = False) -> str:
     if (autoPair && serverInput.value && tokenInput.value) {{
       statusBox.textContent = "Using saved setup. Pairing display...";
       window.setTimeout(pairDisplay, 700);
+    }} else if (autoRegister && serverInput.value) {{
+      statusBox.textContent = "Using saved server. Opening QR setup...";
+      window.setTimeout(openQrSetup, 700);
     }}
   </script>
 </body>

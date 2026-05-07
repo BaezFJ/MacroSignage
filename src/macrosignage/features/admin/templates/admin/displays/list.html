@@ -7,7 +7,11 @@
             <h1 class="h2 mb-1">Displays</h1>
             <p class="text-secondary mb-0">Register screens and track their playback readiness.</p>
         </div>
-        <a class="btn btn-primary" href="{{ url_for('admin_displays.create_display') }}">Add display</a>
+        <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-outline-secondary" href="{{ url_for('admin_displays.scan_display_qr') }}">Scan QR code</a>
+            <a class="btn btn-outline-secondary" href="{{ url_for('display_player.register_display_player') }}" target="_blank" rel="noopener">Open QR setup</a>
+            <a class="btn btn-primary" href="{{ url_for('admin_displays.create_display') }}">Add display</a>
+        </div>
     </div>
 
     <section class="card mb-3" aria-label="Display filters">
@@ -91,7 +95,11 @@
                     <div>
                         <p class="mb-1 fw-semibold">No displays found</p>
                         <p class="mb-3 text-secondary">Register a display to start managing screen inventory.</p>
-                        <a class="btn btn-primary" href="{{ url_for('admin_displays.create_display') }}">Add display</a>
+                        <div class="d-flex flex-wrap justify-content-center gap-2">
+                            <a class="btn btn-outline-secondary" href="{{ url_for('admin_displays.scan_display_qr') }}">Scan QR code</a>
+                            <a class="btn btn-outline-secondary" href="{{ url_for('display_player.register_display_player') }}" target="_blank" rel="noopener">Open QR setup</a>
+                            <a class="btn btn-primary" href="{{ url_for('admin_displays.create_display') }}">Add display</a>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -4,7 +4,7 @@ Displays represent the screens that play scheduled media. Admins and editors man
 
 ## Display Records
 
-Create a display before pairing a browser player or standalone client. A display includes:
+Create a display before pairing a browser player or standalone client, or use QR registration to create and pair the display in one step. A display includes:
 
 - Name: human-readable label for the screen or location.
 - Status: `Online`, `Offline`, or `Maintenance`.
@@ -12,6 +12,20 @@ Create a display before pairing a browser player or standalone client. A display
 - Resolution width and height: used by operators to track the intended player size.
 
 New displays start offline by default. Set a display online only when it should evaluate schedules and show media.
+
+## QR Registration
+
+Open this URL on a new display device:
+
+```text
+/displays/register
+```
+
+The page shows a one-time QR code. An authenticated admin scans the QR code, completes the display details form, and submits it. MacroSignage creates the display, generates player access, and the waiting display browser opens its player automatically.
+
+QR registrations expire after 20 minutes. Refresh the registration page to create a new QR code.
+
+Admins can scan from the Display Management page with **Scan QR code**. The in-browser scanner uses the phone camera and requires a supported mobile browser over HTTPS, except for localhost. If browser scanning is unavailable, use the phone's camera app to open the QR code URL.
 
 ## Status Behavior
 

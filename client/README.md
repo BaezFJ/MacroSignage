@@ -22,10 +22,12 @@ uv sync
 uv run macrosignage-client --setup --windowed
 ```
 
-Enter the MacroSignage server URL and the display token generated from the
-admin display detail page. The client posts the token to the server, pairs the
-display, and opens the display player in the webview.
+Enter the MacroSignage server URL and choose "Show QR setup". The client opens
+the server registration page with a QR code. An authenticated admin scans the
+QR code, submits the display details form from their phone, and the client
+opens the paired display player in the webview.
 
+Display token pairing is still available as a fallback from the setup screen.
 The display token is shown once in the admin UI. If it is lost, rotate the
 display player token and run setup again. If a display token is disabled from
 the server, existing clients lose access and must be paired again after access
@@ -43,7 +45,7 @@ or a host such as `signage.local:5000`. Hosts without a scheme are treated as
 
 ## Saved setup
 
-When "Remember setup on this device" is enabled, the client saves
+When "Remember server on this device" is enabled, the client saves
 `client.json` in the platform config directory:
 
 - Windows: `%APPDATA%\MacroSignage\client.json`
@@ -51,7 +53,7 @@ When "Remember setup on this device" is enabled, the client saves
 - Linux: `${XDG_CONFIG_HOME}/MacroSignage/client.json`, or `~/.config/MacroSignage/client.json`
 
 On non-Windows systems the config file is written with `0600` permissions. The
-display token is saved only when remembered setup is enabled.
+display token is saved only when token auto-pairing is enabled.
 
 ## Ubuntu
 
@@ -102,7 +104,7 @@ Users can download those executables from
 ## Setup controls
 
 - `--help`: show CLI usage.
-- `--setup`: always show the setup form.
+- `--setup`: always show the setup form instead of opening saved QR registration or token pairing.
 - `--reset`: clear saved setup before opening.
 - `--windowed`: run in a normal window instead of fullscreen.
 - `--debug`: print client diagnostic details while running.

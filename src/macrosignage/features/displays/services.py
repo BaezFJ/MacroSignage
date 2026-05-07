@@ -1,14 +1,20 @@
 import hashlib
 import hmac
 import secrets
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
+from io import BytesIO
 
+import qrcode
+import qrcode.image.svg
 from sqlalchemy import func, or_
 
 from macrosignage.extensions import db
 from macrosignage.time_utils import configured_timezone, datetime_as_utc, stored_datetime_as_utc
 
-from .models import Display
+from .models import Display, DisplayRegistration
+
+
+DISPLAY_REGISTRATION_TTL = timedelta(minutes=20)
 
 
 def count_displays() -> int:
@@ -49,6 +55,10 @@ def generate_player_token() -> str:
 
 def hash_player_token(token: str) -> str:
     return hashlib.sha256(token.encode("utf-8")).hexdigest()
+
+
+def generate_registration_token() -> str:
+    return secrets.token_urlsafe(24)
 
 
 def rotate_player_token(display: Display) -> str:
@@ -96,6 +106,66 @@ def display_for_player_token(token: str) -> Display | None:
     if display is None or not hmac.compare_digest(display.player_token_hash or "", hashed_token):
         return None
     return display
+
+
+def create_display_registration(now: datetime | None = None) -> tuple[DisplayRegistration, str, str]:
+    claim_code = generate_registration_token()
+    registration_key = generate_registration_token()
+    registration = DisplayRegistration(
+        claim_code_hash=hash_player_token(claim_code),
+        registration_key_hash=hash_player_token(registration_key),
+        expires_at=(now or datetime.now(timezone.utc)) + DISPLAY_REGISTRATION_TTL,
+    )
+    db.session.add(registration)
+    return registration, claim_code, registration_key
+
+
+def registration_is_expired(registration: DisplayRegistration, now: datetime | None = None) -> bool:
+    return stored_datetime_as_utc(registration.expires_at) <= (now or datetime.now(timezone.utc))
+
+
+def display_registration_for_claim_code(claim_code: str) -> DisplayRegistration | None:
+    if not claim_code:
+        return None
+    hashed_code = hash_player_token(claim_code)
+    registration = db.session.scalar(
+        db.select(DisplayRegistration).where(DisplayRegistration.claim_code_hash == hashed_code)
+    )
+    if registration is None or not hmac.compare_digest(registration.claim_code_hash, hashed_code):
+        return None
+    return registration
+
+
+def display_registration_for_key(registration_key: str) -> DisplayRegistration | None:
+    if not registration_key:
+        return None
+    hashed_key = hash_player_token(registration_key)
+    registration = db.session.scalar(
+        db.select(DisplayRegistration).where(DisplayRegistration.registration_key_hash == hashed_key)
+    )
+    if registration is None or not hmac.compare_digest(registration.registration_key_hash, hashed_key):
+        return None
+    return registration
+
+
+def claim_display_registration(registration: DisplayRegistration, display: Display) -> None:
+    registration.display = display
+    registration.claimed_at = datetime.now(timezone.utc)
+
+
+def qr_code_svg(value: str) -> str:
+    image = qrcode.make(
+        value,
+        image_factory=qrcode.image.svg.SvgPathImage,
+        border=2,
+        box_size=10,
+    )
+    output = BytesIO()
+    image.save(output)
+    svg = output.getvalue().decode("utf-8")
+    if svg.startswith("<?xml"):
+        svg = svg.split("?>", 1)[1].lstrip()
+    return svg
 
 
 def remember_player_token_use(display: Display) -> None:

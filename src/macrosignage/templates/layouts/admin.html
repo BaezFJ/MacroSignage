@@ -8,9 +8,9 @@
            {% if active_endpoint == 'admin.get_dashboard' %}aria-current="page"{% endif %}>
             <span>Dashboard</span>
         </a>
-        <a class="admin-nav-link {{ 'active' if active_endpoint in ['admin_displays.list_displays', 'admin_displays.create_display', 'admin_displays.get_display_view', 'admin_displays.edit_display'] else '' }}"
+        <a class="admin-nav-link {{ 'active' if active_endpoint in ['admin_displays.list_displays', 'admin_displays.create_display', 'admin_displays.get_display_view', 'admin_displays.edit_display', 'admin_displays.scan_display_qr', 'admin_displays.claim_display_by_qr'] else '' }}"
            href="{{ url_for('admin_displays.list_displays') }}"
-           {% if active_endpoint in ['admin_displays.list_displays', 'admin_displays.create_display', 'admin_displays.get_display_view', 'admin_displays.edit_display'] %}aria-current="page"{% endif %}>
+           {% if active_endpoint in ['admin_displays.list_displays', 'admin_displays.create_display', 'admin_displays.get_display_view', 'admin_displays.edit_display', 'admin_displays.scan_display_qr', 'admin_displays.claim_display_by_qr'] %}aria-current="page"{% endif %}>
             <span>Displays</span>
         </a>
         <a class="admin-nav-link {{ 'active' if active_endpoint in ['admin_schedules.list_schedules', 'admin_schedules.create_schedule', 'admin_schedules.get_schedule_view', 'admin_schedules.edit_schedule'] else '' }}"

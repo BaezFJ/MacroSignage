@@ -14,7 +14,7 @@ from macrosignage.extensions import db
 from macrosignage.features.admin.models import SignageSettings
 from macrosignage.features.auth.models import User
 from macrosignage.features.auth.services import hash_password
-from macrosignage.features.displays.models import Display
+from macrosignage.features.displays.models import Display, DisplayRegistration
 from macrosignage.features.displays.services import (
     display_playlist,
     rotate_player_token,
@@ -165,6 +165,75 @@ class DisplayPlayerTestCase(unittest.TestCase):
         player_response = self.client.get(f"/displays/{display.id}/play")
         self.assertEqual(player_response.status_code, 200)
         self.assertIn("No active schedules for display", player_response.get_data(as_text=True))
+
+    def test_display_can_be_added_and_paired_by_qr_claim(self):
+        display_client = self.app.test_client()
+
+        registration_response = display_client.get("/displays/register")
+        self.assertEqual(registration_response.status_code, 200)
+        registration_body = registration_response.get_data(as_text=True)
+        self.assertIn("<svg", registration_body)
+        self.assertIn("/admin/displays/claim/", registration_body)
+
+        claim_match = re.search(r"/admin/displays/claim/([^<\s]+)", registration_body)
+        self.assertIsNotNone(claim_match)
+        claim_code = claim_match.group(1)
+
+        anonymous_claim = display_client.get(f"/admin/displays/claim/{claim_code}", follow_redirects=False)
+        self.assertEqual(anonymous_claim.status_code, 302)
+        self.assertIn("/auth/login", anonymous_claim.headers["Location"])
+
+        self.create_admin_user()
+        claim_form = self.client.get(f"/admin/displays/claim/{claim_code}")
+        self.assertEqual(claim_form.status_code, 200)
+        self.assertIn("Add Display by QR Code", claim_form.get_data(as_text=True))
+
+        claim_response = self.client.post(
+            f"/admin/displays/claim/{claim_code}",
+            data={
+                "name": "QR Lobby",
+                "location": "Front window",
+                "status": "ONLINE",
+                "orientation": "LANDSCAPE",
+                "resolution_width": "1920",
+                "resolution_height": "1080",
+                "notes": "Claimed by QR",
+            },
+            follow_redirects=False,
+        )
+
+        self.assertEqual(claim_response.status_code, 302)
+        display = Display.query.filter_by(name="QR Lobby").one()
+        registration = DisplayRegistration.query.one()
+        self.assertEqual(registration.display_id, display.id)
+        self.assertIsNotNone(registration.claimed_at)
+        self.assertTrue(display.player_token_enabled)
+        self.assertIsNotNone(display.player_token_hash)
+        self.assertIsNotNone(display.player_access_key)
+
+        status_response = display_client.get("/displays/register/status")
+        self.assertEqual(status_response.status_code, 200)
+        status_payload = status_response.get_json()
+        self.assertEqual(status_payload["status"], "claimed")
+        self.assertEqual(status_payload["playUrl"], f"/displays/{display.id}/play")
+
+        player_response = display_client.get(f"/displays/{display.id}/play")
+        self.assertEqual(player_response.status_code, 200)
+        self.assertIn("No active schedules for display", player_response.get_data(as_text=True))
+
+    def test_admin_display_scan_page_renders_camera_scanner(self):
+        self.create_admin_user()
+
+        list_response = self.client.get("/admin/displays/")
+        self.assertEqual(list_response.status_code, 200)
+        self.assertIn("Scan QR code", list_response.get_data(as_text=True))
+
+        scan_response = self.client.get("/admin/displays/scan")
+        self.assertEqual(scan_response.status_code, 200)
+        body = scan_response.get_data(as_text=True)
+        self.assertIn("data-qr-scanner", body)
+        self.assertIn("BarcodeDetector", body)
+        self.assertIn("/admin/displays/claim/", body)
 
     def test_token_only_pairing_rejects_disabled_or_invalid_tokens(self):
         display = self.create_display()

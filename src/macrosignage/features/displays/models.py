@@ -46,3 +46,26 @@ class Display(db.Model):
     @property
     def resolution_label(self) -> str:
         return f"{self.resolution_width} x {self.resolution_height}"
+
+
+class DisplayRegistration(db.Model):
+    __tablename__ = "display_registrations"
+
+    id = db.Column(db.Integer, primary_key=True)
+    claim_code_hash = db.Column(db.String(64), nullable=False, unique=True, index=True)
+    registration_key_hash = db.Column(db.String(64), nullable=False, unique=True, index=True)
+    display_id = db.Column(db.Integer, db.ForeignKey("displays.id"), nullable=True, index=True)
+    expires_at = db.Column(db.DateTime(timezone=True), nullable=False)
+    claimed_at = db.Column(db.DateTime(timezone=True), nullable=True)
+    created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(
+        db.DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+    )
+    display = db.relationship("Display")
+
+    @property
+    def is_claimed(self) -> bool:
+        return self.display_id is not None and self.claimed_at is not None

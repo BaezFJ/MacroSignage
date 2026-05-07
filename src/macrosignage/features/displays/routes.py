@@ -2,10 +2,12 @@ import json
 import time
 
 from flask import (
+    abort,
     Blueprint,
     Response,
     current_app,
     flash,
+    jsonify,
     redirect,
     render_template,
     request,
@@ -25,7 +27,11 @@ from .forms import DISPLAY_ORIENTATIONS, DISPLAY_STATUSES, display_form_data
 from .models import Display
 from .services import (
     apply_display_data,
+    claim_display_registration,
+    create_display_registration,
     disable_player_token,
+    display_registration_for_claim_code,
+    display_registration_for_key,
     display_for_player_token,
     display_has_player_access,
     display_playlist,
@@ -34,7 +40,9 @@ from .services import (
     get_display_for_player,
     list_displays as query_displays,
     player_token_is_valid,
+    qr_code_svg,
     remember_player_token_use,
+    registration_is_expired,
     rotate_player_token,
     schedule_next_refresh_at,
 )
@@ -42,6 +50,7 @@ from .services import (
 displays_bp = Blueprint("admin_displays", __name__, url_prefix="/admin/displays")
 display_player_bp = Blueprint("display_player", __name__, template_folder="templates", url_prefix="/displays")
 PLAYER_ACCESS_SESSION_KEY = "display_player_access"
+DISPLAY_REGISTRATION_SESSION_KEY = "display_registration_key"
 
 
 def display_detail_context(display: Display, new_player_token: str | None = None) -> dict[str, object]:
@@ -94,6 +103,13 @@ def render_player_unauthorized(display: Display, submitted_token: str = ""):
     ), 401
 
 
+def get_claimable_registration(claim_code: str):
+    registration = display_registration_for_claim_code(claim_code)
+    if registration is None or registration.is_claimed or registration_is_expired(registration):
+        abort(404)
+    return registration
+
+
 @displays_bp.get("/")
 def list_displays():
     search_query = request.args.get("q", "").strip()
@@ -134,6 +150,51 @@ def create_display():
         display_orientations=DISPLAY_ORIENTATIONS,
         form_action=url_for("admin_displays.create_display"),
         submit_label="Create display",
+    ), (422 if errors else 200)
+
+
+@displays_bp.get("/scan")
+def scan_display_qr():
+    return render_template(
+        "admin/displays/scan.html",
+        title="Scan Display QR Code",
+    )
+
+
+@displays_bp.route("/claim/<claim_code>", methods=["GET", "POST"])
+def claim_display_by_qr(claim_code: str):
+    registration = get_claimable_registration(claim_code)
+    display = Display(
+        name="",
+        status="OFFLINE",
+        orientation="LANDSCAPE",
+        resolution_width=1920,
+        resolution_height=1080,
+    )
+    errors: dict[str, str] = {}
+
+    if request.method == "POST":
+        form_data, errors = display_form_data(request.form)
+        apply_display_data(display, form_data)
+
+        if not errors:
+            db.session.add(display)
+            rotate_player_token(display)
+            claim_display_registration(registration, display)
+            db.session.commit()
+            flash(f"{display.name} was added and paired by QR code.", "success")
+            return redirect(url_for("admin_displays.get_display_view", display_id=display.id))
+
+    return render_template(
+        "admin/displays/claim.html",
+        title="Add Display by QR Code",
+        display=display,
+        errors=errors,
+        display_statuses=DISPLAY_STATUSES,
+        display_orientations=DISPLAY_ORIENTATIONS,
+        form_action=url_for("admin_displays.claim_display_by_qr", claim_code=claim_code),
+        submit_label="Add and pair display",
+        registration=registration,
     ), (422 if errors else 200)
 
 
@@ -209,6 +270,45 @@ def disable_display_player_token(display_id: int):
 @display_player_bp.get("/uploads/<path:filename>")
 def player_media_file(filename: str):
     return send_from_directory(current_app.config["MEDIA_UPLOAD_FOLDER"], filename)
+
+
+@display_player_bp.get("/register")
+def register_display_player():
+    registration, claim_code, registration_key = create_display_registration()
+    db.session.commit()
+    session[DISPLAY_REGISTRATION_SESSION_KEY] = registration_key
+    claim_url = url_for("admin_displays.claim_display_by_qr", claim_code=claim_code, _external=True)
+    return render_template(
+        "displays/register.html",
+        title="Register Display",
+        claim_url=claim_url,
+        claim_qr_svg=qr_code_svg(claim_url),
+        expires_at=registration.expires_at,
+        status_url=url_for("display_player.display_registration_status"),
+    )
+
+
+@display_player_bp.get("/register/status")
+def display_registration_status():
+    registration_key = session.get(DISPLAY_REGISTRATION_SESSION_KEY)
+    registration = display_registration_for_key(registration_key if isinstance(registration_key, str) else "")
+    if registration is None or registration_is_expired(registration):
+        session.pop(DISPLAY_REGISTRATION_SESSION_KEY, None)
+        return jsonify({"status": "expired"}), 410
+
+    if not registration.is_claimed or registration.display is None:
+        return jsonify({"status": "pending", "expiresAt": registration.expires_at.isoformat()})
+
+    remember_player_token_use(registration.display)
+    db.session.commit()
+    remember_player_access(registration.display)
+    session.pop(DISPLAY_REGISTRATION_SESSION_KEY, None)
+    return jsonify(
+        {
+            "status": "claimed",
+            "playUrl": url_for("display_player.show_display_player", display_id=registration.display.id),
+        }
+    )
 
 
 @display_player_bp.post("/<int:display_id>/pair")
