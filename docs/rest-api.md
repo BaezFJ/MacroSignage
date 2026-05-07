@@ -189,6 +189,9 @@ Valid `status` values are `ONLINE`, `OFFLINE`, and `MAINTENANCE`. Valid `orienta
   "neonTextColor": null,
   "neonFrameColor": null,
   "neonBackgroundColor": null,
+  "neonFontFamily": null,
+  "neonFontSize": null,
+  "neonFrameThickness": null,
   "vcardName": null,
   "vcardPhone": null,
   "vcardEmail": null,
@@ -206,6 +209,8 @@ Valid `status` values are `ONLINE`, `OFFLINE`, and `MAINTENANCE`. Valid `orienta
 ```
 
 Valid `mediaType` values are `IMAGE`, `TEXT`, `VIDEO`, `HTML`, `YOUTUBE`, `SLIDER`, `NEON_SIGN`, and `VCARD`. The JSON API can create text, HTML, YouTube, neon sign, and vCard records. Image, video, and slider file uploads are managed through the admin UI.
+
+For visible text fields, send `\n` to add a line break. This applies to `body` for text and neon sign media, plus `vcardTopText` and `vcardBottomText`.
 
 Slider media responses include `sliderSlides` with:
 
@@ -404,7 +409,10 @@ Neon sign request:
   "body": "Open",
   "neonTextColor": "#ff33cc",
   "neonFrameColor": "#33ff77",
-  "neonBackgroundColor": "#201514"
+  "neonBackgroundColor": "#201514",
+  "neonFontFamily": "Montserrat",
+  "neonFontSize": 144,
+  "neonFrameThickness": 18
 }
 ```
 

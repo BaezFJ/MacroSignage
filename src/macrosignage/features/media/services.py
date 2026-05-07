@@ -131,6 +131,11 @@ def apply_media_data(media: MediaAsset, form_data: dict[str, object], displays) 
     media.neon_background_color = (
         str(form_data["neon_background_color"]) if media.media_type == "NEON_SIGN" else None
     )
+    media.neon_font_family = str(form_data["neon_font_family"]) if media.media_type == "NEON_SIGN" else None
+    media.neon_font_size = int(form_data["neon_font_size"]) if media.media_type == "NEON_SIGN" else None
+    media.neon_frame_thickness = (
+        int(form_data["neon_frame_thickness"]) if media.media_type == "NEON_SIGN" else None
+    )
     media.vcard_name = form_data["vcard_name"] if media.media_type == "VCARD" else None
     media.vcard_phone = form_data["vcard_phone"] if media.media_type == "VCARD" else None
     media.vcard_email = form_data["vcard_email"] if media.media_type == "VCARD" else None

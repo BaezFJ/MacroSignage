@@ -73,7 +73,7 @@
                             {% if errors.get('body') %}
                                 <div class="invalid-feedback">{{ errors.body }}</div>
                             {% endif %}
-                            <p class="form-text mb-0">Text and neon signs render as display copy. HTML is stored as content but not rendered inside the admin preview.</p>
+                            <p class="form-text mb-0">Text and neon signs render as display copy. Use \n to add a line break. HTML is stored as content but not rendered inside the admin preview.</p>
                         </div>
 
                         <div class="media-source-panel" data-media-panel="NEON_SIGN">
@@ -110,6 +110,55 @@
                                     {% if errors.get('neon_background_color') %}
                                         <div class="invalid-feedback">{{ errors.neon_background_color }}</div>
                                     {% endif %}
+                                </div>
+                            </div>
+                            <div class="row g-3 mt-1">
+                                <div class="col-md-6">
+                                    <label class="form-label" for="neonFontFamily">Font style</label>
+                                    <select id="neonFontFamily"
+                                            class="form-select {% if errors.get('neon_font_family') %}is-invalid{% endif %}"
+                                            name="neon_font_family">
+                                        {% for value, label in google_font_families.items() %}
+                                            <option value="{{ value }}" {% if media.neon_font_family == value %}selected{% elif not media.neon_font_family and value == default_neon_font_family %}selected{% endif %}>{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    {% if errors.get('neon_font_family') %}
+                                        <div class="invalid-feedback">{{ errors.neon_font_family }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label" for="neonFontSize">Font size</label>
+                                    <div class="input-group">
+                                        <input id="neonFontSize"
+                                               class="form-control {% if errors.get('neon_font_size') %}is-invalid{% endif %}"
+                                               type="number"
+                                               name="neon_font_size"
+                                               min="24"
+                                               max="260"
+                                               step="1"
+                                               value="{{ media.neon_font_size or default_neon_font_size }}">
+                                        <span class="input-group-text">px</span>
+                                        {% if errors.get('neon_font_size') %}
+                                            <div class="invalid-feedback">{{ errors.neon_font_size }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label" for="neonFrameThickness">Frame thickness</label>
+                                    <div class="input-group">
+                                        <input id="neonFrameThickness"
+                                               class="form-control {% if errors.get('neon_frame_thickness') %}is-invalid{% endif %}"
+                                               type="number"
+                                               name="neon_frame_thickness"
+                                               min="2"
+                                               max="48"
+                                               step="1"
+                                               value="{{ media.neon_frame_thickness or default_neon_frame_thickness }}">
+                                        <span class="input-group-text">px</span>
+                                        {% if errors.get('neon_frame_thickness') %}
+                                            <div class="invalid-feedback">{{ errors.neon_frame_thickness }}</div>
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </div>
                             <p class="form-text mb-0 mt-2">The player derives the glow from the text and frame colors.</p>
@@ -204,7 +253,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <p class="form-text mb-0 mt-2">The display player turns these contact details into a scannable vCard QR code.</p>
+                            <p class="form-text mb-0 mt-2">The display player turns these contact details into a scannable vCard QR code. Use \n in QR text fields to add a line break.</p>
                         </div>
 
                         <div class="media-source-panel" data-media-panel="SLIDER">
@@ -322,6 +371,7 @@
                                                       name="slider_text_{{ index }}"
                                                       rows="3"
                                                       placeholder="Slide headline or message">{{ slide.text if slide else '' }}</textarea>
+                                            <p class="form-text mb-0">Use \n to add a line break.</p>
                                         </div>
 
                                         <div class="row g-3">

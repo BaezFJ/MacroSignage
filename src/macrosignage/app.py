@@ -119,6 +119,12 @@ def ensure_runtime_schema() -> None:
             statements.append("ALTER TABLE media_assets ADD COLUMN neon_frame_color VARCHAR(7)")
         if "neon_background_color" not in columns:
             statements.append("ALTER TABLE media_assets ADD COLUMN neon_background_color VARCHAR(7)")
+        if "neon_font_family" not in columns:
+            statements.append("ALTER TABLE media_assets ADD COLUMN neon_font_family VARCHAR(80)")
+        if "neon_font_size" not in columns:
+            statements.append("ALTER TABLE media_assets ADD COLUMN neon_font_size INTEGER")
+        if "neon_frame_thickness" not in columns:
+            statements.append("ALTER TABLE media_assets ADD COLUMN neon_frame_thickness INTEGER")
         if "vcard_name" not in columns:
             statements.append("ALTER TABLE media_assets ADD COLUMN vcard_name VARCHAR(160)")
         if "vcard_phone" not in columns:

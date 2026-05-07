@@ -133,7 +133,7 @@ class ApiContractTestCase(unittest.TestCase):
 
         created = self.client.post(
             "/api/v1/media",
-            json={"title": "API Text", "mediaType": "TEXT", "body": "Hello", "displayIds": [display.id]},
+            json={"title": "API Text", "mediaType": "TEXT", "body": "Hello\\nWorld", "displayIds": [display.id]},
             headers=headers,
         )
         self.assertEqual(created.status_code, 201)
@@ -149,7 +149,7 @@ class ApiContractTestCase(unittest.TestCase):
 
         fetched = self.client.get(f"/api/v1/media/{media_id}", headers=headers)
         self.assertEqual(fetched.status_code, 200)
-        self.assertEqual(fetched.get_json()["data"]["body"], "Hello")
+        self.assertEqual(fetched.get_json()["data"]["body"], "Hello\nWorld")
 
         updated = self.client.patch(
             f"/api/v1/media/{media_id}",
@@ -168,6 +168,9 @@ class ApiContractTestCase(unittest.TestCase):
                 "neonTextColor": "#ff33cc",
                 "neonFrameColor": "#33ff77",
                 "neonBackgroundColor": "#201514",
+                "neonFontFamily": "Montserrat",
+                "neonFontSize": 144,
+                "neonFrameThickness": 18,
             },
             headers=headers,
         )
@@ -177,6 +180,9 @@ class ApiContractTestCase(unittest.TestCase):
         self.assertEqual(neon_data["neonTextColor"], "#ff33cc")
         self.assertEqual(neon_data["neonFrameColor"], "#33ff77")
         self.assertEqual(neon_data["neonBackgroundColor"], "#201514")
+        self.assertEqual(neon_data["neonFontFamily"], "Montserrat")
+        self.assertEqual(neon_data["neonFontSize"], 144)
+        self.assertEqual(neon_data["neonFrameThickness"], 18)
 
         vcard = self.client.post(
             "/api/v1/media",

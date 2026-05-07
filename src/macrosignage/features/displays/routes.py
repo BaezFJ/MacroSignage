@@ -368,10 +368,11 @@ def show_display_player(display_id: int):
     next_schedule_refresh_at = schedule_next_refresh_at(display)
     font_choices = font_choice_map(list_active_fonts())
     for media in playlist:
-        if media.media_type != "SLIDER":
-            continue
-        for slide in media.slider_slides:
-            font_choices.setdefault(slide.text_font_family, slide.text_font_family)
+        if media.media_type == "SLIDER":
+            for slide in media.slider_slides:
+                font_choices.setdefault(slide.text_font_family, slide.text_font_family)
+        elif media.media_type == "NEON_SIGN" and media.neon_font_family:
+            font_choices.setdefault(media.neon_font_family, media.neon_font_family)
     return render_template(
         "displays/player.html",
         title=display.name,

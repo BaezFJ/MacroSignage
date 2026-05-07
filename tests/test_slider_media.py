@@ -223,6 +223,9 @@ class SliderMediaTestCase(unittest.TestCase):
                 "neon_text_color": "#ff33cc",
                 "neon_frame_color": "#33ff77",
                 "neon_background_color": "#201514",
+                "neon_font_family": "Montserrat",
+                "neon_font_size": "144",
+                "neon_frame_thickness": "18",
             },
             follow_redirects=False,
         )
@@ -234,6 +237,9 @@ class SliderMediaTestCase(unittest.TestCase):
         self.assertEqual(media.neon_text_color, "#ff33cc")
         self.assertEqual(media.neon_frame_color, "#33ff77")
         self.assertEqual(media.neon_background_color, "#201514")
+        self.assertEqual(media.neon_font_family, "Montserrat")
+        self.assertEqual(media.neon_font_size, 144)
+        self.assertEqual(media.neon_frame_thickness, 18)
         self.create_active_schedule(display, media)
         self.authorize_display(display)
 
@@ -245,6 +251,69 @@ class SliderMediaTestCase(unittest.TestCase):
         self.assertIn("--neon-text-color: #ff33cc", body)
         self.assertIn("--neon-frame-color: #33ff77", body)
         self.assertIn("--neon-background-color: #201514", body)
+        self.assertIn("--neon-font-size: 144px", body)
+        self.assertIn("--neon-frame-thickness: 18px", body)
+        self.assertIn("font-family: 'Montserrat', sans-serif;", body)
+        self.assertIn("Montserrat", body)
+
+    def test_text_elements_accept_literal_newline_sequence(self):
+        display = self.create_display()
+
+        text_response = self.client.post(
+            "/admin/media/new",
+            data={
+                "title": "Line Break Text",
+                "media_type": "TEXT",
+                "display_ids": str(display.id),
+                "body": "First line\\nSecond line",
+            },
+            follow_redirects=False,
+        )
+        self.assertEqual(text_response.status_code, 302)
+        text_media = MediaAsset.query.filter_by(title="Line Break Text").one()
+        self.assertEqual(text_media.body, "First line\nSecond line")
+
+        slider_response = self.client.post(
+            "/admin/media/new",
+            data={
+                "title": "Line Break Slider",
+                "media_type": "SLIDER",
+                "display_ids": str(display.id),
+                "slider_slide_count": "1",
+                "slider_background_0": self.image_file("background.png"),
+                "slider_foreground_size_0": "50",
+                "slider_foreground_position_0": "CENTER",
+                "slider_foreground_animation_0": "NONE",
+                "slider_text_0": "Menu\\nSpecials",
+                "slider_text_position_0": "CENTER",
+                "slider_text_animation_0": "NONE",
+                "slider_font_family_0": "Inter",
+                "slider_font_size_0": "88",
+                "slider_duration_0": "9",
+            },
+            follow_redirects=False,
+        )
+        self.assertEqual(slider_response.status_code, 302)
+        slider_media = MediaAsset.query.filter_by(title="Line Break Slider").one()
+        self.assertEqual(slider_media.slider_slides[0].text, "Menu\nSpecials")
+
+        vcard_response = self.client.post(
+            "/admin/media/new",
+            data={
+                "title": "Line Break vCard",
+                "media_type": "VCARD",
+                "display_ids": str(display.id),
+                "vcard_name": "Javier Baez",
+                "vcard_phone": "+1 555 0100",
+                "vcard_top_text": "Scan\\nHere",
+                "vcard_bottom_text": "Save\\nContact",
+            },
+            follow_redirects=False,
+        )
+        self.assertEqual(vcard_response.status_code, 302)
+        vcard_media = MediaAsset.query.filter_by(title="Line Break vCard").one()
+        self.assertEqual(vcard_media.vcard_top_text, "Scan\nHere")
+        self.assertEqual(vcard_media.vcard_bottom_text, "Save\nContact")
 
     def test_neon_sign_rejects_invalid_color(self):
         response = self.client.post(
@@ -261,6 +330,28 @@ class SliderMediaTestCase(unittest.TestCase):
 
         self.assertEqual(response.status_code, 422)
         self.assertIn("Neon text color must be a 6-digit hex color.", response.get_data(as_text=True))
+
+    def test_neon_sign_rejects_invalid_font_and_frame_values(self):
+        response = self.client.post(
+            "/admin/media/new",
+            data={
+                "title": "Bad Neon Settings",
+                "media_type": "NEON_SIGN",
+                "body": "Broken",
+                "neon_text_color": "#ff33cc",
+                "neon_frame_color": "#33ff77",
+                "neon_background_color": "#201514",
+                "neon_font_family": "Missing Font",
+                "neon_font_size": "10",
+                "neon_frame_thickness": "80",
+            },
+        )
+
+        self.assertEqual(response.status_code, 422)
+        body = response.get_data(as_text=True)
+        self.assertIn("Choose a valid font style.", body)
+        self.assertIn("Font size must be between 24 and 260 pixels.", body)
+        self.assertIn("Frame thickness must be between 2 and 48 pixels.", body)
 
     def test_create_vcard_media_and_render_display_player(self):
         display = self.create_display()

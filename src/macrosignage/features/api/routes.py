@@ -25,9 +25,18 @@ from ..displays.services import (
 )
 from ..media.forms import (
     DEFAULT_NEON_BACKGROUND_COLOR,
+    DEFAULT_NEON_FONT_FAMILY,
+    DEFAULT_NEON_FONT_SIZE,
     DEFAULT_NEON_FRAME_COLOR,
+    DEFAULT_NEON_FRAME_THICKNESS,
     DEFAULT_NEON_TEXT_COLOR,
+    MAX_NEON_FONT_SIZE,
+    MAX_NEON_FRAME_THICKNESS,
     MEDIA_TYPES,
+    MIN_NEON_FONT_SIZE,
+    MIN_NEON_FRAME_THICKNESS,
+    font_choice_map,
+    normalize_display_text,
     parse_hex_color,
 )
 from ..media.models import MediaAsset, MediaFont
@@ -124,6 +133,23 @@ def related_media(ids) -> list[MediaAsset]:
     return db.session.scalars(db.select(MediaAsset).where(MediaAsset.id.in_([int(item) for item in ids]))).all()
 
 
+def active_font_choices() -> dict[str, str]:
+    fonts = db.session.scalars(
+        db.select(MediaFont)
+        .where(MediaFont.active.is_(True))
+        .order_by(MediaFont.display_name.asc(), MediaFont.id.asc())
+    ).all()
+    return font_choice_map(fonts)
+
+
+def parse_int_setting(value, field_name: str, default: int, errors: dict[str, str]) -> int:
+    try:
+        return int(default if value is None or value == "" else value)
+    except (TypeError, ValueError):
+        errors[field_name] = "Value must be a whole number."
+        return default
+
+
 def apply_display_json(display: Display, data: dict[str, object], partial: bool = False) -> dict[str, str]:
     errors = {}
     if not partial or "name" in data:
@@ -166,7 +192,8 @@ def apply_media_json(media: MediaAsset, data: dict[str, object], partial: bool =
         if media.media_type not in MEDIA_TYPES:
             errors["mediaType"] = "Choose a valid media type."
     if "body" in data or not partial:
-        media.body = str(data.get("body") or "").strip() or None
+        body = str(data.get("body") or "").strip()
+        media.body = normalize_display_text(body) if media.media_type in {"TEXT", "NEON_SIGN"} else body or None
     if "sourceUrl" in data or not partial:
         media.source_url = str(data.get("sourceUrl") or "").strip() or None
     if "neonTextColor" in data or not partial:
@@ -193,6 +220,33 @@ def apply_media_json(media: MediaAsset, data: dict[str, object], partial: bool =
         )
         if error:
             errors["neonBackgroundColor"] = error
+    if "neonFontFamily" in data or not partial:
+        media.neon_font_family = str(data.get("neonFontFamily") or DEFAULT_NEON_FONT_FAMILY).strip()
+        if media.neon_font_family not in active_font_choices():
+            errors["neonFontFamily"] = "Choose a valid font style."
+    if "neonFontSize" in data or not partial:
+        media.neon_font_size = parse_int_setting(
+            data.get("neonFontSize"),
+            "neonFontSize",
+            DEFAULT_NEON_FONT_SIZE,
+            errors,
+        )
+        if not MIN_NEON_FONT_SIZE <= media.neon_font_size <= MAX_NEON_FONT_SIZE:
+            errors["neonFontSize"] = (
+                f"Font size must be between {MIN_NEON_FONT_SIZE} and {MAX_NEON_FONT_SIZE} pixels."
+            )
+    if "neonFrameThickness" in data or not partial:
+        media.neon_frame_thickness = parse_int_setting(
+            data.get("neonFrameThickness"),
+            "neonFrameThickness",
+            DEFAULT_NEON_FRAME_THICKNESS,
+            errors,
+        )
+        if not MIN_NEON_FRAME_THICKNESS <= media.neon_frame_thickness <= MAX_NEON_FRAME_THICKNESS:
+            errors["neonFrameThickness"] = (
+                "Frame thickness must be between "
+                f"{MIN_NEON_FRAME_THICKNESS} and {MAX_NEON_FRAME_THICKNESS} pixels."
+            )
     if "notes" in data or not partial:
         media.notes = str(data.get("notes") or "").strip() or None
     if "vcardName" in data or not partial:
@@ -206,9 +260,9 @@ def apply_media_json(media: MediaAsset, data: dict[str, object], partial: bool =
     if "vcardUrl" in data or not partial:
         media.vcard_url = str(data.get("vcardUrl") or "").strip() or None
     if "vcardTopText" in data or not partial:
-        media.vcard_top_text = str(data.get("vcardTopText") or "").strip() or None
+        media.vcard_top_text = normalize_display_text(str(data.get("vcardTopText") or "")) or None
     if "vcardBottomText" in data or not partial:
-        media.vcard_bottom_text = str(data.get("vcardBottomText") or "").strip() or None
+        media.vcard_bottom_text = normalize_display_text(str(data.get("vcardBottomText") or "")) or None
     if "displayIds" in data:
         try:
             media.displays = related_displays(data.get("displayIds"))
@@ -229,6 +283,9 @@ def apply_media_json(media: MediaAsset, data: dict[str, object], partial: bool =
         media.neon_text_color = None
         media.neon_frame_color = None
         media.neon_background_color = None
+        media.neon_font_family = None
+        media.neon_font_size = None
+        media.neon_frame_thickness = None
     if media.media_type != "VCARD":
         media.vcard_name = None
         media.vcard_phone = None

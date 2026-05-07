@@ -608,6 +608,7 @@ body {
   font-weight: 700;
   line-height: 1.1;
   overflow-wrap: anywhere;
+  white-space: pre-line;
 }
 
 .neon-sign-preview,
@@ -638,7 +639,7 @@ body {
   width: min(100%, 64rem);
   min-height: 12rem;
   padding: clamp(1.25rem, 5vh, 4rem);
-  border: clamp(0.25rem, 1vh, 0.75rem) solid var(--neon-frame-color);
+  border: var(--neon-frame-thickness, clamp(0.25rem, 1vh, 0.75rem)) solid var(--neon-frame-color);
   border-radius: 1.5rem;
   box-shadow:
     0 0 0.4rem var(--neon-frame-color),
@@ -653,14 +654,15 @@ body {
   max-width: 14ch;
   margin: 0;
   color: #fff;
-  font-family: "Helvetica Neue", Arial, sans-serif;
-  font-size: 4rem;
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  font-size: var(--neon-font-size, 4rem);
   font-weight: 300;
   line-height: 1;
   letter-spacing: 0;
   text-align: center;
   text-transform: uppercase;
   overflow-wrap: anywhere;
+  white-space: pre-line;
   text-shadow:
     0 0 0.2rem #fff,
     0 0 0.55rem var(--neon-text-color),
@@ -676,7 +678,7 @@ body {
 }
 
 .display-neon-frame p {
-  font-size: clamp(3rem, 14vh, 10rem);
+  font-size: clamp(3rem, var(--neon-font-size, 8rem), 16rem);
   animation: neon-flicker 6.5s linear infinite;
 }
 
@@ -797,6 +799,7 @@ body {
   font-size: 1.25rem;
   font-weight: 700;
   text-align: center;
+  white-space: pre-line;
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.62);
 }
 
@@ -897,6 +900,7 @@ body {
   font-weight: 700;
   line-height: 1.05;
   overflow-wrap: anywhere;
+  white-space: pre-line;
 }
 
 .display-player-empty {
@@ -957,6 +961,7 @@ body {
   font-weight: 800;
   line-height: 1.02;
   overflow-wrap: anywhere;
+  white-space: pre-line;
 }
 
 .display-slider,
@@ -1130,6 +1135,7 @@ body {
   font-weight: 800;
   line-height: 1.02;
   overflow-wrap: anywhere;
+  white-space: pre-line;
   text-shadow: 0 2px 18px rgba(0, 0, 0, 0.72);
 }
 

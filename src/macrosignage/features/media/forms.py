@@ -70,6 +70,13 @@ HEX_COLOR_PATTERN = re.compile(r"^#[0-9A-Fa-f]{6}$")
 DEFAULT_NEON_TEXT_COLOR = "#ff4fd8"
 DEFAULT_NEON_FRAME_COLOR = "#37ff79"
 DEFAULT_NEON_BACKGROUND_COLOR = "#1b1210"
+DEFAULT_NEON_FONT_FAMILY = "Inter"
+DEFAULT_NEON_FONT_SIZE = 120
+MIN_NEON_FONT_SIZE = 24
+MAX_NEON_FONT_SIZE = 260
+DEFAULT_NEON_FRAME_THICKNESS = 8
+MIN_NEON_FRAME_THICKNESS = 2
+MAX_NEON_FRAME_THICKNESS = 48
 
 IMAGE_EXTENSIONS = {"jpg", "jpeg", "png", "gif", "webp"}
 VIDEO_EXTENSIONS = {"mp4", "webm", "ogg", "mov"}
@@ -89,6 +96,10 @@ def google_fonts_stylesheet_url(font_families) -> str:
     families = list(font_families) or list(DEFAULT_GOOGLE_FONT_FAMILIES)
     params = [("family", f"{family}:wght@400;600;700;800") for family in families]
     return f"https://fonts.googleapis.com/css2?{urlencode(params)}&display=swap"
+
+
+def normalize_display_text(value: str) -> str:
+    return value.strip().replace("\\n", "\n")
 
 
 def font_form_data(form) -> tuple[dict[str, object], dict[str, str]]:
@@ -257,7 +268,7 @@ def slider_form_data(form, files, media=None, fonts=None) -> tuple[list[dict[str
         slides.append(
             {
                 "sort_order": index,
-                "text": form.get(f"slider_text_{index}", "").strip() or None,
+                "text": normalize_display_text(form.get(f"slider_text_{index}", "")) or None,
                 "text_position": position,
                 "text_font_family": font_family,
                 "text_font_size": font_size or DEFAULT_SLIDER_FONT_SIZE,
@@ -276,17 +287,19 @@ def slider_form_data(form, files, media=None, fonts=None) -> tuple[list[dict[str
 
 def media_form_data(form, files, media=None, fonts=None) -> tuple[dict[str, object], dict[str, str]]:
     errors: dict[str, str] = {}
+    available_fonts = font_choice_map(fonts)
     title = form.get("title", "").strip()
     media_type = form.get("media_type", "IMAGE").strip()
-    body = form.get("body", "").strip()
+    raw_body = form.get("body", "").strip()
     source_url = form.get("source_url", "").strip()
+    neon_font_family = form.get("neon_font_family", DEFAULT_NEON_FONT_FAMILY).strip()
     vcard_name = form.get("vcard_name", "").strip()
     vcard_phone = form.get("vcard_phone", "").strip()
     vcard_email = form.get("vcard_email", "").strip()
     vcard_address = form.get("vcard_address", "").strip()
     vcard_url = form.get("vcard_url", "").strip()
-    vcard_top_text = form.get("vcard_top_text", "").strip()
-    vcard_bottom_text = form.get("vcard_bottom_text", "").strip()
+    vcard_top_text = normalize_display_text(form.get("vcard_top_text", ""))
+    vcard_bottom_text = normalize_display_text(form.get("vcard_bottom_text", ""))
     notes = form.get("notes", "").strip()
     upload = files.get("file")
     slider_slides: list[dict[str, object]] = []
@@ -305,11 +318,20 @@ def media_form_data(form, files, media=None, fonts=None) -> tuple[dict[str, obje
         DEFAULT_NEON_BACKGROUND_COLOR,
         "Neon background color",
     )
+    neon_font_size, neon_font_size_error = parse_positive_int(
+        form.get("neon_font_size", str(DEFAULT_NEON_FONT_SIZE)),
+        "Font size",
+    )
+    neon_frame_thickness, neon_frame_thickness_error = parse_positive_int(
+        form.get("neon_frame_thickness", str(DEFAULT_NEON_FRAME_THICKNESS)),
+        "Frame thickness",
+    )
 
     if not title:
         errors["title"] = "Media title is required."
     if media_type not in MEDIA_TYPES:
         errors["media_type"] = "Choose a valid media type."
+    body = normalize_display_text(raw_body) if media_type in {"TEXT", "NEON_SIGN"} else raw_body
 
     if media_type in {"IMAGE", "VIDEO"}:
         if upload and upload.filename:
@@ -341,6 +363,21 @@ def media_form_data(form, files, media=None, fonts=None) -> tuple[dict[str, obje
             errors["neon_frame_color"] = neon_frame_color_error
         if neon_background_color_error:
             errors["neon_background_color"] = neon_background_color_error
+        if neon_font_family not in available_fonts:
+            errors["neon_font_family"] = "Choose a valid font style."
+        if neon_font_size_error:
+            errors["neon_font_size"] = neon_font_size_error
+        elif neon_font_size and not MIN_NEON_FONT_SIZE <= neon_font_size <= MAX_NEON_FONT_SIZE:
+            errors["neon_font_size"] = (
+                f"Font size must be between {MIN_NEON_FONT_SIZE} and {MAX_NEON_FONT_SIZE} pixels."
+            )
+        if neon_frame_thickness_error:
+            errors["neon_frame_thickness"] = neon_frame_thickness_error
+        elif neon_frame_thickness and not MIN_NEON_FRAME_THICKNESS <= neon_frame_thickness <= MAX_NEON_FRAME_THICKNESS:
+            errors["neon_frame_thickness"] = (
+                "Frame thickness must be between "
+                f"{MIN_NEON_FRAME_THICKNESS} and {MAX_NEON_FRAME_THICKNESS} pixels."
+            )
 
     return (
         {
@@ -353,6 +390,9 @@ def media_form_data(form, files, media=None, fonts=None) -> tuple[dict[str, obje
             "neon_text_color": neon_text_color,
             "neon_frame_color": neon_frame_color,
             "neon_background_color": neon_background_color,
+            "neon_font_family": neon_font_family,
+            "neon_font_size": neon_font_size or DEFAULT_NEON_FONT_SIZE,
+            "neon_frame_thickness": neon_frame_thickness or DEFAULT_NEON_FRAME_THICKNESS,
             "vcard_name": vcard_name or None,
             "vcard_phone": vcard_phone or None,
             "vcard_email": vcard_email or None,

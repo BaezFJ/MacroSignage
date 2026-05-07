@@ -17,6 +17,8 @@ Media records are the assets that schedules assign to displays. Admins and edito
 
 Media can be assigned to many schedules, and schedules can contain many media records. Displays receive media through their active schedules.
 
+For visible text fields, use `\n` to add a line break. This applies to text media, neon sign copy, slider text, and vCard text above or below the QR code.
+
 ## Upload Rules
 
 Image uploads accept:
@@ -78,6 +80,9 @@ Each neon sign has:
 - Text color: controls the neon lettering glow.
 - Frame color: controls the sign border and its glow.
 - Background color: controls the dark backing behind the sign.
+- Font style: selected from managed Google Fonts.
+- Font size: 24 px through 260 px, default 120 px.
+- Frame thickness: 2 px through 48 px, default 8 px.
 
 Neon signs use the schedule default duration.
 

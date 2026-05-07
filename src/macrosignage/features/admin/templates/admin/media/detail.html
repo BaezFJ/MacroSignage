@@ -1,7 +1,7 @@
 {% extends 'layouts/admin.html' %}
 
 {% block styles %}
-    {% if media.media_type == 'SLIDER' %}
+    {% if media.media_type in ['SLIDER', 'NEON_SIGN'] %}
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link rel="stylesheet" href="{{ google_fonts_url }}">
@@ -48,9 +48,9 @@
                             <p class="media-text-preview">{{ media.body }}</p>
                         {% elif media.media_type == 'NEON_SIGN' %}
                             <article class="neon-sign-preview"
-                                     style="--neon-text-color: {{ media.neon_text_color or '#ff4fd8' }}; --neon-frame-color: {{ media.neon_frame_color or '#37ff79' }}; --neon-background-color: {{ media.neon_background_color or '#1b1210' }};">
+                                     style="--neon-text-color: {{ media.neon_text_color or '#ff4fd8' }}; --neon-frame-color: {{ media.neon_frame_color or '#37ff79' }}; --neon-background-color: {{ media.neon_background_color or '#1b1210' }}; --neon-font-size: {{ media.neon_font_size or 120 }}px; --neon-frame-thickness: {{ media.neon_frame_thickness or 8 }}px;">
                                 <div class="neon-sign-frame">
-                                    <p>{{ media.body }}</p>
+                                    <p style="font-family: '{{ media.neon_font_family or 'Inter' }}', sans-serif;">{{ media.body }}</p>
                                 </div>
                             </article>
                         {% elif media.media_type == 'HTML' %}
@@ -200,6 +200,18 @@
                             <div>
                                 <dt>Background</dt>
                                 <dd>{{ media.neon_background_color or '#1b1210' }}</dd>
+                            </div>
+                            <div>
+                                <dt>Font style</dt>
+                                <dd>{{ media.neon_font_family or 'Inter' }}</dd>
+                            </div>
+                            <div>
+                                <dt>Font size</dt>
+                                <dd>{{ media.neon_font_size or 120 }} px</dd>
+                            </div>
+                            <div>
+                                <dt>Frame thickness</dt>
+                                <dd>{{ media.neon_frame_thickness or 8 }} px</dd>
                             </div>
                         </dl>
                     </div>

@@ -37,9 +37,9 @@
                             </article>
                         {% elif media.media_type == 'NEON_SIGN' %}
                             <article class="display-neon-sign"
-                                     style="--neon-text-color: {{ media.neon_text_color or '#ff4fd8' }}; --neon-frame-color: {{ media.neon_frame_color or '#37ff79' }}; --neon-background-color: {{ media.neon_background_color or '#1b1210' }};">
+                                     style="--neon-text-color: {{ media.neon_text_color or '#ff4fd8' }}; --neon-frame-color: {{ media.neon_frame_color or '#37ff79' }}; --neon-background-color: {{ media.neon_background_color or '#1b1210' }}; --neon-font-size: {{ media.neon_font_size or 120 }}px; --neon-frame-thickness: {{ media.neon_frame_thickness or 8 }}px;">
                                 <div class="display-neon-frame">
-                                    <p>{{ media.body }}</p>
+                                    <p style="font-family: '{{ media.neon_font_family or 'Inter' }}', sans-serif;">{{ media.body }}</p>
                                 </div>
                             </article>
                         {% elif media.media_type == 'HTML' %}

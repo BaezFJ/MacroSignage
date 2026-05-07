@@ -10,7 +10,10 @@ from .forms import (
     DEFAULT_SLIDER_FOREGROUND_POSITION,
     DEFAULT_SLIDER_FOREGROUND_SIZE,
     DEFAULT_NEON_BACKGROUND_COLOR,
+    DEFAULT_NEON_FONT_FAMILY,
+    DEFAULT_NEON_FONT_SIZE,
     DEFAULT_NEON_FRAME_COLOR,
+    DEFAULT_NEON_FRAME_THICKNESS,
     DEFAULT_NEON_TEXT_COLOR,
     MEDIA_TYPES,
     MAX_SLIDER_SLIDES,
@@ -51,10 +54,11 @@ def requested_slider_slide_count(default: int = 1) -> int:
 def include_existing_slider_fonts(font_choices: dict[str, str], media_items) -> dict[str, str]:
     choices = dict(font_choices)
     for media in media_items:
-        if media.media_type != "SLIDER":
-            continue
-        for slide in media.slider_slides:
-            choices.setdefault(slide.text_font_family, slide.text_font_family)
+        if media.media_type == "SLIDER":
+            for slide in media.slider_slides:
+                choices.setdefault(slide.text_font_family, slide.text_font_family)
+        elif media.media_type == "NEON_SIGN" and media.neon_font_family:
+            choices.setdefault(media.neon_font_family, media.neon_font_family)
     return choices
 
 
@@ -122,6 +126,9 @@ def create_media():
         default_neon_text_color=DEFAULT_NEON_TEXT_COLOR,
         default_neon_frame_color=DEFAULT_NEON_FRAME_COLOR,
         default_neon_background_color=DEFAULT_NEON_BACKGROUND_COLOR,
+        default_neon_font_family=DEFAULT_NEON_FONT_FAMILY,
+        default_neon_font_size=DEFAULT_NEON_FONT_SIZE,
+        default_neon_frame_thickness=DEFAULT_NEON_FRAME_THICKNESS,
         slider_animations=SLIDER_ANIMATIONS,
         slider_foreground_positions=SLIDER_FOREGROUND_POSITIONS,
         slider_text_positions=SLIDER_TEXT_POSITIONS,
@@ -198,6 +205,9 @@ def edit_media(media_id: int):
         default_neon_text_color=DEFAULT_NEON_TEXT_COLOR,
         default_neon_frame_color=DEFAULT_NEON_FRAME_COLOR,
         default_neon_background_color=DEFAULT_NEON_BACKGROUND_COLOR,
+        default_neon_font_family=DEFAULT_NEON_FONT_FAMILY,
+        default_neon_font_size=DEFAULT_NEON_FONT_SIZE,
+        default_neon_frame_thickness=DEFAULT_NEON_FRAME_THICKNESS,
         slider_animations=SLIDER_ANIMATIONS,
         slider_foreground_positions=SLIDER_FOREGROUND_POSITIONS,
         slider_text_positions=SLIDER_TEXT_POSITIONS,
