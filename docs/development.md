@@ -20,6 +20,7 @@ Useful commands:
 uv run macrosignage dev --host 127.0.0.1 --port 5000
 uv run macrosignage dev --no-debug
 uv run macrosignage-prod --host 127.0.0.1 --port 8080 --threads 4
+uv run macrosignage-upgrade --dry-run --no-backup
 ```
 
 ## Run Checks
@@ -57,6 +58,7 @@ The main package exposes:
 ```text
 macrosignage = macrosignage.cli:main
 macrosignage-prod = macrosignage.cli:prod_main
+macrosignage-upgrade = macrosignage.cli:upgrade_main
 ```
 
 The standalone display client is separate:
@@ -75,10 +77,11 @@ See [Standalone Client](client.md) for operator-facing client setup.
 ```text
 src/macrosignage/
 ├── app.py                 # Flask application factory, security headers, error handling, runtime schema checks
-├── cli.py                 # macrosignage and macrosignage-prod entry points
+├── cli.py                 # macrosignage, macrosignage-prod, and macrosignage-upgrade entry points
 ├── config.py              # .env loading, database URI helpers, database form options
 ├── diagnostics.py         # health check and admin diagnostics payloads
 ├── extensions.py          # Flask extension instances
+├── upgrade.py             # package upgrade CLI, backup discovery, and install command helpers
 ├── time_utils.py          # configured timezone and datetime conversion helpers
 ├── features/
 │   ├── admin/             # dashboard, settings, database/logo/font admin pages

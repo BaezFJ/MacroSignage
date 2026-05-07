@@ -166,7 +166,7 @@ This roadmap tracks the work required to move MacroSignage from pre-alpha toward
 **Description:** Ensure installed commands, package data, static assets, templates, and client packaging stay valid.
 
 **Acceptance criteria:**
-- [x] `macrosignage`, `macrosignage-prod`, and `macrosignage-client` entry points are tested.
+- [x] `macrosignage`, `macrosignage-prod`, `macrosignage-upgrade`, and `macrosignage-client` entry points are tested.
 - [x] Built wheel contains required templates/static assets.
 - [x] Release workflows are documented and linked.
 

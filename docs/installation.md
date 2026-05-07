@@ -35,3 +35,7 @@ macrosignage-prod --host 127.0.0.1 --port 8080 --threads 4
 ```
 
 See [Configuration](configuration.md) for all environment variables and [Deployment](deployment.md) for systemd, Docker, health checks, backups, HTTPS, and rollback examples.
+
+## Package upgrade
+
+Use `macrosignage-upgrade --dry-run` to preview the package command and backup location. For production systemd installs, stop the service, run the upgrade command as the user that owns the virtual environment, then start the service again. See [Deployment](deployment.md#upgrade-cli) for the full command sequence.

@@ -15,7 +15,7 @@ MacroSignage is a Flask application with feature-oriented blueprints, SQLAlchemy
 - creates database tables and applies additive runtime schema checks
 - seeds default Google Fonts
 
-CLI entry points in `src/macrosignage/cli.py` call the same factory for development and production. `macrosignage-prod` runs Waitress.
+CLI entry points in `src/macrosignage/cli.py` call the same factory for development and production, and expose the package upgrade command. `macrosignage-prod` runs Waitress.
 
 ## Feature Blueprints
 

@@ -46,7 +46,7 @@ def _add_prod_options(parser: argparse.ArgumentParser) -> None:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="macrosignage",
-        description="Run the MacroSignage web application.",
+        description="Run or maintain the MacroSignage web application.",
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
@@ -63,6 +63,13 @@ def build_parser() -> argparse.ArgumentParser:
     prod_parser = subparsers.add_parser("prod", help="Run with the Waitress WSGI server.")
     _add_prod_options(prod_parser)
     prod_parser.set_defaults(func=_run_prod)
+
+    upgrade_parser = subparsers.add_parser("upgrade", help="Upgrade the installed MacroSignage package.")
+    from .upgrade import add_upgrade_options
+    from .upgrade import run_upgrade
+
+    add_upgrade_options(upgrade_parser)
+    upgrade_parser.set_defaults(func=run_upgrade)
 
     return parser
 
@@ -81,3 +88,9 @@ def prod_main(argv: Sequence[str] | None = None) -> int:
     _add_prod_options(parser)
     args = parser.parse_args(argv)
     return _run_prod(args)
+
+
+def upgrade_main(argv: Sequence[str] | None = None) -> int:
+    from .upgrade import main as upgrade_cli_main
+
+    return upgrade_cli_main(argv)

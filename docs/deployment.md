@@ -203,6 +203,35 @@ MacroSignage currently applies additive runtime schema updates on startup for su
 
 Do not switch database providers and upgrade the application in the same maintenance step. Upgrade first, verify, then change `MACROSIGNAGE_DATABASE_URI` in a separate step.
 
+## Upgrade CLI
+
+Installed packages include `macrosignage-upgrade`, also available as `macrosignage upgrade`. The command creates a timestamped local backup, upgrades the installed Python package with `uv pip install`, and falls back to `python -m pip install` when `uv` is not on `PATH`.
+
+Preview the upgrade first:
+
+```bash
+sudo -u macrosignage -H /opt/macrosignage/.venv/bin/macrosignage-upgrade \
+  --env-file /etc/macrosignage/macrosignage.env \
+  --backup-dir /var/lib/macrosignage/backups \
+  --uv-bin /usr/local/bin/uv \
+  --version 0.2.5 \
+  --dry-run
+```
+
+For a systemd deployment, stop and start the service separately so the package upgrade still runs as the `macrosignage` user that owns `/opt/macrosignage/.venv`:
+
+```bash
+sudo systemctl stop macrosignage
+sudo -u macrosignage -H /opt/macrosignage/.venv/bin/macrosignage-upgrade \
+  --env-file /etc/macrosignage/macrosignage.env \
+  --backup-dir /var/lib/macrosignage/backups \
+  --uv-bin /usr/local/bin/uv \
+  --yes
+sudo systemctl start macrosignage
+```
+
+Use `--version <version>` to pin a specific release, `--uv-bin` when `uv` is installed outside the service user's `PATH`, `--no-backup` only when you already created verified backups, and `--service macrosignage` only when the command is running with permission to manage systemd services.
+
 ## Backups
 
 Back up these items together so the database rows still match the files and configuration they reference:
