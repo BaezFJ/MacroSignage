@@ -20,6 +20,29 @@ Checks:
 
 See [Auth and RBAC](auth-rbac.md) and [Configuration](configuration.md).
 
+## Login Shows "CSRF Token Is Missing"
+
+Likely causes:
+
+- `MACROSIGNAGE_SESSION_COOKIE_SECURE=true` while the site is opened over plain HTTP.
+- `MACROSIGNAGE_SECRET_KEY` changed after the login form was loaded.
+- Browser cookies are blocked or stale for the MacroSignage host.
+- A cached login page was submitted after the service restarted with different settings.
+
+Checks:
+
+- If testing at `http://HOST:8080`, set `MACROSIGNAGE_SESSION_COOKIE_SECURE=false` and `MACROSIGNAGE_ENABLE_HSTS=false`, then restart MacroSignage.
+- If serving through HTTPS, keep `MACROSIGNAGE_SESSION_COOKIE_SECURE=true` and open the `https://` URL, not the backend `http://127.0.0.1:8080` URL.
+- Reload `/auth/login` after any service restart before submitting the form.
+- Clear site cookies for the MacroSignage host and try again.
+
+For systemd deployments, edit `/etc/macrosignage/macrosignage.env`, restart the service, then load a fresh login page:
+
+```bash
+sudo systemctl restart macrosignage
+sudo systemctl status macrosignage
+```
+
 ## Password Reset Does Not Send Email
 
 MacroSignage prepares password reset tokens but does not include an outbound email sender. In development, reset links can be shown on screen when reset-link display is enabled by app config.

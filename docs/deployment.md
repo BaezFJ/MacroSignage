@@ -78,12 +78,14 @@ A typical host layout is:
 
 ```bash
 sudo useradd --system --home /opt/macrosignage --shell /usr/sbin/nologin macrosignage
-sudo mkdir -p /opt/macrosignage /etc/macrosignage /var/lib/macrosignage/media
-sudo chown -R macrosignage:macrosignage /opt/macrosignage /var/lib/macrosignage
-cd /opt/macrosignage
-uv venv
-uv pip install MacroSignage
+sudo install -d -o macrosignage -g macrosignage /opt/macrosignage
+sudo install -d -o macrosignage -g macrosignage /var/lib/macrosignage/media
+sudo install -d -m 0750 -o root -g macrosignage /etc/macrosignage
+sudo install -m 0755 "$(command -v uv)" /usr/local/bin/uv
+sudo -u macrosignage -H sh -c 'cd /opt/macrosignage && /usr/local/bin/uv venv && /usr/local/bin/uv pip install MacroSignage'
 ```
+
+Run the `uv venv` and `uv pip install` commands as the `macrosignage` service user. The virtual environment is created at `/opt/macrosignage/.venv`, so running `uv venv` as a different user will fail with `Permission denied` unless that user can write to `/opt/macrosignage`. Use `/usr/local/bin/uv` because user-local installs such as `~/.local/bin/uv` are usually not available in the sanitized `sudo -u macrosignage` environment.
 
 Create `/etc/macrosignage/macrosignage.env`:
 
@@ -93,9 +95,11 @@ MACROSIGNAGE_DATABASE_URI=sqlite:////var/lib/macrosignage/macrosignage.sqlite3
 MACROSIGNAGE_MEDIA_UPLOAD_FOLDER=/var/lib/macrosignage/media
 MACROSIGNAGE_MAX_UPLOAD_BYTES=104857600
 MACROSIGNAGE_TIMEZONE=America/Chicago
-MACROSIGNAGE_SESSION_COOKIE_SECURE=true
-MACROSIGNAGE_ENABLE_HSTS=true
+MACROSIGNAGE_SESSION_COOKIE_SECURE=false
+MACROSIGNAGE_ENABLE_HSTS=false
 ```
+
+Set `MACROSIGNAGE_SESSION_COOKIE_SECURE=true` and `MACROSIGNAGE_ENABLE_HSTS=true` only after MacroSignage is served over HTTPS. If these are enabled while testing over plain HTTP, browsers will not send the session cookie back to the server and login forms can fail CSRF validation.
 
 Install and start the service:
 
@@ -108,6 +112,24 @@ sudo journalctl -u macrosignage -f
 ```
 
 The service runs as the `macrosignage` user, reads `/etc/macrosignage/macrosignage.env`, starts `macrosignage-prod --host 127.0.0.1 --port 8080 --threads 4`, restarts on failure, and writes logs to journald.
+
+If `systemctl status macrosignage` shows `status=203/EXEC`, systemd could not execute `/opt/macrosignage/.venv/bin/macrosignage-prod`. Confirm the virtual environment and entry point exist:
+
+```bash
+sudo ls -l /opt/macrosignage/.venv/bin/macrosignage-prod /opt/macrosignage/.venv/bin/python
+sudo -u macrosignage -H /opt/macrosignage/.venv/bin/macrosignage-prod --help
+sudo journalctl -u macrosignage -n 50 --no-pager
+```
+
+If the files are missing or not executable, recreate the virtual environment as the service user, then restart systemd:
+
+```bash
+sudo chown -R macrosignage:macrosignage /opt/macrosignage
+sudo install -m 0755 "$(command -v uv)" /usr/local/bin/uv
+sudo -u macrosignage -H sh -c 'cd /opt/macrosignage && /usr/local/bin/uv venv && /usr/local/bin/uv pip install MacroSignage'
+sudo systemctl restart macrosignage
+sudo systemctl status macrosignage
+```
 
 ## Docker
 

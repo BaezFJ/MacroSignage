@@ -33,7 +33,7 @@ Use this checklist before pushing a release tag. It is intentionally manual beca
 
 ## Client
 
-- [ ] [Standalone Client](client.md) covers release executables, local run, CLI flags, saved config, pairing flow, Linux GUI dependencies, and release workflows.
+- [ ] [Standalone Client](client.md) covers release executables, local run, CLI flags, saved config, pairing flow, Linux GUI dependencies, Linux autostart, and release workflows.
 - [ ] [client/README.md](../client/README.md) matches the client guide.
 - [ ] GitHub Releases link points to `https://github.com/BaezFJ/MacroSignage/releases`.
 

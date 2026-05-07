@@ -90,6 +90,67 @@ sudo apt install libegl1 libgl1 libxcb-cursor0 libxkbcommon-x11-0
 
 GTK is supported by pywebview, but GTK Python bindings installed through apt often do not load inside uv's managed Python environment. Use Qt unless you intentionally build against system Python.
 
+## Linux Autostart
+
+Use desktop-session autostart for display devices. The pywebview client needs the user's graphical session, so it should start after the display user logs in, not as a root system service.
+
+Install the packaged executable somewhere stable and make it executable:
+
+```bash
+sudo install -d -o "$USER" -g "$USER" /opt/macrosignage-client
+sudo install -m 0755 MacroSignageClient /opt/macrosignage-client/MacroSignageClient
+```
+
+Run the client once with setup so it can save the server URL and pair the display:
+
+```bash
+/opt/macrosignage-client/MacroSignageClient --setup --windowed
+```
+
+After the display is paired, create an XDG autostart entry:
+
+```bash
+mkdir -p ~/.config/autostart
+cat > ~/.config/autostart/macrosignage-client.desktop <<'EOF'
+[Desktop Entry]
+Type=Application
+Name=MacroSignage Client
+Comment=Start the MacroSignage display client
+Exec=/opt/macrosignage-client/MacroSignageClient
+Terminal=false
+X-GNOME-Autostart-enabled=true
+EOF
+```
+
+Sign out and back in, or reboot the display device, then confirm the client opens automatically. For kiosk devices, configure the operating system to auto-login the display user and disable screen blanking in the desktop power settings.
+
+If you prefer a restartable service, create a systemd user unit instead:
+
+```bash
+mkdir -p ~/.config/systemd/user
+cat > ~/.config/systemd/user/macrosignage-client.service <<'EOF'
+[Unit]
+Description=MacroSignage display client
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/opt/macrosignage-client/MacroSignageClient
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target
+EOF
+
+systemctl --user daemon-reload
+systemctl --user enable --now macrosignage-client
+systemctl --user status macrosignage-client
+```
+
+Use `journalctl --user -u macrosignage-client -f` for client autostart logs.
+
 ## Release Executables
 
 Download packaged client builds from:

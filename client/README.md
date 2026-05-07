@@ -78,6 +78,71 @@ apt usually do not load inside uv's managed Python environment. Use Qt for the
 standalone client unless you are intentionally building against the system
 Python runtime.
 
+## Linux autostart
+
+Use desktop-session autostart for display devices. The pywebview client needs a
+logged-in graphical session, so start it as the display user instead of a root
+system service.
+
+Install the packaged executable somewhere stable:
+
+```bash
+sudo install -d -o "$USER" -g "$USER" /opt/macrosignage-client
+sudo install -m 0755 MacroSignageClient /opt/macrosignage-client/MacroSignageClient
+```
+
+Run setup once so the client can save the server URL and pair the display:
+
+```bash
+/opt/macrosignage-client/MacroSignageClient --setup --windowed
+```
+
+After pairing, create an XDG autostart entry:
+
+```bash
+mkdir -p ~/.config/autostart
+cat > ~/.config/autostart/macrosignage-client.desktop <<'EOF'
+[Desktop Entry]
+Type=Application
+Name=MacroSignage Client
+Comment=Start the MacroSignage display client
+Exec=/opt/macrosignage-client/MacroSignageClient
+Terminal=false
+X-GNOME-Autostart-enabled=true
+EOF
+```
+
+Sign out and back in, or reboot, to confirm the client starts automatically. On
+kiosk devices, configure the OS to auto-login the display user and disable
+screen blanking in the desktop power settings.
+
+For service-style restarts, use a systemd user service:
+
+```bash
+mkdir -p ~/.config/systemd/user
+cat > ~/.config/systemd/user/macrosignage-client.service <<'EOF'
+[Unit]
+Description=MacroSignage display client
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/opt/macrosignage-client/MacroSignageClient
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target
+EOF
+
+systemctl --user daemon-reload
+systemctl --user enable --now macrosignage-client
+systemctl --user status macrosignage-client
+```
+
+Use `journalctl --user -u macrosignage-client -f` for client autostart logs.
+
 ## Package
 
 ```bash
