@@ -178,6 +178,32 @@ class ApiContractTestCase(unittest.TestCase):
         self.assertEqual(neon_data["neonFrameColor"], "#33ff77")
         self.assertEqual(neon_data["neonBackgroundColor"], "#201514")
 
+        vcard = self.client.post(
+            "/api/v1/media",
+            json={
+                "title": "API vCard",
+                "mediaType": "VCARD",
+                "vcardName": "Javier Baez",
+                "vcardPhone": "+1 555 0100",
+                "vcardEmail": "sales@example.com",
+                "vcardAddress": "123 Main Street, Chicago, IL",
+                "vcardUrl": "https://example.com",
+                "vcardTopText": "Scan to save contact",
+                "vcardBottomText": "Available weekdays",
+            },
+            headers=headers,
+        )
+        self.assertEqual(vcard.status_code, 201)
+        vcard_data = vcard.get_json()["data"]
+        self.assertEqual(vcard_data["mediaType"], "VCARD")
+        self.assertEqual(vcard_data["vcardName"], "Javier Baez")
+        self.assertEqual(vcard_data["vcardPhone"], "+1 555 0100")
+        self.assertEqual(vcard_data["vcardEmail"], "sales@example.com")
+        self.assertEqual(vcard_data["vcardAddress"], "123 Main Street, Chicago, IL")
+        self.assertEqual(vcard_data["vcardUrl"], "https://example.com")
+        self.assertEqual(vcard_data["vcardTopText"], "Scan to save contact")
+        self.assertEqual(vcard_data["vcardBottomText"], "Available weekdays")
+
         deleted = self.client.delete(f"/api/v1/media/{media_id}", headers=headers)
         self.assertEqual(deleted.status_code, 204)
         self.assertIsNone(db.session.get(MediaAsset, media_id))

@@ -119,6 +119,20 @@ def ensure_runtime_schema() -> None:
             statements.append("ALTER TABLE media_assets ADD COLUMN neon_frame_color VARCHAR(7)")
         if "neon_background_color" not in columns:
             statements.append("ALTER TABLE media_assets ADD COLUMN neon_background_color VARCHAR(7)")
+        if "vcard_name" not in columns:
+            statements.append("ALTER TABLE media_assets ADD COLUMN vcard_name VARCHAR(160)")
+        if "vcard_phone" not in columns:
+            statements.append("ALTER TABLE media_assets ADD COLUMN vcard_phone VARCHAR(80)")
+        if "vcard_email" not in columns:
+            statements.append("ALTER TABLE media_assets ADD COLUMN vcard_email VARCHAR(254)")
+        if "vcard_address" not in columns:
+            statements.append("ALTER TABLE media_assets ADD COLUMN vcard_address VARCHAR(500)")
+        if "vcard_url" not in columns:
+            statements.append("ALTER TABLE media_assets ADD COLUMN vcard_url VARCHAR(500)")
+        if "vcard_top_text" not in columns:
+            statements.append("ALTER TABLE media_assets ADD COLUMN vcard_top_text VARCHAR(220)")
+        if "vcard_bottom_text" not in columns:
+            statements.append("ALTER TABLE media_assets ADD COLUMN vcard_bottom_text VARCHAR(220)")
 
     if "displays" in tables:
         columns = {column["name"] for column in inspector.get_columns("displays")}

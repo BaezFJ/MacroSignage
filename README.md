@@ -14,7 +14,7 @@ MacroSignage is a Flask-based digital signage manager with an admin console, tok
 - Admin dashboard with recent activity, diagnostics, and settings pages.
 - Display CRUD with online, offline, and maintenance states.
 - Token-secured display player pairing with remote disable/rotation.
-- Media CRUD for images, text, video, HTML, YouTube, and slider media.
+- Media CRUD for images, text, video, HTML, YouTube, slider, neon sign, and vCard QR media.
 - Slider media with backgrounds, foreground images, fonts, positions, durations, and Animate.css effects.
 - Schedule CRUD with active windows, weekday rules, display targets, playlists, and no-active-schedule fallback.
 - Auth, password reset flow, user CRUD, RBAC, and API token lifecycle management.

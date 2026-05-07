@@ -54,6 +54,18 @@
                                     data-src="https://www.youtube-nocookie.com/embed/{{ youtube_video_id(media.source_url or '') }}?autoplay=1&mute=1&playsinline=1&rel=0&modestbranding=1"
                                     allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
                                     allowfullscreen></iframe>
+                        {% elif media.media_type == 'VCARD' %}
+                            <article class="display-vcard">
+                                {% if media.vcard_top_text %}
+                                    <p class="display-vcard-text">{{ media.vcard_top_text }}</p>
+                                {% endif %}
+                                <div class="display-vcard-qr" aria-label="vCard QR code">
+                                    {{ qr_code_svg(vcard_payload(media)) | safe }}
+                                </div>
+                                {% if media.vcard_bottom_text %}
+                                    <p class="display-vcard-text">{{ media.vcard_bottom_text }}</p>
+                                {% endif %}
+                            </article>
                         {% elif media.media_type == 'SLIDER' and media.slider_slides %}
                             <article class="display-slider" data-player-slider>
                                 {% for slide in media.slider_slides %}

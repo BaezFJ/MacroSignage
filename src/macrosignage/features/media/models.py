@@ -35,6 +35,13 @@ class MediaAsset(db.Model):
     neon_text_color = db.Column(db.String(7), nullable=True, default="#ff4fd8")
     neon_frame_color = db.Column(db.String(7), nullable=True, default="#37ff79")
     neon_background_color = db.Column(db.String(7), nullable=True, default="#1b1210")
+    vcard_name = db.Column(db.String(160), nullable=True)
+    vcard_phone = db.Column(db.String(80), nullable=True)
+    vcard_email = db.Column(db.String(254), nullable=True)
+    vcard_address = db.Column(db.String(500), nullable=True)
+    vcard_url = db.Column(db.String(500), nullable=True)
+    vcard_top_text = db.Column(db.String(220), nullable=True)
+    vcard_bottom_text = db.Column(db.String(220), nullable=True)
     notes = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(

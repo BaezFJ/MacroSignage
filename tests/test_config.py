@@ -419,6 +419,13 @@ class AppConfigTestCase(unittest.TestCase):
                     "neon_text_color",
                     "neon_frame_color",
                     "neon_background_color",
+                    "vcard_name",
+                    "vcard_phone",
+                    "vcard_email",
+                    "vcard_address",
+                    "vcard_url",
+                    "vcard_top_text",
+                    "vcard_bottom_text",
                 }.issubset(media_columns)
             )
             self.assertTrue(

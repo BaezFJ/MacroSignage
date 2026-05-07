@@ -61,6 +61,18 @@
                                         title="{{ media.title }}"
                                         allowfullscreen></iframe>
                             </div>
+                        {% elif media.media_type == 'VCARD' %}
+                            <article class="admin-vcard-preview">
+                                {% if media.vcard_top_text %}
+                                    <p class="admin-vcard-preview-text">{{ media.vcard_top_text }}</p>
+                                {% endif %}
+                                <div class="admin-vcard-preview-qr" aria-label="vCard QR code">
+                                    {{ qr_code_svg(vcard_payload(media)) | safe }}
+                                </div>
+                                {% if media.vcard_bottom_text %}
+                                    <p class="admin-vcard-preview-text">{{ media.vcard_bottom_text }}</p>
+                                {% endif %}
+                            </article>
                         {% elif media.media_type == 'SLIDER' and media.slider_slides %}
                             <div class="admin-slider-preview">
                                 {% for slide in media.slider_slides %}
@@ -119,6 +131,8 @@
                                     {{ media.slider_slides | length }} slide{{ '' if media.slider_slides | length == 1 else 's' }}
                                 {% elif media.media_type == 'NEON_SIGN' %}
                                     Neon sign text
+                                {% elif media.media_type == 'VCARD' %}
+                                    vCard QR code
                                 {% else %}
                                     Inline
                                 {% endif %}
@@ -186,6 +200,36 @@
                             <div>
                                 <dt>Background</dt>
                                 <dd>{{ media.neon_background_color or '#1b1210' }}</dd>
+                            </div>
+                        </dl>
+                    </div>
+                </section>
+            {% endif %}
+
+            {% if media.media_type == 'VCARD' %}
+                <section class="card mb-3">
+                    <div class="card-body">
+                        <h2 class="h5">vCard Contact</h2>
+                        <dl class="display-detail-grid media-detail-grid">
+                            <div>
+                                <dt>Name</dt>
+                                <dd>{{ media.vcard_name or 'Not set' }}</dd>
+                            </div>
+                            <div>
+                                <dt>Phone</dt>
+                                <dd>{{ media.vcard_phone or 'Not set' }}</dd>
+                            </div>
+                            <div>
+                                <dt>Email</dt>
+                                <dd>{{ media.vcard_email or 'Not set' }}</dd>
+                            </div>
+                            <div>
+                                <dt>Address</dt>
+                                <dd>{{ media.vcard_address or 'Not set' }}</dd>
+                            </div>
+                            <div>
+                                <dt>URL</dt>
+                                <dd>{{ media.vcard_url or 'Not set' }}</dd>
                             </div>
                         </dl>
                     </div>

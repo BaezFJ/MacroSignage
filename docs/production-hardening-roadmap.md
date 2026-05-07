@@ -44,7 +44,7 @@ This roadmap tracks the work required to move MacroSignage from pre-alpha toward
 
 **Verification:**
 - [x] Tests assert headers on public, admin, auth, API, and player routes.
-- [ ] Manual check: display player still renders image, video, neon sign, HTML, YouTube, and slider media.
+- [ ] Manual check: display player still renders image, video, neon sign, vCard, HTML, YouTube, and slider media.
 
 **Files likely touched:**
 - `src/macrosignage/app.py`

@@ -189,6 +189,13 @@ Valid `status` values are `ONLINE`, `OFFLINE`, and `MAINTENANCE`. Valid `orienta
   "neonTextColor": null,
   "neonFrameColor": null,
   "neonBackgroundColor": null,
+  "vcardName": null,
+  "vcardPhone": null,
+  "vcardEmail": null,
+  "vcardAddress": null,
+  "vcardUrl": null,
+  "vcardTopText": null,
+  "vcardBottomText": null,
   "notes": null,
   "displayIds": [1],
   "scheduleIds": [],
@@ -198,7 +205,7 @@ Valid `status` values are `ONLINE`, `OFFLINE`, and `MAINTENANCE`. Valid `orienta
 }
 ```
 
-Valid `mediaType` values are `IMAGE`, `TEXT`, `VIDEO`, `HTML`, `YOUTUBE`, `SLIDER`, and `NEON_SIGN`. The JSON API can create text, HTML, YouTube, and neon sign records. Image, video, and slider file uploads are managed through the admin UI.
+Valid `mediaType` values are `IMAGE`, `TEXT`, `VIDEO`, `HTML`, `YOUTUBE`, `SLIDER`, `NEON_SIGN`, and `VCARD`. The JSON API can create text, HTML, YouTube, neon sign, and vCard records. Image, video, and slider file uploads are managed through the admin UI.
 
 Slider media responses include `sliderSlides` with:
 
@@ -398,6 +405,22 @@ Neon sign request:
   "neonTextColor": "#ff33cc",
   "neonFrameColor": "#33ff77",
   "neonBackgroundColor": "#201514"
+}
+```
+
+vCard request:
+
+```json
+{
+  "title": "Sales Contact",
+  "mediaType": "VCARD",
+  "vcardName": "Javier Baez",
+  "vcardPhone": "+1 555 0100",
+  "vcardEmail": "sales@example.com",
+  "vcardAddress": "123 Main Street, Chicago, IL",
+  "vcardUrl": "https://example.com",
+  "vcardTopText": "Scan to save our contact",
+  "vcardBottomText": "We will follow up today"
 }
 ```
 

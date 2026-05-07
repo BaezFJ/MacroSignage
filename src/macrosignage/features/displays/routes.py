@@ -22,7 +22,7 @@ from macrosignage.extensions import csrf, db
 from ..admin.services import get_signage_settings
 from ..admin.services import get_content_version
 from ..media.forms import MEDIA_TYPES, font_choice_map, google_fonts_stylesheet_url, youtube_video_id
-from ..media.services import list_active_fonts
+from ..media.services import list_active_fonts, vcard_payload
 from .forms import DISPLAY_ORIENTATIONS, DISPLAY_STATUSES, display_form_data
 from .models import Display
 from .services import (
@@ -384,6 +384,8 @@ def show_display_player(display_id: int):
         google_fonts_url=google_fonts_stylesheet_url(font_choices),
         media_types=MEDIA_TYPES,
         youtube_video_id=youtube_video_id,
+        qr_code_svg=qr_code_svg,
+        vcard_payload=vcard_payload,
     )
 
 

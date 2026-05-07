@@ -2,7 +2,7 @@ from flask import Blueprint, current_app, flash, redirect, render_template, requ
 
 from macrosignage.extensions import db
 
-from ..displays.services import list_all_displays, selected_displays
+from ..displays.services import list_all_displays, qr_code_svg, selected_displays
 from .forms import (
     DEFAULT_SLIDER_ANIMATION,
     DEFAULT_SLIDER_FONT_FAMILY,
@@ -34,6 +34,7 @@ from .services import (
     list_active_fonts,
     list_media as query_media,
     save_upload,
+    vcard_payload,
 )
 
 media_bp = Blueprint("admin_media", __name__, url_prefix="/admin/media")
@@ -148,6 +149,8 @@ def get_media_view(media_id: int):
         slider_animations=SLIDER_ANIMATIONS,
         slider_foreground_positions=SLIDER_FOREGROUND_POSITIONS,
         slider_text_positions=SLIDER_TEXT_POSITIONS,
+        qr_code_svg=qr_code_svg,
+        vcard_payload=vcard_payload,
     )
 
 

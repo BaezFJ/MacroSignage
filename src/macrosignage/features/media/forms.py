@@ -14,6 +14,7 @@ MEDIA_TYPES = {
     "YOUTUBE": "YouTube video",
     "SLIDER": "Slider",
     "NEON_SIGN": "Neon Sign",
+    "VCARD": "vCard",
 }
 
 SLIDER_TEXT_POSITIONS = {
@@ -279,6 +280,13 @@ def media_form_data(form, files, media=None, fonts=None) -> tuple[dict[str, obje
     media_type = form.get("media_type", "IMAGE").strip()
     body = form.get("body", "").strip()
     source_url = form.get("source_url", "").strip()
+    vcard_name = form.get("vcard_name", "").strip()
+    vcard_phone = form.get("vcard_phone", "").strip()
+    vcard_email = form.get("vcard_email", "").strip()
+    vcard_address = form.get("vcard_address", "").strip()
+    vcard_url = form.get("vcard_url", "").strip()
+    vcard_top_text = form.get("vcard_top_text", "").strip()
+    vcard_bottom_text = form.get("vcard_bottom_text", "").strip()
     notes = form.get("notes", "").strip()
     upload = files.get("file")
     slider_slides: list[dict[str, object]] = []
@@ -318,6 +326,11 @@ def media_form_data(form, files, media=None, fonts=None) -> tuple[dict[str, obje
             errors["source_url"] = "YouTube URL is required."
         elif youtube_video_id(source_url) is None:
             errors["source_url"] = "Enter a valid YouTube watch, shorts, embed, or youtu.be URL."
+    elif media_type == "VCARD":
+        if not vcard_name:
+            errors["vcard_name"] = "Contact name is required."
+        if not any([vcard_phone, vcard_email, vcard_address, vcard_url]):
+            errors["vcard_contact"] = "Enter at least one phone, email, address, or URL."
     elif media_type == "SLIDER":
         slider_slides, slider_errors = slider_form_data(form, files, media, fonts)
         errors.update(slider_errors)
@@ -340,6 +353,13 @@ def media_form_data(form, files, media=None, fonts=None) -> tuple[dict[str, obje
             "neon_text_color": neon_text_color,
             "neon_frame_color": neon_frame_color,
             "neon_background_color": neon_background_color,
+            "vcard_name": vcard_name or None,
+            "vcard_phone": vcard_phone or None,
+            "vcard_email": vcard_email or None,
+            "vcard_address": vcard_address or None,
+            "vcard_url": vcard_url or None,
+            "vcard_top_text": vcard_top_text or None,
+            "vcard_bottom_text": vcard_bottom_text or None,
         },
         errors,
     )

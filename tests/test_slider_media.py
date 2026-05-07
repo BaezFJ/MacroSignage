@@ -13,6 +13,7 @@ from macrosignage.features.auth.services import hash_password
 from macrosignage.features.displays.models import Display
 from macrosignage.features.displays.services import rotate_player_token
 from macrosignage.features.media.models import MediaAsset, MediaFont
+from macrosignage.features.media.services import vcard_payload
 from macrosignage.features.schedules.models import Schedule
 
 
@@ -260,6 +261,86 @@ class SliderMediaTestCase(unittest.TestCase):
 
         self.assertEqual(response.status_code, 422)
         self.assertIn("Neon text color must be a 6-digit hex color.", response.get_data(as_text=True))
+
+    def test_create_vcard_media_and_render_display_player(self):
+        display = self.create_display()
+
+        response = self.client.post(
+            "/admin/media/new",
+            data={
+                "title": "Sales Contact",
+                "media_type": "VCARD",
+                "display_ids": str(display.id),
+                "vcard_name": "Javier Baez",
+                "vcard_phone": "+1 555 0100",
+                "vcard_email": "sales@example.com",
+                "vcard_address": "123 Main Street, Chicago, IL",
+                "vcard_url": "https://example.com",
+                "vcard_top_text": "Scan to save our contact",
+                "vcard_bottom_text": "We will follow up today",
+            },
+            follow_redirects=False,
+        )
+
+        self.assertEqual(response.status_code, 302)
+        media = MediaAsset.query.filter_by(title="Sales Contact").one()
+        self.assertEqual(media.media_type, "VCARD")
+        self.assertEqual(media.vcard_name, "Javier Baez")
+        self.assertEqual(media.vcard_phone, "+1 555 0100")
+        self.assertEqual(media.vcard_email, "sales@example.com")
+        self.assertEqual(media.vcard_address, "123 Main Street, Chicago, IL")
+        self.assertEqual(media.vcard_url, "https://example.com")
+        self.assertEqual(media.vcard_top_text, "Scan to save our contact")
+        self.assertEqual(media.vcard_bottom_text, "We will follow up today")
+        self.create_active_schedule(display, media)
+        self.authorize_display(display)
+
+        player = self.client.get(f"/displays/{display.id}/play")
+        self.assertEqual(player.status_code, 200)
+        body = player.get_data(as_text=True)
+        self.assertIn("display-vcard", body)
+        self.assertIn("display-vcard-qr", body)
+        self.assertIn("Scan to save our contact", body)
+        self.assertIn("We will follow up today", body)
+        self.assertIn("<svg", body)
+
+    def test_vcard_requires_name_and_contact_detail(self):
+        response = self.client.post(
+            "/admin/media/new",
+            data={
+                "title": "Missing Contact",
+                "media_type": "VCARD",
+                "vcard_name": "",
+                "vcard_phone": "",
+                "vcard_email": "",
+                "vcard_address": "",
+                "vcard_url": "",
+            },
+        )
+
+        self.assertEqual(response.status_code, 422)
+        body = response.get_data(as_text=True)
+        self.assertIn("Contact name is required.", body)
+        self.assertIn("Enter at least one phone, email, address, or URL.", body)
+
+    def test_vcard_payload_escapes_contact_values(self):
+        media = MediaAsset(
+            title="Contact",
+            media_type="VCARD",
+            vcard_name="Example, Inc.",
+            vcard_phone="+1 555 0100",
+            vcard_email="sales@example.com",
+            vcard_address="123 Main Street; Suite 5",
+            vcard_url="https://example.com/contact",
+        )
+
+        payload = vcard_payload(media)
+
+        self.assertIn("BEGIN:VCARD", payload)
+        self.assertIn("VERSION:3.0", payload)
+        self.assertIn("FN:Example\\, Inc.", payload)
+        self.assertIn("ADR;TYPE=WORK:;;123 Main Street\\; Suite 5;;;;", payload)
+        self.assertIn("END:VCARD", payload)
 
 
 if __name__ == "__main__":

@@ -13,6 +13,7 @@ Media records are the assets that schedules assign to displays. Admins and edito
 | `YouTube video` | Embed a YouTube URL in the player. |
 | `Slider` | Build one or more composed slides with background image, optional foreground image, text, font, animation, and duration. |
 | `Neon Sign` | Render full-screen sign text with configurable neon text, frame, and background colors. |
+| `vCard` | Generate a QR code that customers can scan to save contact details. |
 
 Media can be assigned to many schedules, and schedules can contain many media records. Displays receive media through their active schedules.
 
@@ -79,6 +80,19 @@ Each neon sign has:
 - Background color: controls the dark backing behind the sign.
 
 Neon signs use the schedule default duration.
+
+## vCard Media
+
+vCard media generates a scannable QR code from contact details. The player renders the QR code full screen with optional text above and below it.
+
+Each vCard has:
+
+- Name: required contact name.
+- Phone, email, address, and URL: at least one contact detail is required.
+- Text above QR code: optional display copy shown above the code.
+- Text below QR code: optional display copy shown below the code.
+
+vCards use the schedule default duration.
 
 ## Fonts
 

@@ -72,6 +72,8 @@
                                     {{ media.slider_slides | length }} slide{{ '' if media.slider_slides | length == 1 else 's' }}
                                 {% elif media.media_type == 'NEON_SIGN' %}
                                     Neon sign text
+                                {% elif media.media_type == 'VCARD' %}
+                                    vCard QR code
                                 {% else %}
                                     Inline content
                                 {% endif %}

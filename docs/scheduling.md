@@ -60,7 +60,7 @@ Use weekdays for repeating weekly windows, such as business hours on Monday thro
 
 The player builds a display playlist from all playable schedules assigned to that display. Media is added once even if multiple playable schedules reference the same media record.
 
-The schedule default duration controls regular image, text, neon sign, HTML, YouTube, and video slide timing in the player. Slider media uses each slide's own duration.
+The schedule default duration controls regular image, text, neon sign, vCard, HTML, YouTube, and video slide timing in the player. Slider media uses each slide's own duration.
 
 If multiple playable schedules are assigned to a display, MacroSignage uses the default duration from the schedules as it builds the playlist in start-time order.
 

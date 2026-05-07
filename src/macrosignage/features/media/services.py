@@ -131,8 +131,44 @@ def apply_media_data(media: MediaAsset, form_data: dict[str, object], displays) 
     media.neon_background_color = (
         str(form_data["neon_background_color"]) if media.media_type == "NEON_SIGN" else None
     )
+    media.vcard_name = form_data["vcard_name"] if media.media_type == "VCARD" else None
+    media.vcard_phone = form_data["vcard_phone"] if media.media_type == "VCARD" else None
+    media.vcard_email = form_data["vcard_email"] if media.media_type == "VCARD" else None
+    media.vcard_address = form_data["vcard_address"] if media.media_type == "VCARD" else None
+    media.vcard_url = form_data["vcard_url"] if media.media_type == "VCARD" else None
+    media.vcard_top_text = form_data["vcard_top_text"] if media.media_type == "VCARD" else None
+    media.vcard_bottom_text = form_data["vcard_bottom_text"] if media.media_type == "VCARD" else None
     media.notes = form_data["notes"]
     media.displays = displays
+
+
+def escape_vcard_value(value: str) -> str:
+    return (
+        value.replace("\\", "\\\\")
+        .replace("\r\n", "\n")
+        .replace("\r", "\n")
+        .replace("\n", "\\n")
+        .replace(";", "\\;")
+        .replace(",", "\\,")
+    )
+
+
+def vcard_payload(media: MediaAsset) -> str:
+    lines = [
+        "BEGIN:VCARD",
+        "VERSION:3.0",
+        f"FN:{escape_vcard_value(media.vcard_name or media.title)}",
+    ]
+    if media.vcard_phone:
+        lines.append(f"TEL;TYPE=CELL:{escape_vcard_value(media.vcard_phone)}")
+    if media.vcard_email:
+        lines.append(f"EMAIL:{escape_vcard_value(media.vcard_email)}")
+    if media.vcard_address:
+        lines.append(f"ADR;TYPE=WORK:;;{escape_vcard_value(media.vcard_address)};;;;")
+    if media.vcard_url:
+        lines.append(f"URL:{escape_vcard_value(media.vcard_url)}")
+    lines.append("END:VCARD")
+    return "\n".join(lines)
 
 
 def clear_file_for_non_upload_type(media: MediaAsset) -> None:

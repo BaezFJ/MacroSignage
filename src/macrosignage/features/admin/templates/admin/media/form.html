@@ -128,6 +128,85 @@
                             {% endif %}
                         </div>
 
+                        <div class="media-source-panel" data-media-panel="VCARD">
+                            <div class="d-grid gap-3">
+                                {% if errors.get('vcard_contact') %}
+                                    <div class="alert alert-danger mb-0" role="alert">{{ errors.vcard_contact }}</div>
+                                {% endif %}
+                                <div>
+                                    <label class="form-label" for="vcardName">Contact name</label>
+                                    <input id="vcardName"
+                                           class="form-control {% if errors.get('vcard_name') %}is-invalid{% endif %}"
+                                           type="text"
+                                           name="vcard_name"
+                                           value="{{ media.vcard_name or '' }}"
+                                           autocomplete="name">
+                                    {% if errors.get('vcard_name') %}
+                                        <div class="invalid-feedback">{{ errors.vcard_name }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="vcardPhone">Phone</label>
+                                        <input id="vcardPhone"
+                                               class="form-control"
+                                               type="tel"
+                                               name="vcard_phone"
+                                               value="{{ media.vcard_phone or '' }}"
+                                               autocomplete="tel">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="vcardEmail">Email</label>
+                                        <input id="vcardEmail"
+                                               class="form-control"
+                                               type="email"
+                                               name="vcard_email"
+                                               value="{{ media.vcard_email or '' }}"
+                                               autocomplete="email">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="form-label" for="vcardAddress">Address</label>
+                                    <input id="vcardAddress"
+                                           class="form-control"
+                                           type="text"
+                                           name="vcard_address"
+                                           value="{{ media.vcard_address or '' }}"
+                                           autocomplete="street-address">
+                                </div>
+                                <div>
+                                    <label class="form-label" for="vcardUrl">URL</label>
+                                    <input id="vcardUrl"
+                                           class="form-control"
+                                           type="url"
+                                           name="vcard_url"
+                                           value="{{ media.vcard_url or '' }}"
+                                           placeholder="https://example.com">
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="vcardTopText">Text above QR code</label>
+                                        <input id="vcardTopText"
+                                               class="form-control"
+                                               type="text"
+                                               name="vcard_top_text"
+                                               value="{{ media.vcard_top_text or '' }}"
+                                               maxlength="220">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="vcardBottomText">Text below QR code</label>
+                                        <input id="vcardBottomText"
+                                               class="form-control"
+                                               type="text"
+                                               name="vcard_bottom_text"
+                                               value="{{ media.vcard_bottom_text or '' }}"
+                                               maxlength="220">
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="form-text mb-0 mt-2">The display player turns these contact details into a scannable vCard QR code.</p>
+                        </div>
+
                         <div class="media-source-panel" data-media-panel="SLIDER">
                             <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
                                 <div>

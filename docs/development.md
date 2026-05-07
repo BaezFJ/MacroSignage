@@ -141,7 +141,7 @@ When replacing a vendored library, keep its license file and update package data
 
 The automated suite covers Flask route contracts, admin CRUD workflows, API authorization, player-token access, schedule selection logic, package metadata, production hardening, deployment docs, client configuration helpers, and CLI entry point parsing.
 
-Browser media playback for real image, video, neon sign, YouTube, HTML iframe, and slider timing should still be checked manually before a production release because it depends on browser codecs, network access, and display hardware behavior.
+Browser media playback for real image, video, neon sign, vCard QR, YouTube, HTML iframe, and slider timing should still be checked manually before a production release because it depends on browser codecs, network access, and display hardware behavior.
 
 ## Release Automation
 

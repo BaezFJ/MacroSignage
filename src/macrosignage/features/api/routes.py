@@ -195,6 +195,20 @@ def apply_media_json(media: MediaAsset, data: dict[str, object], partial: bool =
             errors["neonBackgroundColor"] = error
     if "notes" in data or not partial:
         media.notes = str(data.get("notes") or "").strip() or None
+    if "vcardName" in data or not partial:
+        media.vcard_name = str(data.get("vcardName") or "").strip() or None
+    if "vcardPhone" in data or not partial:
+        media.vcard_phone = str(data.get("vcardPhone") or "").strip() or None
+    if "vcardEmail" in data or not partial:
+        media.vcard_email = str(data.get("vcardEmail") or "").strip() or None
+    if "vcardAddress" in data or not partial:
+        media.vcard_address = str(data.get("vcardAddress") or "").strip() or None
+    if "vcardUrl" in data or not partial:
+        media.vcard_url = str(data.get("vcardUrl") or "").strip() or None
+    if "vcardTopText" in data or not partial:
+        media.vcard_top_text = str(data.get("vcardTopText") or "").strip() or None
+    if "vcardBottomText" in data or not partial:
+        media.vcard_bottom_text = str(data.get("vcardBottomText") or "").strip() or None
     if "displayIds" in data:
         try:
             media.displays = related_displays(data.get("displayIds"))
@@ -204,12 +218,25 @@ def apply_media_json(media: MediaAsset, data: dict[str, object], partial: bool =
         errors["body"] = "Content is required for this media type."
     if media.media_type == "YOUTUBE" and not media.source_url:
         errors["sourceUrl"] = "YouTube URL is required."
+    if media.media_type == "VCARD":
+        if not media.vcard_name:
+            errors["vcardName"] = "Contact name is required."
+        if not any([media.vcard_phone, media.vcard_email, media.vcard_address, media.vcard_url]):
+            errors["vcardContact"] = "Enter at least one phone, email, address, or URL."
     if media.media_type in {"IMAGE", "VIDEO"} and not media.file_path:
         errors["file"] = "File upload is not available through the JSON API."
     if media.media_type != "NEON_SIGN":
         media.neon_text_color = None
         media.neon_frame_color = None
         media.neon_background_color = None
+    if media.media_type != "VCARD":
+        media.vcard_name = None
+        media.vcard_phone = None
+        media.vcard_email = None
+        media.vcard_address = None
+        media.vcard_url = None
+        media.vcard_top_text = None
+        media.vcard_bottom_text = None
     return errors
 
 
