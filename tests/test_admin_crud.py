@@ -3,6 +3,7 @@ from __future__ import annotations
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from macrosignage.app import create_app
 from macrosignage.extensions import db
@@ -10,6 +11,7 @@ from macrosignage.features.auth.models import ApiToken, User
 from macrosignage.features.auth.services import hash_password
 from macrosignage.features.displays.models import Display
 from macrosignage.features.media.models import MediaAsset, MediaFont
+from macrosignage.features.media.services import download_font_assets
 from macrosignage.features.schedules.models import Schedule
 
 
@@ -53,6 +55,12 @@ class AdminCrudTestCase(unittest.TestCase):
             data={"identifier": username, "password": "password123"},
             follow_redirects=False,
         )
+
+    def mark_font_downloaded(self, font):
+        slug = font.family.lower().replace(" ", "-")
+        font.local_css_path = f"fonts/{slug}/font.css"
+        font.download_status = "LOCAL"
+        font.download_error = None
 
     def test_display_crud_validation_and_viewer_permission_failure(self):
         self.create_user("viewer-user", "VIEWER")
@@ -236,13 +244,16 @@ class AdminCrudTestCase(unittest.TestCase):
         self.assertEqual(invalid.status_code, 422)
         self.assertIn("Use the Google Fonts family name without URL syntax.", invalid.get_data(as_text=True))
 
-        created = self.client.post(
-            "/admin/settings/fonts/new",
-            data={"family": "Noto Sans", "display_name": "Noto Sans", "active": "on"},
-            follow_redirects=False,
-        )
+        with patch("macrosignage.features.admin.routes.download_font_assets", side_effect=self.mark_font_downloaded):
+            created = self.client.post(
+                "/admin/settings/fonts/new",
+                data={"family": "Noto Sans", "display_name": "Noto Sans", "active": "on"},
+                follow_redirects=False,
+            )
         self.assertEqual(created.status_code, 302)
         font = MediaFont.query.filter_by(family="Noto Sans").one()
+        self.assertEqual(font.download_status, "LOCAL")
+        self.assertEqual(font.local_css_path, "fonts/noto-sans/font.css")
 
         duplicate = self.client.post(
             "/admin/settings/fonts/new",
@@ -251,19 +262,50 @@ class AdminCrudTestCase(unittest.TestCase):
         self.assertEqual(duplicate.status_code, 422)
         self.assertIn("A font with this family already exists.", duplicate.get_data(as_text=True))
 
-        edited = self.client.post(
-            f"/admin/settings/fonts/{font.id}/edit",
-            data={"family": "Noto Serif", "display_name": "Noto Serif", "active": ""},
-            follow_redirects=False,
-        )
+        with (
+            patch("macrosignage.features.admin.routes.download_font_assets", side_effect=self.mark_font_downloaded),
+            patch("macrosignage.features.admin.routes.delete_font_assets") as delete_assets,
+        ):
+            edited = self.client.post(
+                f"/admin/settings/fonts/{font.id}/edit",
+                data={"family": "Noto Serif", "display_name": "Noto Serif", "active": ""},
+                follow_redirects=False,
+            )
         self.assertEqual(edited.status_code, 302)
         db.session.refresh(font)
         self.assertEqual(font.family, "Noto Serif")
         self.assertFalse(font.active)
+        self.assertEqual(font.local_css_path, "fonts/noto-serif/font.css")
+        delete_assets.assert_called_once()
 
-        deleted = self.client.post(f"/admin/settings/fonts/{font.id}/delete", follow_redirects=False)
+        with patch("macrosignage.features.admin.routes.delete_font_assets") as delete_assets:
+            deleted = self.client.post(f"/admin/settings/fonts/{font.id}/delete", follow_redirects=False)
         self.assertEqual(deleted.status_code, 302)
+        delete_assets.assert_called_once()
         self.assertIsNone(db.session.get(MediaFont, font.id))
+
+    def test_download_font_assets_saves_google_css_and_font_file(self):
+        font = MediaFont(family="Roboto Condensed", display_name="Roboto Condensed", provider="GOOGLE", active=True)
+        css = (
+            "@font-face{font-family:'Roboto Condensed';font-style:normal;font-weight:400;"
+            "src:url(https://fonts.gstatic.com/s/robotocondensed/v1/font.woff2) format('woff2');}"
+        ).encode()
+
+        with patch(
+            "macrosignage.features.media.services.fetch_font_url",
+            side_effect=[css, b"font-bytes"],
+        ):
+            download_font_assets(font)
+
+        css_path = Path(self.app.config["MEDIA_UPLOAD_FOLDER"]) / font.local_css_path
+        font_files = list(css_path.parent.glob("*.woff2"))
+
+        self.assertEqual(font.download_status, "LOCAL")
+        self.assertIsNone(font.download_error)
+        self.assertTrue(css_path.exists())
+        self.assertEqual(len(font_files), 1)
+        self.assertEqual(font_files[0].read_bytes(), b"font-bytes")
+        self.assertNotIn("fonts.gstatic.com", css_path.read_text(encoding="utf-8"))
 
     def test_api_token_create_revoke_delete_validation(self):
         admin = self.create_user()

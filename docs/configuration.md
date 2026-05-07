@@ -83,7 +83,7 @@ Do not switch database providers during an application upgrade. Upgrade first, v
 
 ## Upload Storage
 
-`MACROSIGNAGE_MEDIA_UPLOAD_FOLDER` stores uploaded image, video, slider, and logo files. This directory must exist or be creatable by the app process and must be included in backups with the database.
+`MACROSIGNAGE_MEDIA_UPLOAD_FOLDER` stores uploaded image, video, slider, logo, and locally downloaded font files. This directory must exist or be creatable by the app process and must be included in backups with the database.
 
 `MACROSIGNAGE_MAX_UPLOAD_BYTES` sets Flask's maximum request size. If uploads fail behind a reverse proxy, check both MacroSignage and proxy upload limits.
 

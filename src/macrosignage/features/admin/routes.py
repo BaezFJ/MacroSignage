@@ -20,6 +20,9 @@ from ..media.services import (
     apply_font_data,
     count_fonts,
     count_media,
+    delete_font_assets,
+    download_font_assets,
+    FontDownloadError,
     font_conflict_errors,
     font_usage_count,
     get_font,
@@ -189,6 +192,14 @@ def create_font():
         font_conflict_errors(font, errors)
 
         if not errors:
+            try:
+                download_font_assets(font)
+            except FontDownloadError as exc:
+                font.download_status = "ERROR"
+                font.download_error = str(exc)
+                errors["family"] = f"Could not download this Google Font: {exc}"
+
+        if not errors:
             db.session.add(font)
             db.session.commit()
             flash(f"{font.display_name} was added.", "success")
@@ -211,15 +222,27 @@ def edit_font(font_id: int):
 
     if request.method == "POST":
         old_family = font.family
+        old_css_path = font.local_css_path
         form_data, errors = font_form_data(request.form)
         apply_font_data(font, form_data)
         font_conflict_errors(font, errors)
 
         if old_family != font.family and font_usage_count(old_family) > 0:
-            errors["family"] = "Fonts already used by slider media cannot be renamed."
+            errors["family"] = "Fonts already used by media cannot be renamed."
+
+        if not errors:
+            if old_family != font.family:
+                try:
+                    download_font_assets(font)
+                except FontDownloadError as exc:
+                    font.download_status = "ERROR"
+                    font.download_error = str(exc)
+                    errors["family"] = f"Could not download this Google Font: {exc}"
 
         if not errors:
             db.session.commit()
+            if old_css_path and old_css_path != font.local_css_path:
+                delete_font_assets(MediaFont(family=old_family, local_css_path=old_css_path))
             flash(f"{font.display_name} was updated.", "success")
             return redirect(url_for("admin.list_fonts"))
 
@@ -237,10 +260,11 @@ def edit_font(font_id: int):
 def delete_font(font_id: int):
     font = get_font(font_id)
     if font_usage_count(font.family) > 0:
-        flash(f"{font.display_name} is used by slider media and cannot be deleted.", "warning")
+        flash(f"{font.display_name} is used by media and cannot be deleted.", "warning")
         return redirect(url_for("admin.list_fonts"))
 
     flash(f"{font.display_name} was deleted.", "success")
+    delete_font_assets(font)
     db.session.delete(font)
     db.session.commit()
     return redirect(url_for("admin.list_fonts"))

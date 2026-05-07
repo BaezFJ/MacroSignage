@@ -118,6 +118,9 @@ class MediaFont(db.Model):
     family = db.Column(db.String(80), nullable=False, unique=True, index=True)
     display_name = db.Column(db.String(120), nullable=False)
     provider = db.Column(db.String(24), nullable=False, default="GOOGLE")
+    local_css_path = db.Column(db.String(260), nullable=True)
+    download_status = db.Column(db.String(24), nullable=False, default="REMOTE")
+    download_error = db.Column(db.Text, nullable=True)
     active = db.Column(db.Boolean, nullable=False, default=True)
     created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(

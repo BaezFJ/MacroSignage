@@ -40,6 +40,7 @@ from ..media.forms import (
     parse_hex_color,
 )
 from ..media.models import MediaAsset, MediaFont
+from ..media.services import download_font_assets, FontDownloadError
 from ..schedules.forms import SCHEDULE_STATUSES, WEEKDAYS
 from ..schedules.models import Schedule
 from .serializers import (
@@ -563,6 +564,10 @@ def create_font():
     existing = MediaFont.query.filter(db.func.lower(MediaFont.family) == font.family.lower()).first()
     if existing:
         return api_error(409, "CONFLICT", "Font family already exists.")
+    try:
+        download_font_assets(font)
+    except FontDownloadError as exc:
+        return api_error(502, "FONT_DOWNLOAD_FAILED", "Could not download this Google Font.", {"family": str(exc)})
     db.session.add(font)
     db.session.commit()
     return jsonify({"data": serialize_font(font)}), 201

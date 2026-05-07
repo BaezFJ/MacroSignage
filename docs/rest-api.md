@@ -277,6 +277,9 @@ Valid `role` values are `ADMIN`, `EDITOR`, and `VIEWER`.
   "family": "Inter",
   "displayName": "Inter",
   "provider": "GOOGLE",
+  "localStylesheetUrl": "/displays/uploads/fonts/inter/font.css",
+  "downloadStatus": "LOCAL",
+  "downloadError": null,
   "active": true,
   "createdAt": "2026-01-01T14:00:00+00:00",
   "updatedAt": "2026-01-01T14:00:00+00:00"
@@ -581,6 +584,8 @@ Request:
 Response: `201 {"data": Font}`.
 
 Duplicate font families return `409 CONFLICT`.
+
+MacroSignage downloads the Google Fonts stylesheet and font files before returning `201`. Download failures return `502 FONT_DOWNLOAD_FAILED`.
 
 Font update and delete actions are currently available through `/admin/settings/fonts/`, not the JSON API.
 

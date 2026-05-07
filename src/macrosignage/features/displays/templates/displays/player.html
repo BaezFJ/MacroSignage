@@ -1,9 +1,14 @@
 {% extends 'layouts/_base.html' %}
 
 {% block styles %}
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="{{ google_fonts_url }}">
+    {% for stylesheet_url in local_font_stylesheet_urls %}
+        <link rel="stylesheet" href="{{ stylesheet_url }}">
+    {% endfor %}
+    {% if google_fonts_url %}
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="{{ google_fonts_url }}">
+    {% endif %}
 {% endblock %}
 
 {% block body %}

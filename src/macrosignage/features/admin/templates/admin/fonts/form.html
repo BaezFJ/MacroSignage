@@ -5,7 +5,7 @@
         <div>
             <p class="eyebrow">Settings</p>
             <h1 class="h2 mb-1">{{ title }}</h1>
-            <p class="text-secondary mb-0">Add a Google Font by its family name.</p>
+            <p class="text-secondary mb-0">Add a Google Font by its family name and store it locally.</p>
         </div>
         <a class="btn btn-outline-secondary" href="{{ url_for('admin.list_fonts') }}">Back to fonts</a>
     </div>
@@ -31,7 +31,7 @@
                             {% if errors.get('family') %}
                                 <div class="invalid-feedback">{{ errors.family }}</div>
                             {% endif %}
-                            <p class="form-text mb-0">Use the family name from Google Fonts, not the CSS URL.</p>
+                            <p class="form-text mb-0">Use the family name from Google Fonts, not the CSS URL. Font files are downloaded when the font is saved.</p>
                         </div>
 
                         <div class="mb-3">
@@ -54,7 +54,7 @@
                                    type="checkbox"
                                    name="active"
                                    {% if font.active %}checked{% endif %}>
-                            <label class="form-check-label" for="fontActive">Available in slider media</label>
+                            <label class="form-check-label" for="fontActive">Available in slider and neon sign media</label>
                         </div>
                     </div>
                 </section>
@@ -71,7 +71,11 @@
                             </div>
                             <div>
                                 <dt>Usage</dt>
-                                <dd>Slider text</dd>
+                                <dd>Slider and neon sign text</dd>
+                            </div>
+                            <div>
+                                <dt>Storage</dt>
+                                <dd>{{ font.local_css_path or 'Downloaded on save' }}</dd>
                             </div>
                         </dl>
                     </div>

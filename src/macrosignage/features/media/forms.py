@@ -92,8 +92,12 @@ def font_choice_map(fonts=None) -> dict[str, str]:
     return {font.family: font.display_name for font in fonts}
 
 
-def google_fonts_stylesheet_url(font_families) -> str:
-    families = list(font_families) or list(DEFAULT_GOOGLE_FONT_FAMILIES)
+def google_fonts_stylesheet_url(font_families, *, include_defaults: bool = True) -> str:
+    families = list(font_families)
+    if not families:
+        if not include_defaults:
+            return ""
+        families = list(DEFAULT_GOOGLE_FONT_FAMILIES)
     params = [("family", f"{family}:wght@400;600;700;800") for family in families]
     return f"https://fonts.googleapis.com/css2?{urlencode(params)}&display=swap"
 

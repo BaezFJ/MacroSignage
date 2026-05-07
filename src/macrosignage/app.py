@@ -140,6 +140,15 @@ def ensure_runtime_schema() -> None:
         if "vcard_bottom_text" not in columns:
             statements.append("ALTER TABLE media_assets ADD COLUMN vcard_bottom_text VARCHAR(220)")
 
+    if "media_fonts" in tables:
+        columns = {column["name"] for column in inspector.get_columns("media_fonts")}
+        if "local_css_path" not in columns:
+            statements.append("ALTER TABLE media_fonts ADD COLUMN local_css_path VARCHAR(260)")
+        if "download_status" not in columns:
+            statements.append("ALTER TABLE media_fonts ADD COLUMN download_status VARCHAR(24) NOT NULL DEFAULT 'REMOTE'")
+        if "download_error" not in columns:
+            statements.append("ALTER TABLE media_fonts ADD COLUMN download_error TEXT")
+
     if "displays" in tables:
         columns = {column["name"] for column in inspector.get_columns("displays")}
         if "player_token_hash" not in columns:

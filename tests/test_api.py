@@ -3,6 +3,7 @@ from __future__ import annotations
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from macrosignage.app import create_app
 from macrosignage.extensions import db
@@ -10,7 +11,8 @@ from macrosignage.features.auth.models import User
 from macrosignage.features.auth.services import create_api_token, hash_password
 from macrosignage.features.displays.models import Display
 from macrosignage.features.displays.services import rotate_player_token
-from macrosignage.features.media.models import MediaAsset
+from macrosignage.features.media.models import MediaAsset, MediaFont
+from macrosignage.features.media.services import FontDownloadError
 from macrosignage.features.schedules.models import Schedule
 
 
@@ -53,6 +55,12 @@ class ApiContractTestCase(unittest.TestCase):
         db.session.commit()
         return {"Authorization": f"Bearer {plaintext}"}
 
+    def mark_font_downloaded(self, font):
+        slug = font.family.lower().replace(" ", "-")
+        font.local_css_path = f"fonts/{slug}/font.css"
+        font.download_status = "LOCAL"
+        font.download_error = None
+
     def test_api_authentication_and_authorization_failures(self):
         viewer = self.create_user("viewer", "VIEWER")
         viewer_headers = self.headers_for(viewer)
@@ -67,6 +75,38 @@ class ApiContractTestCase(unittest.TestCase):
         forbidden = self.client.post("/api/v1/displays", json={"name": "Denied"}, headers=viewer_headers)
         self.assertEqual(forbidden.status_code, 403)
         self.assertEqual(forbidden.get_json()["error"]["code"], "FORBIDDEN")
+
+    def test_font_api_create_downloads_local_assets(self):
+        admin = self.create_user("font-admin", "ADMIN")
+        headers = self.headers_for(admin)
+
+        with patch("macrosignage.features.api.routes.download_font_assets", side_effect=self.mark_font_downloaded):
+            created = self.client.post(
+                "/api/v1/fonts",
+                json={"family": "Roboto Condensed", "displayName": "Roboto Condensed", "active": True},
+                headers=headers,
+            )
+
+        self.assertEqual(created.status_code, 201)
+        data = created.get_json()["data"]
+        font = MediaFont.query.filter_by(family="Roboto Condensed").one()
+        self.assertEqual(font.local_css_path, "fonts/roboto-condensed/font.css")
+        self.assertEqual(data["localStylesheetUrl"], "/displays/uploads/fonts/roboto-condensed/font.css")
+        self.assertEqual(data["downloadStatus"], "LOCAL")
+
+    def test_font_api_reports_download_failure(self):
+        admin = self.create_user("font-admin", "ADMIN")
+        headers = self.headers_for(admin)
+
+        with patch("macrosignage.features.api.routes.download_font_assets", side_effect=FontDownloadError("network down")):
+            created = self.client.post(
+                "/api/v1/fonts",
+                json={"family": "Missing Font", "displayName": "Missing Font", "active": True},
+                headers=headers,
+            )
+
+        self.assertEqual(created.status_code, 502)
+        self.assertEqual(created.get_json()["error"]["code"], "FONT_DOWNLOAD_FAILED")
 
     def test_display_api_crud_contract_and_validation(self):
         editor = self.create_user("display-editor", "EDITOR")

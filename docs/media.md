@@ -101,9 +101,11 @@ vCards use the schedule default duration.
 
 ## Fonts
 
-Admins manage available Google Fonts from `/admin/settings/fonts/`. Active fonts appear in slider media forms. A font in use by slider media cannot be deleted until those slides stop using it.
+Admins manage available Google Fonts from `/admin/settings/fonts/`. Active fonts appear in slider and neon sign media forms. A font in use by media cannot be deleted until that media stops using it.
 
 Use the Google Fonts family name, not the stylesheet URL. For example, use `Inter` or `Roboto Condensed`.
+
+When a new font is added, MacroSignage downloads the Google Fonts stylesheet and font files into `MACROSIGNAGE_MEDIA_UPLOAD_FOLDER/fonts/`. Display players load the local stylesheet when it is available, with a Google Fonts fallback only for older fonts that have not been downloaded locally.
 
 ## Logo Overlay
 

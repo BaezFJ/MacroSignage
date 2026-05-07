@@ -34,6 +34,7 @@ from .services import (
     delete_slider_uploads,
     delete_upload,
     get_media,
+    font_stylesheet_paths,
     list_active_fonts,
     list_media as query_media,
     save_upload,
@@ -145,6 +146,7 @@ def get_media_view(media_id: int):
     media = get_media(media_id)
     video_id = youtube_video_id(media.source_url or "") if media.media_type == "YOUTUBE" else None
     font_choices = include_existing_slider_fonts(font_choice_map(list_active_fonts()), [media])
+    local_font_paths, remote_font_families = font_stylesheet_paths(font_choices)
     return render_template(
         "admin/media/detail.html",
         title=media.title,
@@ -152,7 +154,10 @@ def get_media_view(media_id: int):
         media_types=MEDIA_TYPES,
         youtube_video_id=video_id,
         google_font_families=font_choices,
-        google_fonts_url=google_fonts_stylesheet_url(font_choices),
+        local_font_stylesheet_urls=[
+            url_for("admin_media.uploaded_media", filename=path) for path in local_font_paths
+        ],
+        google_fonts_url=google_fonts_stylesheet_url(remote_font_families, include_defaults=False),
         slider_animations=SLIDER_ANIMATIONS,
         slider_foreground_positions=SLIDER_FOREGROUND_POSITIONS,
         slider_text_positions=SLIDER_TEXT_POSITIONS,

@@ -22,7 +22,7 @@ from macrosignage.extensions import csrf, db
 from ..admin.services import get_signage_settings
 from ..admin.services import get_content_version
 from ..media.forms import MEDIA_TYPES, font_choice_map, google_fonts_stylesheet_url, youtube_video_id
-from ..media.services import list_active_fonts, vcard_payload
+from ..media.services import font_stylesheet_paths, list_active_fonts, vcard_payload
 from .forms import DISPLAY_ORIENTATIONS, DISPLAY_STATUSES, display_form_data
 from .models import Display
 from .services import (
@@ -373,6 +373,7 @@ def show_display_player(display_id: int):
                 font_choices.setdefault(slide.text_font_family, slide.text_font_family)
         elif media.media_type == "NEON_SIGN" and media.neon_font_family:
             font_choices.setdefault(media.neon_font_family, media.neon_font_family)
+    local_font_paths, remote_font_families = font_stylesheet_paths(font_choices)
     return render_template(
         "displays/player.html",
         title=display.name,
@@ -382,7 +383,10 @@ def show_display_player(display_id: int):
         default_duration=default_duration,
         next_schedule_refresh_at=next_schedule_refresh_at,
         google_font_families=font_choices,
-        google_fonts_url=google_fonts_stylesheet_url(font_choices),
+        local_font_stylesheet_urls=[
+            url_for("display_player.player_media_file", filename=path) for path in local_font_paths
+        ],
+        google_fonts_url=google_fonts_stylesheet_url(remote_font_families, include_defaults=False),
         media_types=MEDIA_TYPES,
         youtube_video_id=youtube_video_id,
         qr_code_svg=qr_code_svg,

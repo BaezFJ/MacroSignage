@@ -5,6 +5,7 @@ import unittest
 from datetime import datetime, timedelta, timezone
 from io import BytesIO
 from pathlib import Path
+from unittest.mock import patch
 
 from macrosignage.app import create_app
 from macrosignage.extensions import db
@@ -48,6 +49,12 @@ class SliderMediaTestCase(unittest.TestCase):
             "/auth/login",
             data={"identifier": "site-admin", "password": "password123"},
         )
+
+    def mark_font_downloaded(self, font):
+        slug = font.family.lower().replace(" ", "-")
+        font.local_css_path = f"fonts/{slug}/font.css"
+        font.download_status = "LOCAL"
+        font.download_error = None
 
     def tearDown(self):
         db.session.remove()
@@ -161,18 +168,20 @@ class SliderMediaTestCase(unittest.TestCase):
     def test_add_google_font_and_use_it_for_slider_media(self):
         display = self.create_display()
 
-        font_response = self.client.post(
-            "/admin/settings/fonts/new",
-            data={
-                "family": "Roboto Condensed",
-                "display_name": "Roboto Condensed",
-                "active": "on",
-            },
-            follow_redirects=False,
-        )
+        with patch("macrosignage.features.admin.routes.download_font_assets", side_effect=self.mark_font_downloaded):
+            font_response = self.client.post(
+                "/admin/settings/fonts/new",
+                data={
+                    "family": "Roboto Condensed",
+                    "display_name": "Roboto Condensed",
+                    "active": "on",
+                },
+                follow_redirects=False,
+            )
 
         self.assertEqual(font_response.status_code, 302)
-        self.assertIsNotNone(MediaFont.query.filter_by(family="Roboto Condensed").one_or_none())
+        font = MediaFont.query.filter_by(family="Roboto Condensed").one()
+        self.assertEqual(font.local_css_path, "fonts/roboto-condensed/font.css")
 
         form = self.client.get("/admin/media/new")
         self.assertEqual(form.status_code, 200)
@@ -207,7 +216,8 @@ class SliderMediaTestCase(unittest.TestCase):
 
         player = self.client.get(f"/displays/{display.id}/play")
         body = player.get_data(as_text=True)
-        self.assertIn("Roboto+Condensed", body)
+        self.assertIn("/displays/uploads/fonts/roboto-condensed/font.css", body)
+        self.assertNotIn("Roboto+Condensed", body)
         self.assertIn("font-family: 'Roboto Condensed', sans-serif; font-size: 88px;", body)
 
     def test_create_neon_sign_media_and_render_display_player(self):

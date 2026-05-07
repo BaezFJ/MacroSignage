@@ -1,7 +1,13 @@
+import re
+import shutil
 from pathlib import Path
+from urllib.error import URLError
+from urllib.parse import urlparse
+from urllib.request import Request, urlopen
 from uuid import uuid4
 
 from flask import current_app
+from slugify import slugify
 from sqlalchemy import func, or_
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
@@ -9,6 +15,17 @@ from werkzeug.utils import secure_filename
 from macrosignage.extensions import db
 
 from .models import DEFAULT_GOOGLE_FONT_FAMILIES, MediaAsset, MediaFont, MediaSlide
+
+FONT_URL_PATTERN = re.compile(r"url\((['\"]?)(https://fonts\.gstatic\.com/[^)'\"\s]+)\1\)")
+FONT_STORAGE_ROOT = "fonts"
+GOOGLE_FONT_CSS_USER_AGENT = (
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/120.0 Safari/537.36"
+)
+
+
+class FontDownloadError(RuntimeError):
+    pass
 
 
 def count_media() -> int:
@@ -46,6 +63,105 @@ def get_font(font_id: int) -> MediaFont:
     return db.get_or_404(MediaFont, font_id)
 
 
+def font_storage_slug(family: str) -> str:
+    return slugify(family, separator="-") or secure_filename(family).lower() or uuid4().hex
+
+
+def font_storage_folder(family: str) -> Path:
+    return Path(current_app.config["MEDIA_UPLOAD_FOLDER"]) / FONT_STORAGE_ROOT / font_storage_slug(family)
+
+
+def fetch_font_url(url: str) -> bytes:
+    request = Request(url, headers={"User-Agent": GOOGLE_FONT_CSS_USER_AGENT})
+    try:
+        with urlopen(request, timeout=15) as response:
+            return response.read()
+    except URLError as exc:
+        raise FontDownloadError(str(exc)) from exc
+
+
+def google_font_stylesheet_for_family(family: str) -> str:
+    from .forms import google_fonts_stylesheet_url
+
+    return google_fonts_stylesheet_url([family])
+
+
+def downloaded_font_filename(url: str, index: int) -> str:
+    parsed_name = Path(urlparse(url).path).name
+    filename = secure_filename(parsed_name) or f"font-{index}.woff2"
+    if "." not in filename:
+        filename = f"{filename}.woff2"
+    return f"{index}-{filename}"
+
+
+def download_font_assets(font: MediaFont) -> None:
+    target_folder = font_storage_folder(font.family)
+    temp_folder = target_folder.with_name(f".{target_folder.name}-{uuid4().hex}")
+    css_url = google_font_stylesheet_for_family(font.family)
+
+    try:
+        temp_folder.mkdir(parents=True, exist_ok=False)
+        css = fetch_font_url(css_url).decode("utf-8")
+        replacements: dict[str, str] = {}
+
+        for index, match in enumerate(FONT_URL_PATTERN.finditer(css), start=1):
+            remote_url = match.group(2)
+            if remote_url in replacements:
+                continue
+            filename = downloaded_font_filename(remote_url, index)
+            (temp_folder / filename).write_bytes(fetch_font_url(remote_url))
+            replacements[remote_url] = filename
+
+        if not replacements:
+            raise FontDownloadError("Google Fonts returned no font files for this family.")
+
+        for remote_url, filename in replacements.items():
+            css = css.replace(remote_url, filename)
+        (temp_folder / "font.css").write_text(css, encoding="utf-8")
+
+        if target_folder.exists():
+            shutil.rmtree(target_folder)
+        temp_folder.rename(target_folder)
+    except Exception as exc:
+        shutil.rmtree(temp_folder, ignore_errors=True)
+        if isinstance(exc, FontDownloadError):
+            raise
+        raise FontDownloadError(str(exc)) from exc
+
+    font.local_css_path = f"{FONT_STORAGE_ROOT}/{target_folder.name}/font.css"
+    font.download_status = "LOCAL"
+    font.download_error = None
+
+
+def delete_font_assets(font: MediaFont) -> None:
+    if not font.local_css_path:
+        return
+    media_root = Path(current_app.config["MEDIA_UPLOAD_FOLDER"]).resolve()
+    font_folder = (media_root / Path(font.local_css_path).parent).resolve()
+    if media_root not in font_folder.parents or font_folder.name.startswith("."):
+        return
+    shutil.rmtree(font_folder, ignore_errors=True)
+
+
+def font_stylesheet_paths(font_families) -> tuple[list[str], list[str]]:
+    families = list(dict.fromkeys(font_families))
+    if not families:
+        return [], []
+
+    fonts = db.session.scalars(db.select(MediaFont).where(MediaFont.family.in_(families))).all()
+    fonts_by_family = {font.family: font for font in fonts}
+    local_paths: list[str] = []
+    remote_families: list[str] = []
+
+    for family in families:
+        font = fonts_by_family.get(family)
+        if font and font.local_css_path:
+            local_paths.append(font.local_css_path)
+        else:
+            remote_families.append(family)
+    return local_paths, remote_families
+
+
 def apply_font_data(font: MediaFont, form_data: dict[str, object]) -> None:
     font.family = str(form_data["family"])
     font.display_name = str(form_data["display_name"])
@@ -60,7 +176,14 @@ def font_conflict_errors(font: MediaFont, errors: dict[str, str]) -> None:
 
 
 def font_usage_count(family: str) -> int:
-    return db.session.scalar(db.select(func.count(MediaSlide.id)).where(MediaSlide.text_font_family == family)) or 0
+    slide_count = db.session.scalar(db.select(func.count(MediaSlide.id)).where(MediaSlide.text_font_family == family)) or 0
+    neon_count = db.session.scalar(
+        db.select(func.count(MediaAsset.id)).where(
+            MediaAsset.media_type == "NEON_SIGN",
+            MediaAsset.neon_font_family == family,
+        )
+    ) or 0
+    return slide_count + neon_count
 
 
 def list_media(search_query: str = "", selected_type: str = "") -> list[MediaAsset]:

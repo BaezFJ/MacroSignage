@@ -350,6 +350,15 @@ class AppConfigTestCase(unittest.TestCase):
                     created_at DATETIME NOT NULL,
                     updated_at DATETIME NOT NULL
                 );
+                CREATE TABLE media_fonts (
+                    id INTEGER PRIMARY KEY,
+                    family VARCHAR(80) NOT NULL,
+                    display_name VARCHAR(120) NOT NULL,
+                    provider VARCHAR(24) NOT NULL,
+                    active BOOLEAN NOT NULL,
+                    created_at DATETIME NOT NULL,
+                    updated_at DATETIME NOT NULL
+                );
                 CREATE TABLE signage_settings (
                     id INTEGER PRIMARY KEY,
                     created_at DATETIME NOT NULL,
@@ -393,6 +402,14 @@ class AppConfigTestCase(unittest.TestCase):
                 (created_at, created_at),
             )
             connection.execute(
+                """
+                INSERT INTO media_fonts (
+                    id, family, display_name, provider, active, created_at, updated_at
+                ) VALUES (1, 'Legacy Font', 'Legacy Font', 'GOOGLE', 1, ?, ?)
+                """,
+                (created_at, created_at),
+            )
+            connection.execute(
                 "INSERT INTO signage_settings (id, created_at, updated_at) VALUES (1, ?, ?)",
                 (created_at, created_at),
             )
@@ -412,6 +429,7 @@ class AppConfigTestCase(unittest.TestCase):
             display_columns = {column["name"] for column in inspector.get_columns("displays")}
             schedule_columns = {column["name"] for column in inspector.get_columns("schedules")}
             slide_columns = {column["name"] for column in inspector.get_columns("media_slides")}
+            font_columns = {column["name"] for column in inspector.get_columns("media_fonts")}
             settings_columns = {column["name"] for column in inspector.get_columns("signage_settings")}
 
             self.assertTrue(
@@ -453,6 +471,7 @@ class AppConfigTestCase(unittest.TestCase):
                     "text_animation",
                 }.issubset(slide_columns)
             )
+            self.assertTrue({"local_css_path", "download_status", "download_error"}.issubset(font_columns))
             self.assertTrue(
                 {
                     "logo_enabled",
