@@ -19,6 +19,7 @@ build = [
 
 [project.scripts]
 macrosignage-client = "macrosignage_client.app:main"
+macrosignage-kiosk = "macrosignage_client.kiosk:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
